@@ -1,0 +1,5 @@
+{"textDocument": {"uri": "file:///12369.lean"},
+ "position": {"line": 1, "character": 35}}
+{"range":
+ {"start": {"line": 1, "character": 30}, "end": {"line": 1, "character": 75}},
+ "goal": "b : Nat\n⊢ 0 ≤ b + 1"}

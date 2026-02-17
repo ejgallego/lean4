@@ -1,0 +1,10 @@
+{"textDocument": {"uri": "file:///12369More.lean"},
+ "position": {"line": 1, "character": 41}}
+{"range":
+ {"start": {"line": 1, "character": 31}, "end": {"line": 1, "character": 45}},
+ "goal": "b : Nat\nhb : 0 ≤ b + 1\n⊢ 0 ≤ b + 1"}
+{"textDocument": {"uri": "file:///12369More.lean"},
+ "position": {"line": 6, "character": 34}}
+{"range":
+ {"start": {"line": 6, "character": 30}, "end": {"line": 6, "character": 35}},
+ "goal": "b : Nat\nhyp : 0 ≤ b + 1\n⊢ 0 ≤ b + 1"}
