@@ -397,17 +397,25 @@ def withoutCommandIncrementality (cond : Bool) (act : CommandElabM α) : Command
     return !cond
   }) act
 
-private def elabCommandUsing (s : State) (stx : Syntax) : List (KeyedDeclsAttribute.AttributeEntry CommandElab) → CommandElabM Unit
-  | []                => withInfoTreeContext (mkInfoTree := mkInfoTree `no_elab stx) <| throwError "unexpected syntax{indentD stx}"
-  | (elabFn::elabFns) =>
+private def elabCommandUsing (s : State) (stx : Syntax) (allowIncrementality : Bool := true) :
+    List (KeyedDeclsAttribute.AttributeEntry CommandElab) → CommandElabM Unit
+  | [] => withInfoTreeContext (mkInfoTree := mkInfoTree `no_elab stx) <| throwError "unexpected syntax{indentD stx}"
+  | (elabFn::elabFns) => do
+    let isIncremental ← isIncrementalElab elabFn.declName
+    let allowIncrementality := allowIncrementality && isIncremental
     catchInternalId unsupportedSyntaxExceptionId
       (do
+        if !isIncremental then
+          (← read).snap?.bind (·.old?) |>.forM (·.val.cancelRec)
         -- prevent unsupported commands from accidentally accessing `Context.snap?` (e.g. by nested
-        -- supported commands)
-        withoutCommandIncrementality (!(← isIncrementalElab elabFn.declName)) do
+        -- supported commands); once a non-incremental candidate has cancelled old snapshots, we must
+        -- keep reuse disabled for all following fallback candidates
+        withoutCommandIncrementality (!allowIncrementality) do
         withInfoTreeContext (mkInfoTree := mkInfoTree elabFn.declName stx) do
          elabFn.value stx)
-      (fun _ => do set s; elabCommandUsing s stx elabFns)
+      (fun _ => do
+        set s
+        elabCommandUsing s stx (allowIncrementality := allowIncrementality) elabFns)
 
 /-- Elaborate `x` with `stx` on the macro stack -/
 def withMacroExpansion (beforeStx afterStx : Syntax) (x : CommandElabM α) : CommandElabM α :=
@@ -529,7 +537,7 @@ where go := do
           | []      =>
             withInfoTreeContext (mkInfoTree := mkInfoTree `no_elab stx) <|
               throwError "elaboration function for `{k}` has not been implemented"
-          | elabFns => elabCommandUsing s stx elabFns
+          | elabFns => elabCommandUsing s stx (allowIncrementality := true) elabFns
     | _ =>
       withInfoTreeContext (mkInfoTree := mkInfoTree `no_elab stx) <|
         throwError "unexpected command"

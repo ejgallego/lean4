@@ -280,19 +280,28 @@ where
               evalTactic stx'
         catch ex => handleEx s failures ex (expandEval s ms evalFns)
 
-    eval (s : SavedState) (evalFns : List _) (failures : Array EvalTacticFailure) : TacticM Unit := do
+    eval (s : SavedState) (evalFns : List _) (failures : Array EvalTacticFailure)
+        (allowIncrementality : Bool := true) : TacticM Unit := do
       match evalFns with
       | []              => throwExs failures
       | evalFn::evalFns => do
+        let isIncremental ← isIncrementalElab evalFn.declName
+        let allowIncrementality := allowIncrementality && isIncremental
         try
+          if !isIncremental then
+            (← readThe Term.Context).tacSnap?.bind (·.old?) |>.forM (·.val.cancelRec)
           -- prevent unsupported tactics from accidentally accessing `Term.Context.tacSnap?`
-          Term.withoutTacticIncrementality (!(← isIncrementalElab evalFn.declName)) do
+          -- and keep reuse disabled in fallback candidates after a non-incremental one cancelled old
+          -- snapshots
+          Term.withoutTacticIncrementality (!allowIncrementality) do
           withReader ({ · with elaborator := evalFn.declName }) do
           withTacticInfoContext stx do
             evalFn.value stx
             if !evalFn.isBuiltin then
               recordExtraModUseFromDecl (isMeta := true) evalFn.declName
-        catch ex => handleEx s failures ex (eval s evalFns)
+        catch ex =>
+          handleEx s failures ex fun failures =>
+            eval s evalFns failures (allowIncrementality := allowIncrementality)
 
 def throwNoGoalsToBeSolved : TacticM α :=
   throwError "No goals to be solved"

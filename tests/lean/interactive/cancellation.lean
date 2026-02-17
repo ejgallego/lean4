@@ -183,3 +183,31 @@ theorem t1 : True := (by
     -- (should never print "blocked")
   wait_for_main_cancel_once_async
   trivial)
+
+-- RESET
+import Lean.Server.Test.Cancel
+open Lean.Server.Test.Cancel
+
+/-!
+Editing a non-incremental command should cancel the previous elaboration of the same command.
+-/
+#wait_noninc_cancel_once 0
+                       --^ waitFor: blocked
+                       --^ change: "0" "1"
+                       --^ collectDiagnostics
+                       -- (should never print "blocked" twice)
+
+-- RESET
+import Lean.Server.Test.Cancel
+open Lean.Server.Test.Cancel
+
+/-!
+Editing a non-incremental tactic should cancel the previous elaboration of the same tactic.
+-/
+example : True := by
+  wait_noninc_cancel_once 0
+                        --^ waitFor: blocked
+                        --^ change: "0" "1"
+                        --^ collectDiagnostics
+                        -- (should never print "blocked" twice)
+  trivial

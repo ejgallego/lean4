@@ -7,6 +7,7 @@ Authors: Sebastian Ullrich
 module
 
 prelude
+public meta import Lean.Elab.Command
 public import Lean.Elab.Tactic.Basic
 public meta import Lean.Elab.Tactic.Basic
 
@@ -57,6 +58,65 @@ elab_rules : tactic
   log "cancelled (should never be visible)"
   prom.resolve ()
   Core.checkInterrupted
+
+syntax (name := waitForNonIncrementalCancelOnceCmd)
+  "#wait_noninc_cancel_once" num : command
+
+/--
+Like `wait_for_cancel_once`, but for a non-incremental command elaborator.
+-/
+elab_rules : command
+| `(#wait_noninc_cancel_once $n:num) => do
+  let _ := n
+  let prom ← IO.Promise.new
+  if let some t := (← onceRef.modifyGet (fun old => (old, old.getD prom.result!))) then
+    IO.wait t
+    return
+
+  let some cancelTk := (← read).cancelTk? | unreachable!
+  let act ← Lean.Elab.Command.wrapAsyncAsSnapshot (cancelTk? := none) fun _ => do
+    -- TODO: `CancelToken` should probably use `Promise`
+    while true do
+      if (← cancelTk.isSet) then
+        break
+      IO.sleep 30
+    IO.eprintln "cancelled!"
+    log "cancelled (should never be visible)"
+    prom.resolve ()
+  let t ← BaseIO.asTask (act ())
+  Lean.Elab.Command.logSnapshotTask { stx? := none, task := t, cancelTk? := cancelTk }
+
+  dbg_trace "blocked!"
+  log "blocked"
+
+scoped syntax "wait_noninc_cancel_once" num : tactic
+
+/--
+Like `wait_for_cancel_once`, but for a non-incremental tactic elaborator.
+-/
+elab_rules : tactic
+| `(tactic| wait_noninc_cancel_once $n:num) => do
+  let _ := n
+  let prom ← IO.Promise.new
+  if let some t := (← onceRef.modifyGet (fun old => (old, old.getD prom.result!))) then
+    IO.wait t
+    return
+
+  let some cancelTk := (← readThe Core.Context).cancelTk? | unreachable!
+  let act ← Elab.Term.wrapAsyncAsSnapshot (cancelTk? := none) fun _ => do
+    -- TODO: `CancelToken` should probably use `Promise`
+    while true do
+      if (← cancelTk.isSet) then
+        break
+      IO.sleep 30
+    IO.eprintln "cancelled!"
+    log "cancelled (should never be visible)"
+    prom.resolve ()
+  let t ← BaseIO.asTask (act ())
+  Core.logSnapshotTask { stx? := none, task := t, cancelTk? := cancelTk }
+
+  dbg_trace "blocked!"
+  log "blocked"
 
 -- can't use a naked promise in `initialize` as marking it persistent would block
 meta initialize unblockedCancelTk : IO.CancelToken ← IO.CancelToken.new
