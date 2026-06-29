@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lake.Config.FacetConfig
+public import Lake.Config.Workspace
 public import Lake.Build.Job.Monad
 public import Lake.Build.Infos
 import Lean.Elab.ParseImportsFast
@@ -226,6 +227,28 @@ structure TransImportEntry where
   /-- Whether this module has been transitively imported by a `meta import`. -/
   needsMeta : Bool
 
+/--
+For each package in the workspace, locate the buildable local provider for an import and pair it
+with the import syntax.
+-/
+public def Workspace.findModuleImports (ws : Workspace) (imp : Import) : Array ModuleImport :=
+  ws.findModules imp.module |>.map fun mod =>
+    { imp with module? := some mod }
+
+/--
+Returns the artifacts directly required by a single import of a local module.
+
+Non-module files and `import all` need the wider import-artifact facet; ordinary module-system
+imports need only the public module artifacts.
+-/
+public def ModuleImport.fetchDirectArtifacts
+    (imp : ModuleImport) (nonModule : Bool) : Option (FetchM (Job ImportArtifacts)) :=
+  imp.module?.map fun mod =>
+    if nonModule || imp.importAll then
+      mod.importAllArts.fetch
+    else
+      mod.importArts.fetch
+
 partial def fetchTransImportArts
   (directImports : Array ModuleImport) (directArts : NameMap ImportArtifacts) (nonModule : Bool)
 : FetchM (NameMap ImportArtifacts) := do
@@ -386,7 +409,7 @@ def fetchImportInfo
     if modName = imp.module then
       logError s!"{fileName}: module imports itself"
       return .error
-    let mods ← findModules imp.module
+    let mods := (← getWorkspace).findModuleImports imp |>.filterMap (·.module?)
     if nonModule && !allowNonModules then
       if let some mod := mods.find? (·.requiresModuleSystem) then
         if pkgName == mod.pkg.keyName then

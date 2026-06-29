@@ -45,6 +45,8 @@ When the user has two or more files in a single dependency chain open, it is des
 
 In Lean 4, the situation is different as `.olean` artifacts are required to exist for all imported modules -- one cannot import a `.lean` file without compiling it first. In the running example, when a user opens and edits `A`, nothing is going to happen to `B`. They can continue to interact with it as if `A` kept its previous contents. But when `A` is saved with changes, users can then issue the "refresh file dependencies" command in their editor, which will restart the respective worker and use `lake setup-file` to rebuild and locate its dependencies. This being a conscious action, users will be aware of having to then wait for compilation.
 
+When a worker is in no-build mode and direct imports are stale, request handlers can inspect the structured stale direct import metadata using `RequestM.getStaleImports`.
+
 ### Worker architecture
 
 The actual processing of the opened file is left to the `Lean.Language.Lean` processor.

@@ -65,3 +65,7 @@ def main : IO Unit := do
   let got ← RequestM.runInIO RequestM.getStaleImports rc
   if got.directImports.map (·.module) != #[`SaveSmoke.B] then
     throw <| IO.userError s!"unexpected stale imports: {repr got}"
+  core.setStaleImports {}
+  let got ← RequestM.runInIO RequestM.getStaleImports rc
+  unless got.directImports.isEmpty do
+    throw <| IO.userError s!"expected stale imports to be cleared: {repr got}"

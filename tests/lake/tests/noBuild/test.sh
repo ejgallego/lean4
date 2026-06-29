@@ -15,6 +15,8 @@ test_err "Building Test" setup-file ImportTest.lean --no-build
 test_status $NO_BUILD_CODE setup-file ImportTest.lean --no-build > produced.out 2>&1
 match_text '"directImports"' produced.out
 match_text '"module":"Test"' produced.out
+match_text '"sourcePath":' produced.out
+match_text '"oleanPath":' produced.out
 test_exp ! -d .lake/build
 test_exp ! -f .lake/build/lib/lean/Test.olean
 test_run build Test
@@ -37,6 +39,8 @@ EOF
 test_status $NO_BUILD_CODE setup-file ImportTest.lean --no-build > produced.out 2>&1
 match_text '"directImports"' produced.out
 match_text '"module":"Test"' produced.out
+match_text '"sourcePath":' produced.out
+match_text '"oleanPath":' produced.out
 test_run build Test
 
 # Test `--no-build` for file builds (`buildFileUnlessUpToDate`)

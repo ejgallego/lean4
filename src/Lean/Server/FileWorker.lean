@@ -416,14 +416,17 @@ def setupImports
         : Language.Lean.HeaderProcessedSnapshot
       }
     | .error msg =>
+      staleImportsRef.set {}
       return .error {
         diagnostics := (← diagnosticsOfHeaderError msg)
         result? := none
         metaSnap := default
       }
     | .noLakefile =>
+      staleImportsRef.set {}
       pure { name := doc.mod, isModule := header.isModule }
     | .success setup =>
+      staleImportsRef.set {}
       pure setup
 
   -- override cmdline options with file options

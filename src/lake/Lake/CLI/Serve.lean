@@ -45,17 +45,12 @@ private def staleImportOfModule (mod : Module) : StaleImport where
   sourcePath? := some mod.leanFile
   oleanPath? := some mod.oleanFile
 
-private def fetchDirectImportArtifacts
-    (nonModule : Bool) (imp : Import) (mod : Module) : FetchM (Job ImportArtifacts) := do
-  if nonModule || imp.importAll then
-    mod.importAllArts.fetch
-  else
-    mod.importArts.fetch
-
 private def directImportWantsRebuild
-    (ws : Workspace) (nonModule : Bool) (imp : Import) (mod : Module)
+    (ws : Workspace) (nonModule : Bool) (imp : ModuleImport)
     (buildConfig : BuildConfig) : BaseIO Bool := do
-  let result ← ws.checkNoBuildInfo (fetchDirectImportArtifacts nonModule imp mod)
+  let some fetchArtifacts := imp.fetchDirectArtifacts nonModule
+    | return false
+  let result ← ws.checkNoBuildInfo fetchArtifacts
     (cfg := buildConfig)
   return result.wantsRebuild
 
@@ -79,13 +74,11 @@ private def collectStaleDirectImports
   let mut directImports := #[]
   for imp in header.imports do
     unless directImports.any (·.module == imp.module) do
-      let mut staleImport? := none
-      for mod in ws.findModules imp.module do
-        if staleImport?.isNone then
-          if ← directImportWantsRebuild ws nonModule imp mod buildConfig then
-            staleImport? := some <| staleImportOfModule mod
-      if let some staleImport := staleImport? then
-        directImports := directImports.push staleImport
+      for moduleImport in ws.findModuleImports imp do
+        unless directImports.any (·.module == imp.module) do
+          if ← directImportWantsRebuild ws nonModule moduleImport buildConfig then
+            if let some mod := moduleImport.module? then
+              directImports := directImports.push <| staleImportOfModule mod
   return {directImports}
 
 /--
