@@ -73,9 +73,19 @@ structure EditableDocumentCore where
   cmdSnaps : AsyncList IO.Error Snapshot := private_decl% mkCmdSnaps initSnap
   /-- Per-version diagnostics state, protected by a mutex. -/
   diagnosticsMutex : Std.Mutex DiagnosticsState
+  /-- Stale direct imports reported while setting up this document. -/
+  staleImportsRef : IO.Ref StaleImports
 
 namespace EditableDocumentCore
 open Widget
+
+/-- Returns stale direct imports reported while setting up this document. -/
+def getStaleImports (doc : EditableDocumentCore) : BaseIO StaleImports :=
+  doc.staleImportsRef.get
+
+/-- Updates stale direct imports reported while setting up this document. -/
+def setStaleImports (doc : EditableDocumentCore) (staleImports : StaleImports) : BaseIO Unit :=
+  doc.staleImportsRef.set staleImports
 
 /-- Appends new non-sticky diagnostics. -/
 def appendDiagnostics (doc : EditableDocumentCore) (diags : Array InteractiveDiagnostic) :
@@ -114,7 +124,12 @@ def update (doc : EditableDocumentCore) (newMeta : DocumentMeta)
   let stickyDiagsRef ← doc.diagnosticsMutex.atomically do
     return (← get).stickyDiagsRef
   let diagnosticsMutex ← Std.Mutex.new { stickyDiagsRef }
-  return { «meta» := newMeta, initSnap := newInitSnap, diagnosticsMutex }
+  return {
+    «meta» := newMeta
+    initSnap := newInitSnap
+    diagnosticsMutex
+    staleImportsRef := doc.staleImportsRef
+  }
 
 /--
 Collects diagnostics for a `textDocument/publishDiagnostics` notification, updates

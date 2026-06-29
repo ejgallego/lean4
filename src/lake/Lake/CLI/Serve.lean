@@ -9,6 +9,7 @@ prelude
 public import Lake.Load.Config
 public import Lake.Build.Context
 public import Lake.Util.Exit
+import Lean.Elab.ParseImportsFast
 import Lake.Build.Run
 import Lake.Build.Module
 import Lake.Load.Package
@@ -29,6 +30,63 @@ Environment variable that is set when `lake serve` cannot parse the Lake configu
 and falls back to plain `lean --server`.
 -/
 public def invalidConfigEnvVar := "LAKE_INVALID_CONFIG"
+
+private def parseSetupFileHeader? (leanFile path : FilePath) (header? : Option ModuleHeader) :
+    BaseIO (Option ModuleHeader) := do
+  if let some header := header? then
+    return some header
+  else
+    match ← (do Lean.parseImports' (← IO.FS.readFile path) leanFile.toString).toBaseIO with
+    | .ok header => return some header
+    | .error _ => return none
+
+private def staleImportOfModule (mod : Module) : StaleImport where
+  module := mod.name
+  sourcePath? := some mod.leanFile
+  oleanPath? := some mod.oleanFile
+
+private def fetchDirectImportArtifacts
+    (nonModule : Bool) (imp : Import) (mod : Module) : FetchM (Job ImportArtifacts) := do
+  if nonModule || imp.importAll then
+    mod.importAllArts.fetch
+  else
+    mod.importArts.fetch
+
+private def directImportWantsRebuild
+    (ws : Workspace) (nonModule : Bool) (imp : Import) (mod : Module)
+    (buildConfig : BuildConfig) : BaseIO Bool := do
+  let result ← ws.checkNoBuildInfo (fetchDirectImportArtifacts nonModule imp mod)
+    (cfg := buildConfig)
+  return result.wantsRebuild
+
+private def quietBuildConfig (buildConfig : BuildConfig) : BaseIO BuildConfig := do
+  let outputRef ← IO.mkRef { : IO.FS.Stream.Buffer }
+  return {
+    buildConfig with
+    out := IO.FS.Stream.ofBuffer outputRef
+    ansiMode := .noAnsi
+    showSuccess := false
+    verbosity := .quiet
+  }
+
+private def collectStaleDirectImports
+    (ws : Workspace) (leanFile path : FilePath) (header? : Option ModuleHeader)
+    (buildConfig : BuildConfig) : BaseIO StaleImports := do
+  let some header ← parseSetupFileHeader? leanFile path header?
+    | return {}
+  let buildConfig ← quietBuildConfig buildConfig
+  let nonModule := !header.isModule
+  let mut directImports := #[]
+  for imp in header.imports do
+    unless directImports.any (·.module == imp.module) do
+      let mut staleImport? := none
+      for mod in ws.findModules imp.module do
+        if staleImport?.isNone then
+          if ← directImportWantsRebuild ws nonModule imp mod buildConfig then
+            staleImport? := some <| staleImportOfModule mod
+      if let some staleImport := staleImport? then
+        directImports := directImports.push staleImport
+  return {directImports}
 
 /--
 Build the dependencies of a Lean file and print the computed module's setup as JSON.
@@ -63,6 +121,14 @@ public def setupFile
     let some ws ← loadWorkspace loadConfig |>.toBaseIO buildConfig.toLogConfig
       | eprint! "Failed to load the Lake workspace.\n"
         return 1
+    if buildConfig.noBuild then
+      let noBuild ← ws.checkNoBuildInfo (setupServerModule leanFile.toString path header?)
+        (cfg := buildConfig)
+      unless noBuild.isUpToDate do
+        if noBuild.wantsRebuild then
+          let staleImports ← collectStaleDirectImports ws leanFile path header? buildConfig
+          discard <| print! (toJson staleImports).compress
+          return noBuildCode
     let setup := ws.runBuild (cfg := buildConfig) do
       setupServerModule leanFile.toString path header?
     match (← setup.toBaseIO) with

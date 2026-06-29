@@ -274,6 +274,13 @@ public def monitorJobs
 /-- Exit code to return if `--no-build` is set and a build is required. -/
 public def noBuildCode : ExitCode := 3
 
+/-- Result of checking a build with `--no-build`. -/
+public structure NoBuildCheckResult where
+  /-- Whether the build target is already up-to-date. -/
+  isUpToDate : Bool
+  /-- Whether the target reported that it would need a rebuild. -/
+  wantsRebuild : Bool
+
 def Workspace.saveOutputs
   [logger : MonadLog BaseIO] (ws : Workspace) (outputsRef? : Option CacheRef)
   (out : IO.FS.Stream) (outputsFile : FilePath) (isVerbose : Bool)
@@ -398,20 +405,29 @@ def monitorBuild (mctx : MonitorContext) (job : Job (Job α)) : BaseIO (BuildRes
     return {result with out := .error e}
 
 /--
-Returns whether a build is needed to validate `build`. Does not report on the attempted build.
-
-This is equivalent to checking whether `lake build --no-build` exits with code 0.
+Checks a build using `--no-build` with the supplied build configuration.
+Returns whether the target is up-to-date and whether any job wanted a rebuild.
 -/
-public def Workspace.checkNoBuild
-  (ws : Workspace) (build : FetchM (Job α))
-: BaseIO Bool := do
+public def Workspace.checkNoBuildInfo
+  (ws : Workspace) (build : FetchM (Job α)) (cfg : BuildConfig := {})
+: BaseIO NoBuildCheckResult := do
   let jobs ← mkJobQueue
-  let cfg := {noBuild := true}
+  let cfg := {cfg with noBuild := true}
   let mctx ← mkMonitorContext cfg jobs
   let bctx ← mkBuildContext' ws cfg jobs
   let job ← startBuild bctx build
   let result ← monitorBuild mctx job
-  return result.isOk -- `isOk` means no failures, and thus no `--no-build` failures
+  return { isUpToDate := result.isOk, wantsRebuild := result.wantsRebuild }
+
+/--
+Returns whether a build is needed to validate `build`.
+
+This is equivalent to checking whether `lake build --no-build` exits with code 0.
+-/
+public def Workspace.checkNoBuild
+  (ws : Workspace) (build : FetchM (Job α)) (cfg : BuildConfig := {})
+: BaseIO Bool := do
+  return (← ws.checkNoBuildInfo build cfg).isUpToDate
 
 /-- Run a build function in the Workspace's context and await the result. -/
 public def Workspace.runBuild

@@ -258,6 +258,11 @@ def readDoc [Monad m] [MonadReaderOf RequestContext m] : m EditableDocument := d
   let rc ← readThe RequestContext
   return rc.doc
 
+/-- Returns stale direct imports reported while setting up the current document. -/
+def getStaleImports : RequestM StaleImports := do
+  let doc ← readDoc
+  doc.getStaleImports
+
 def asTask (t : RequestM α) : RequestM (RequestTask α) := do
   let rc ← readThe RequestContext
   ServerTask.EIO.asTask <| t.run rc

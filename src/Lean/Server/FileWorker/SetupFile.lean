@@ -63,9 +63,14 @@ inductive FileSetupResult where
   /-- No Lake project found, no setup was done. -/
   | noLakefile
   /-- Imports must be rebuilt but `--no-build` was specified. -/
-  | importsOutOfDate
+  | importsOutOfDate (staleImports : StaleImports)
   /-- Other error during Lake invocation. -/
   | error (msg : String)
+
+private def parseStaleImports (stdout : String) : StaleImports :=
+  match Json.parse stdout >>= fromJson? with
+  | .ok staleImports => staleImports
+  | .error _ => {}
 
 /-- Uses `lake setup-file` to compile dependencies on the fly and add them to `LEAN_PATH`.
 Compilation progress is reported to `handleStderr`. Returns the search path for
@@ -91,6 +96,6 @@ partial def setupFile (m : DocumentMeta) (header : ModuleHeader) (handleStderr :
   | 2 => -- exit code for lake reporting that there is no lakefile
     return FileSetupResult.noLakefile
   | 3 => -- exit code for `--no-build`
-    return FileSetupResult.importsOutOfDate
+    return FileSetupResult.importsOutOfDate (parseStaleImports result.stdout)
   | _ =>
     return FileSetupResult.error s!"`{cmdStr}` failed:\n{result.stdout}\nstderr:\n{result.stderr}"

@@ -62,6 +62,22 @@ structure ModuleHeader where
   isModule : Bool
   deriving Repr, Inhabited, ToJson, FromJson
 
+/-- A direct import whose imported artifacts are stale. -/
+structure StaleImport where
+  /-- The imported module. -/
+  module : Name
+  /-- The imported module's source file, if known. -/
+  sourcePath? : Option System.FilePath := none
+  /-- The imported module's public {lit}`.olean` file, if known. -/
+  oleanPath? : Option System.FilePath := none
+  deriving Repr, Inhabited, ToJson, FromJson
+
+/-- Stale direct imports of the current document. -/
+structure StaleImports where
+  /-- Direct imports whose imported artifacts are stale. -/
+  directImports : Array StaleImport := #[]
+  deriving Repr, Inhabited, ToJson, FromJson
+
 /--
 Module data files used for an {lit}`import` statement.
 This structure is designed for efficient JSON serialization.

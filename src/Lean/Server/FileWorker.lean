@@ -374,6 +374,7 @@ def setupImports
     (doc         : DocumentMeta)
     (cmdlineOpts : Options)
     (chanOut     : Std.Channel OutputMessage)
+    (staleImportsRef : IO.Ref StaleImports)
     (stx         : Elab.HeaderSyntax)
     : Language.ProcessingT IO (Except Language.Lean.HeaderProcessedSnapshot SetupImportsResult) := do
   let importsAlreadyLoaded ← importsLoadedRef.modifyGet ((·, true))
@@ -396,7 +397,7 @@ def setupImports
       message    := stderrLine
     }
     chanOut.sync.send <| .ofMsg <| mkPublishDiagnosticsNotification doc #[progressDiagnostic]
-  let isSetupError := fileSetupResult matches .importsOutOfDate
+  let isSetupError := fileSetupResult matches .importsOutOfDate ..
     || fileSetupResult matches .error ..
   chanOut.sync.send <| .ofMsg <|
     mkIleanHeaderSetupInfoNotification doc (collectImports stx) isSetupError
@@ -404,7 +405,8 @@ def setupImports
   chanOut.sync.send <| .ofMsg <| mkPublishDiagnosticsNotification doc #[]
   let setup ← do
     match fileSetupResult with
-    | .importsOutOfDate =>
+    | .importsOutOfDate staleImports =>
+      staleImportsRef.set staleImports
       return .error {
         diagnostics := (← Language.diagnosticsOfHeaderError
           "Imports are out of date and must be rebuilt; \
@@ -451,6 +453,7 @@ section Initialization
     let freshRequestIdRef ← IO.mkRef (0 : Int)
     let stickyDiagsRef ← IO.mkRef {}
     let pendingServerRequestsRef ← IO.mkRef ∅
+    let staleImportsRef ← IO.mkRef {}
     let chanOut ← mkLspOutputChannel maxDocVersionRef
     let timestamp ← IO.monoMsNow
     let partialHandlersRef ← IO.mkRef <| Std.TreeMap.ofArray (cmp := compare) <|
@@ -461,7 +464,7 @@ section Initialization
           -- Emit a refresh request after a file worker restart.
           pendingRefreshInfo? := some { lastRefreshTimestamp := timestamp, successiveRefreshAttempts := 0 }
         })
-    let processor := Language.Lean.process (setupImports doc opts chanOut)
+    let processor := Language.Lean.process (setupImports doc opts chanOut staleImportsRef)
     let processor ← Language.mkIncrementalProcessor processor
     let initSnap ← processor doc.mkInputContext
     let _ ← ServerTask.IO.asTask do
@@ -482,7 +485,7 @@ section Initialization
     }
     let diagnosticsMutex ← Std.Mutex.new { stickyDiagsRef }
     let doc : EditableDocumentCore := {
-      «meta» := doc, initSnap, diagnosticsMutex
+      «meta» := doc, initSnap, diagnosticsMutex, staleImportsRef
     }
     let reporterCancelTk ← CancelToken.new
     let reporter ← reportSnapshots ctx doc reporterCancelTk
