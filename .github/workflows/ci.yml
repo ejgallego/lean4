@@ -1,4 +1,5 @@
 name: CI
+run-name: "CI: Beam PR 300"
 on:
   push:
     branches:
@@ -9,16 +10,20 @@ on:
   merge_group:
   schedule:
     - cron: "0 7 * * *" # 8AM CET/11PM PT
-  # for manual re-release of a nightly
+  # Manual dispatch on this validation branch defaults to building test artifacts.
   workflow_dispatch:
     inputs:
       action:
         description: "Action"
         required: true
-        default: "release nightly"
+        default: "validate beam"
         type: choice
         options:
+          - validate beam
           - release nightly
+
+permissions:
+  contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
@@ -199,7 +204,12 @@ jobs:
           macos_arm=false
           target_stage=1
 
-          if [[ -n "${{ steps.set-release.outputs.RELEASE_TAG }}" || -n "${{ steps.set-release-custom.outputs.RELEASE_TAG }}" ]]; then
+          if [[ "${{ inputs.action }}" == "validate beam" ]]; then
+            test "$GITHUB_REPOSITORY" = ejgallego/lean4
+            test "$GITHUB_EVENT_NAME" = workflow_dispatch
+            test "$GITHUB_REF" = refs/heads/ci/lean-beam-pr300
+            check_level=3
+          elif [[ -n "${{ steps.set-release.outputs.RELEASE_TAG }}" || -n "${{ steps.set-release-custom.outputs.RELEASE_TAG }}" ]]; then
             check_level=3
           elif [[ -n "${{ steps.set-nightly.outputs.nightly }}" ]]; then
             check_level=2
@@ -241,6 +251,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Check self-hosted runner availability
+        if: github.repository == 'leanprover/lean4'
         id: runner-fallback
         uses: mikehardy/runner-fallback-action@dc7732f9e532c451b2527b288ba8d58fd4b0a4ca # v1.1.0
         with:
@@ -272,7 +283,7 @@ jobs:
             let large = ${{ github.repository == 'leanprover/lean4' }};
             const isPr = "${{ github.event_name }}" == "pull_request";
             const isPushToMaster = "${{ github.event_name }}" == "push" && "${{ github.ref_name }}" == "master";
-            const chonk = ${{ steps.runner-fallback.outputs.use-runner }};
+            const chonk = ${{ steps.runner-fallback.outputs.use-runner || '"ubuntu-latest"' }};
             let matrix = [
               /* TODO: to be updated to new LLVM
               {
@@ -444,6 +455,9 @@ jobs:
             // Stage that is built, tested and packed. Shipped (stamped) release builds use stage2.
             for (const job of matrix) {
               job["target-stage"] = (job["release"] && stamped) ? 2 : target_stage;
+            }
+            if ("${{ inputs.action }}" === "validate beam") {
+              matrix = matrix.filter((job) => job.release && !job.wasm);
             }
             if (lakeCi) {
               for (const job of matrix) {
