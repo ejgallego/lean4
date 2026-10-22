@@ -478,7 +478,7 @@ section ServerM
   def getWorkerState (fw : FileWorker) : ServerM WorkerState := do
     fw.state.atomically get
 
-  def errorPendingRequests (uri : DocumentUri) (code : ErrorCode) (msg : String)
+  def errorPendingRequests (uri : DocumentUri) (error : RequestError)
       : ServerM Unit := do
     let ctx ← read
     let pendingRequests ← ctx.requestData.atomically do
@@ -487,7 +487,7 @@ section ServerM
       set <| d.clearWorkerRequestData uri
       return pendingRequests
     for (id, _) in pendingRequests do
-      writeMessage { id := id, code := code, message := msg : ResponseError Unit }
+      writeMessage <| error.toLspResponseError id
 
   def eraseGetPendingRequest (uri : DocumentUri) (id : RequestID) : ServerM (Option (JsonRpc.Request Json)) := do
     let ctx ← read
@@ -899,8 +899,10 @@ section ServerM
     setWorkerState fw .terminating
     eraseFileWorker uri
     try
-      errorPendingRequests uri ErrorCode.contentModified
-        s!"The file worker for {uri} has been terminated."
+      errorPendingRequests uri {
+        code := .contentModified
+        message := s!"The file worker for {uri} has been terminated."
+      }
       -- Clear the diagnostics for this file so that stale errors
       -- do not remain in the editor forever.
       writeMessage <| mkPublishDiagnosticsNotification fw.doc #[]
@@ -1551,7 +1553,7 @@ section MainLoop
           code := errorCode
           message := s!"Server process for {uri} crashed, {errorCausePointer}."
         }
-        errorPendingRequests uri error.code error.message
+        errorPendingRequests uri error
         writeMessage <| mkFileProgressAtPosNotification doc 0 (kind := LeanFileProgressKind.fatalError)
         setWorkerState fw (.crashed error)
         mainLoop clientTask
