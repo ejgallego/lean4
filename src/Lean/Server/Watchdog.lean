@@ -93,7 +93,7 @@ section Utils
     | ioError (e : IO.Error)
 
   inductive WorkerState where
-    | crashed
+    | crashed (error : RequestError)
     | cannotWrite
     | terminating
     | running
@@ -921,14 +921,8 @@ section ServerM
       | return
     let workerState ← getWorkerState fw
     if let some req := JsonRpc.Request.ofMessage? msg then
-      if workerState matches .crashed then
-        let exitCode ← fw.waitForProc
-        writeMessage {
-          id := req.id
-          code := if exitCode = 1 then .workerExited else .workerCrashed
-          message := s!"Server process for {uri} has crashed."
-          : ResponseError Unit
-        }
+      if let .crashed error := workerState then
+        writeMessage <| error.toLspResponseError req.id
         return
       -- If we cannot write a notification to the file worker, it is nonetheless safe to discard
       -- the notification here because all non-discardable notifications are handled by the watchdog
@@ -937,7 +931,7 @@ section ServerM
     match workerState with
     | WorkerState.cannotWrite | WorkerState.terminating =>
       return
-    | WorkerState.crashed =>
+    | WorkerState.crashed _ =>
       if ! (msg matches .notification "textDocument/didChange" ..) then
         -- Only restart crashed FileWorkers on `didChange`.
         return
@@ -1516,7 +1510,7 @@ section MainLoop
     for (_, fw) in workers do
       let some commTask := fw.commTask?
         | continue
-      if (← getWorkerState fw) matches WorkerState.crashed then
+      if (← getWorkerState fw) matches WorkerState.crashed _ then
         continue
       workerTasks := workerTasks.push <| commTask.mapCheap (ServerEvent.workerEvent fw)
 
@@ -1553,10 +1547,13 @@ section MainLoop
             (ErrorCode.workerExited, "see stderr for exception")
           else
             (ErrorCode.workerCrashed, "likely due to a stack overflow or a bug")
-        errorPendingRequests uri errorCode
-          s!"Server process for {uri} crashed, {errorCausePointer}."
+        let error : RequestError := {
+          code := errorCode
+          message := s!"Server process for {uri} crashed, {errorCausePointer}."
+        }
+        errorPendingRequests uri error.code error.message
         writeMessage <| mkFileProgressAtPosNotification doc 0 (kind := LeanFileProgressKind.fatalError)
-        setWorkerState fw .crashed
+        setWorkerState fw (.crashed error)
         mainLoop clientTask
       | WorkerEvent.terminated =>
         throwServerError

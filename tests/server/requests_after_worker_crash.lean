@@ -18,7 +18,7 @@ private partial def waitForFatalProgress : Ipc.IpcM Unit := do
       return
     waitForFatalProgress
   | .response .. | .responseError .. =>
-    throw <| userError "unexpected response before the worker-exit observation"
+    throw <| userError "unexpected response while waiting for fatal progress"
   | _ => waitForFatalProgress
 
 private partial def expectWorkerError (expectedId : RequestID) (expectedCode : ErrorCode) : Ipc.IpcM Unit := do
