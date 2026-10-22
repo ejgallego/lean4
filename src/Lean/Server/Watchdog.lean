@@ -513,18 +513,17 @@ section ServerM
     s.referenceData.atomically do
       let rd ← get
       let rd ← rd.modifyReferencesM (·.finalizeWorkerRefs module uri params.version params.references params.decls)
-      let (pendingWaitForILeanRequests, rest) := rd.pendingWaitForILeanRequests.partition (·.uri == uri)
+      let (pendingWaitForILeanRequests, rest) := rd.pendingWaitForILeanRequests.partition fun pending =>
+        pending.uri == uri && pending.version <= params.version
       let rd := { rd with pendingWaitForILeanRequests := rest }
       let rd := rd.modifyFinalizedWorkerILeanVersions (·.insert uri params.version)
       set rd
       for pendingWaitForILeanRequest in pendingWaitForILeanRequests do
-        if pendingWaitForILeanRequest.uri == uri
-            && pendingWaitForILeanRequest.version <= params.version then
-          writeMessage {
-            id := pendingWaitForILeanRequest.id
-            result := ⟨⟩
-            : Response WaitForILeans
-          }
+        writeMessage {
+          id := pendingWaitForILeanRequest.id
+          result := ⟨⟩
+          : Response WaitForILeans
+        }
 
   def emitServerRequestResponse [ToJson α] (fw : FileWorker) (r : Response α) : IO Unit := do
     if ! ((← fw.state.atomically get) matches .running) then

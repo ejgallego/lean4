@@ -5,6 +5,7 @@ import Lean.Data.Lsp
 /-!
 BT081 follow-up: ILean waits that require further progress fail when their worker crashes.
 Cover pending and subsequent waits, cached versions, other workers, restart, and live fatal errors.
+Waits for newer versions survive older finalizations until success, crash, or close.
 -/
 
 open IO Lean Lsp JsonRpc
@@ -150,6 +151,53 @@ private def testCrash (exitCode : UInt32) (expectedCode : ErrorCode) : IO Unit :
     Ipc.shutdown 14
     assert! (← Ipc.waitForExit) == 0
 
+private inductive Completion where
+  | finalize | crash | close
+
+private def testVersionOrder (completion : Completion) : IO Unit :=
+  IO.FS.withTempFile fun gateHandle gate =>
+  Ipc.runWith "lean" #["--server"] do
+    Ipc.writeRequest {
+      id := 0
+      method := "initialize"
+      param := ({ capabilities := {} } : InitializeParams)
+    }
+    discard <| Ipc.readResponseAs 0 InitializeResult
+    Ipc.writeNotification ⟨"initialized", InitializedParams.mk⟩
+    openDocument documentUri
+    waitForILeans 1 documentUri 1
+    change documentUri 2 <| gatedText gate "pure ()"
+    requestILeans 2 documentUri 2
+    -- Queue the newer wait before releasing the older finalization.
+    requestILeans 3 documentUri 3
+    workspaceBarrier 4
+    gateHandle.putStr "go"
+    gateHandle.flush
+    discard <| Ipc.readResponseAs 2 WaitForILeans
+    match completion with
+    | .finalize =>
+      change documentUri 3 healthyText
+      discard <| Ipc.readResponseAs 3 WaitForILeans
+      waitForILeans 5 documentUri 3
+    | .crash =>
+      change documentUri 3 "import Lean\n#eval (IO.Process.forceExit 3 : IO Unit)\n"
+      let pendingError ← waitForCrash 3 .workerCrashed
+      requestILeans 5 documentUri 3
+      assert! (← expectError 5 .workerCrashed) == pendingError
+    | .close =>
+      Ipc.writeNotification {
+        method := "textDocument/didClose"
+        param := { textDocument := { uri := documentUri } : DidCloseTextDocumentParams }
+      }
+      discard <| expectError 3 .contentModified
+      openDocument documentUri
+      waitForILeans 5 documentUri 1
+    workspaceBarrier 6
+    Ipc.shutdown 7
+    assert! (← Ipc.waitForExit) == 0
+
 public def main : IO Unit := do
   testCrash 1 .workerExited
   testCrash 3 .workerCrashed
+  for completion in [Completion.finalize, .crash, .close] do
+    testVersionOrder completion
