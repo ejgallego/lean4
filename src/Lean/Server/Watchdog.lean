@@ -919,12 +919,22 @@ section ServerM
       : ServerM Unit := do
     let some fw ← getFileWorker? uri
       | return
+    let workerState ← getWorkerState fw
     if let some req := JsonRpc.Request.ofMessage? msg then
+      if workerState matches .crashed then
+        let exitCode ← fw.waitForProc
+        writeMessage {
+          id := req.id
+          code := if exitCode = 1 then .workerExited else .workerCrashed
+          message := s!"Server process for {uri} has crashed."
+          : ResponseError Unit
+        }
+        return
       -- If we cannot write a notification to the file worker, it is nonetheless safe to discard
       -- the notification here because all non-discardable notifications are handled by the watchdog
       -- itself.
       (← read).requestData.enqueue uri req
-    match ← getWorkerState fw with
+    match workerState with
     | WorkerState.cannotWrite | WorkerState.terminating =>
       return
     | WorkerState.crashed =>
