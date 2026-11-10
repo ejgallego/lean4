@@ -571,6 +571,9 @@ def interpolatedStr.parenthesizer (p : Parenthesizer) : Parenthesizer := do
 
 @[combinator_parenthesizer hexnumNoAntiquot, expose] def hexnum.parenthesizer := visitToken
 
+@[combinator_parenthesizer _root_.cond, expose, macro_inline] def cond {_ : Type} (c : Bool) (t e : Parenthesizer) : Parenthesizer :=
+  bif c then t else e
+
 @[combinator_parenthesizer _root_.ite, expose, macro_inline] def ite {_ : Type} (c : Prop) [Decidable c] (t e : Parenthesizer) : Parenthesizer :=
   if c then t else e
 

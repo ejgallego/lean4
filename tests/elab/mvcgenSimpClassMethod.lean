@@ -23,7 +23,7 @@ instance : MyAdd Int32 Int32 := {
 /--
 error: Error while running try mvcgen_trivial on case vc2.isFalse.isTrue
 t : Int32
-h✝¹ : ¬t.toBitVec.uaddOverflow (Int32.toBitVec 1) = true
+h✝¹ : t.toBitVec.uaddOverflow (Int32.toBitVec 1) = false
 h✝ : (t + 1).toBitVec.uaddOverflow (Int32.toBitVec 3000) = true
 ⊢ ⏎
   ⊢ₛ wp⟦Except.error "error"⟧ (PostCond.noThrow fun r => ⌜True⌝)

@@ -315,7 +315,8 @@ theorem testBit_two_pow_add_gt {i j : Nat} (j_lt_i : j < i) (x : Nat) :
         simp [Nat.testBit_lt_two_pow x_lt]
     · generalize y_eq : x - 2^j = y
       have x_eq : x = y + 2^j := Nat.eq_add_of_sub_eq x_ge_j y_eq
-      simp only [Nat.two_pow_pos, x_eq, Nat.le_add_left, true_and, ite_true]
+      simp only [Nat.two_pow_pos, x_eq, Nat.le_add_left, true_and]
+      try simp only [↓reduceIte]
       have y_lt_x : y < x := by
         simp only [x_eq, Nat.lt_add_right_iff_pos]
         exact Nat.two_pow_pos j
@@ -415,7 +416,8 @@ theorem testBit_bitwise (of_false_false : f false false = false) (x y i : Nat) :
           simp [x_zero, p, yi, of_false_false]
     else if y_zero : y = 0 then
       simp [x_zero, y_zero]
-      cases p : f true false <;> (try simp only [Bool.false_eq_true, ↓reduceIte]) <;>
+      cases p : f true false <;> (try simp only [Bool.false_eq_true]) <;>
+        (try simp only [↓reduceIte]) <;>
         cases testBit x i <;>
           simp [p, of_false_false]
     else
@@ -462,10 +464,10 @@ theorem bitwise_lt_two_pow (left : x < 2^n) (right : y < 2^n) : (Nat.bitwise f x
   | succ n hyp =>
     unfold bitwise
     if x_zero : x = 0 then
-      simp only [x_zero, ite_eq_left]
+      simp only [x_zero]
       by_cases p : f false true = true <;> simp [p, right]
     else if y_zero : y = 0 then
-      simp only [x_zero, y_zero, ite_eq_left]
+      simp only [x_zero, y_zero]
       by_cases p : f true false = true <;> simp [p, left]
     else
       simp only [x_zero, y_zero]
@@ -738,8 +740,7 @@ theorem testBit_two_pow_mul_add (a : Nat) {b i : Nat} (b_lt : b < 2^i) (j : Nat)
     simp only [
         testBit_eq_decide_div_mod_eq,
         Nat.not_lt_of_le,
-        j_ge,
-        ite_false]
+        j_ge]
     simp [congrArg (2^·) j_def, Nat.pow_add,
           ←Nat.div_div_eq_div_mul,
           Nat.mul_add_div,
@@ -930,7 +931,8 @@ private theorem trailingZerosBits_def (n : Nat) :
   cases n with
   | zero => rfl
   | succ n =>
-    simp only [Nat.succ_ne_zero, ↓reduceIte]
+    simp only [Nat.succ_ne_zero]
+    try simp only [↓reduceIte]
     cases h : Nat.ble 2 (n + 1)
     · have h' : ¬ 2 ≤ n + 1 := fun hn => Bool.noConfusion (h.symm.trans (Nat.ble_eq_true_of_le hn))
       have : n = 0 := by omega

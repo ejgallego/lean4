@@ -344,9 +344,9 @@ example : ⦃fun _ => True⦄ (do bump; bump : StateM Nat Unit) ⦃fun _ s => s 
 trace: case vc1
 s✝ : Nat
 x✝¹ : Bool
-v : Nat := (if x✝¹ = true then 2 else 2) * 2
+v : Nat := (bif x✝¹ then 2 else 2) * 2
 x✝ : Bool
-⊢ 0 < if x✝ = true then v else v
+⊢ 0 < bif x✝ then v else v
 -/
 #guard_msgs (trace, drop warning) in
 example : ⦃fun s => s = 1⦄ (do bump; bump : StateM Nat Unit) ⦃fun _ s => 0 < s⦄ := by
@@ -359,7 +359,7 @@ example : ⦃fun s => s = 1⦄ (do bump; bump : StateM Nat Unit) ⦃fun _ s => 0
 trace: case vc1
 s✝ : Nat
 x✝ : Bool
-⊢ 0 < if x✝ = true then 1 else 1
+⊢ 0 < bif x✝ then 1 else 1
 -/
 #guard_msgs (trace, drop warning) in
 example : ⦃fun s => s = 1⦄ (keep : StateM Nat Unit) ⦃fun _ s => 0 < s⦄ := by

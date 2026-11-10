@@ -214,7 +214,7 @@ termination_by n => n
 /--
 info: with_bif_tailrec.induct (motive : Nat → Prop) (case1 : motive 0)
   (case2 : ∀ (n : Nat), (n % 2 == 0) = true → motive n → motive n.succ)
-  (case3 : ∀ (n : Nat), (n % 2 == 0) = false → motive (n - 1) → motive n.succ) (a✝ : Nat) : motive a✝
+  (case3 : ∀ (n : Nat), ¬(n % 2 == 0) = true → motive (n - 1) → motive n.succ) (a✝ : Nat) : motive a✝
 -/
 #guard_msgs in
 #check with_bif_tailrec.induct

@@ -494,12 +494,12 @@ theorem RxcIterator.step_done [Ord α] {upper : α} : ({ iter := .done, upper :=
 @[simp]
 theorem RxcIterator.step_cons_of_LE [Ord α] {upper : α} {h : (compare k upper).isLE} : ({ iter := (.cons k v t it), upper := upper } : RxcIterator α β).step = .yield ⟨it.prependMap t, upper⟩ ⟨k,v⟩ := by
   rw [step, h]
-  simp only [↓reduceIte]
+  rfl
 
 @[simp]
 theorem RxcIterator.step_cons_of_not_LE [Ord α] {upper : α} {h : (compare k upper).isLE = false} : ({ iter := (.cons k v t it), upper := upper } : RxcIterator α β).step = .done := by
   rw [step, h]
-  simp only [Bool.false_eq_true, ↓reduceIte]
+  simp only [Bool.false_eq_true] <;> rfl
 
 @[simp]
 theorem RxcIterator.val_run_step_toIterM_iter [Ord α] {z : RxcIterator α β} : (⟨z⟩ : Iter (α := RxcIterator α β) ((a : α) × β a)).toIterM.step.run.inflate.val = z.step := by
@@ -627,12 +627,12 @@ theorem RxoIterator.step_done [Ord α] {upper : α} : ({ iter := .done, upper :=
 @[simp]
 theorem RxoIterator.step_cons_of_isLT [Ord α] {upper : α} {h : (compare k upper).isLT} : ({ iter := (.cons k v t it), upper := upper } : RxoIterator α β).step = .yield ⟨it.prependMap t, upper⟩ ⟨k,v⟩ := by
   rw [step, h]
-  simp only [↓reduceIte]
+  rfl
 
 @[simp]
 theorem RxoIterator.step_cons_of_isLT_eq_false [Ord α] {upper : α} {h : (compare k upper).isLT = false} : ({ iter := (.cons k v t it), upper := upper } : RxoIterator α β).step = .done := by
   rw [step, h]
-  simp only [Bool.false_eq_true, ↓reduceIte]
+  simp only [Bool.false_eq_true] <;> rfl
 
 @[simp]
 theorem RxoIterator.val_run_step_toIterM_iter [Ord α] {z : RxoIterator α β} : (⟨z⟩ : Iter (α := RxoIterator α β) ((a : α) × β a)).toIterM.step.run.inflate.val = z.step := by

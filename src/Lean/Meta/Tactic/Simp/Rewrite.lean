@@ -12,6 +12,7 @@ public import Lean.Meta.Tactic.Simp.Arith
 public import Lean.Meta.Tactic.Simp.Attr
 public import Lean.Meta.BinderNameHint
 import Lean.Meta.WHNF
+import Lean.Meta.KAbstract
 public import Lean.Meta.HasAssignableMVar
 public section
 namespace Lean.Meta.Simp
@@ -112,11 +113,60 @@ private def useImplicitDefEqProof (thm : SimpTheorem) : SimpM Bool := do
   else
     return false
 
+private partial def conditionalBridgeShape? (lhs rhs target : Expr) : Option (Bool × Bool) := do
+  let l := lhs.consumeMData
+  let r := rhs.consumeMData
+  let t := target.consumeMData
+  if l == r then return (false, true)
+  let lBase := if l.isAppOf ``cond then 4 else if l.isAppOf ``ite then 5 else 0
+  let rBase := if r.isAppOf ``cond then 4 else if r.isAppOf ``ite then 5 else 0
+  if lBase != 0 && rBase != 0 && lBase != rBase then
+    let la := l.getAppArgs
+    let ra := r.getAppArgs
+    unless la.size >= lBase && ra.size >= rBase && la.size - lBase == ra.size - rBase &&
+        la[0]! == ra[0]! && la.extract (lBase - 2) la.size == ra.extract (rBase - 2) ra.size do
+      failure
+    return (true, t.getAppFn.isConstOf r.getAppFn.constName!)
+  if l.isApp && r.isApp && l.getAppFn == r.getAppFn &&
+      l.getAppNumArgs == r.getAppNumArgs && l.getAppNumArgs == t.getAppNumArgs then
+    let mut changed := false
+    let mut normalized := true
+    for la in l.getAppArgs, ra in r.getAppArgs, ta in t.getAppArgs do
+      let (c, n) ← conditionalBridgeShape? la ra ta
+      changed := changed || c
+      normalized := normalized && n
+    return (changed, normalized)
+  failure
+
+private def isNormalizedConditionalBridge (lhs rhs target : Expr) : Bool :=
+  conditionalBridgeShape? lhs rhs target == some (true, true)
+
+-- Let conditional reflexivity close goals before expanding them through generic aliases.
+private def skipReflexiveConditionalAlias (lhs e : Expr) : SimpM Bool := do
+  unless lhs.getAppFn.isMVar && lhs.getAppNumArgs < e.getAppNumArgs &&
+      (e.isAppOfArity ``Eq 3 || e.isAppOfArity ``Iff 2) do return false
+  withoutModifyingMCtx <| withSimpMetaConfig <|
+    isDefEqIf e.appFn!.appArg! e.appArg!
+
+private def decisionProjectionView (e : Expr) : Expr :=
+  if e.isAppOfArity ``Decidable.decide 2 then mkProj ``Decidable 0 e.appArg! else e
+
+private def matchDecisionProjections (lhs e : Expr) : Expr × Expr :=
+  match lhs, e with
+  | .proj ``Decidable 0 _, _ => (lhs, decisionProjectionView e)
+  | _, .proj ``Decidable 0 _ => (decisionProjectionView lhs, e)
+  | _, _ => (lhs, e)
+
 private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInfo) (val : Expr) (type : Expr) (e : Expr) (thm : SimpTheorem) (numExtraArgs : Nat) : SimpM (Option Result) := do
   recordTriedSimpTheorem thm.origin
   let rec go (e : Expr) : SimpM (Option Result) := do
     trace[Debug.Meta.Tactic.simp] "trying {← ppSimpTheorem thm} to rewrite{indentExpr e}"
-    if (← withSimpMetaConfig <| isDefEq lhs e) then
+    if isNormalizedConditionalBridge lhs type.appArg! e then
+      return none
+    let (matchLhs, matchTarget) := matchDecisionProjections lhs e
+    if (← withSimpMetaConfig <| isDefEq matchLhs matchTarget) ||
+        (!(← skipReflexiveConditionalAlias lhs e) &&
+          (← withSimpMetaConfig <| isDefEqIf lhs e)) then
       unless (← synthesizeArgs thm.origin bis xs) do
         return none
       let proof? ← if (← useImplicitDefEqProof thm) then
@@ -184,6 +234,17 @@ def tryTheoremWithExtraArgs? (e : Expr) (thm : SimpTheorem) (numExtraArgs : Nat)
     let lhs := type.appFn!.appArg!
     tryTheoremCore lhs xs bis val type e thm numExtraArgs
 
+private def getPatternNumArgs (pattern target : Expr) : Nat :=
+  if pattern.isAppOf ``ite && pattern.getAppNumArgs >= 5 && target.getAppFn.isConstOf ``cond then
+    pattern.getAppNumArgs - 1
+  else if pattern.isAppOf ``cond && pattern.getAppNumArgs >= 4 && target.getAppFn.isConstOf ``ite then
+    pattern.getAppNumArgs + 1
+  else if pattern.getAppFn.isMVar && pattern.getAppNumArgs < target.getAppNumArgs &&
+      (pattern.find? fun e => e.isConstOf ``ite || e.isConstOf ``cond).isSome then
+    target.getAppNumArgs
+  else
+    pattern.getAppNumArgs
+
 def tryTheorem? (e : Expr) (thm : SimpTheorem) : SimpM (Option Result) := do
   withNewMCtxDepth do
     let val  ← thm.getValue
@@ -194,12 +255,38 @@ def tryTheorem? (e : Expr) (thm : SimpTheorem) : SimpM (Option Result) := do
     match (← tryTheoremCore lhs xs bis val type e thm 0) with
     | some result => return some result
     | none =>
-      let lhsNumArgs := lhs.getAppNumArgs
+      let lhsNumArgs := getPatternNumArgs lhs e
       let eNumArgs   := e.getAppNumArgs
       if eNumArgs > lhsNumArgs then
         tryTheoremCore lhs xs bis val type e thm (eNumArgs - lhsNumArgs)
       else
         return none
+
+private def uniqueSimpCandidates (candidates : Array (SimpTheorem × Nat)) : Array (SimpTheorem × Nat) := Id.run do
+  let mut seen : Std.HashSet (Origin × ExprStructEq × Nat × Nat) := {}
+  let mut result := #[]
+  for candidate in candidates do
+    let key := (candidate.1.origin, ExprStructEq.mk candidate.1.proof, candidate.1.priority, candidate.2)
+    unless seen.contains key do
+      seen := seen.insert key
+      result := result.push candidate
+  return result
+
+private def decisionProjectionSimpKeys (e : Expr) (root : Bool) : MetaM (DiscrTree.Key × Array Expr) := do
+  if root then
+    if let .proj ``Decidable 0 d := e then
+      let type ← inferType d
+      let type ← if type.isAppOfArity ``Decidable 1 then pure type else whnfR type
+      if type.isAppOfArity ``Decidable 1 then
+        return (.const ``Decidable.decide 2, #[d, type.appArg!])
+  getConditionalSimpKeyArgs e root
+
+private def getRewriteCandidates (s : SimpTheoremTree) (e : Expr) : MetaM (Array (SimpTheorem × Nat)) := do
+  let candidates ← s.getMatchWithExtraUsing e getConditionalSimpKeyArgs
+  if e matches .proj ``Decidable 0 _ then
+    let named ← s.getMatchWithExtraUsing e decisionProjectionSimpKeys
+    return candidates ++ named.filter (·.2 == 0)
+  return candidates
 
 /--
 Remark: the parameter tag is used for creating trace messages. It is irrelevant otherwise.
@@ -212,7 +299,8 @@ def rewrite? (e : Expr) (s : SimpTheoremTree) (erased : PHashSet Origin) (tag : 
 where
   /-- For `(← getConfig).index := true`, use discrimination tree structure when collecting `simp` theorem candidates. -/
   rewriteUsingIndex? : SimpM (Option Result) := do
-    let candidates ← withSimpIndexConfig <| s.getMatchWithExtra e
+    let candidates ← withSimpIndexConfig <| getRewriteCandidates s e
+    let candidates := uniqueSimpCandidates candidates
     if candidates.isEmpty then
       trace[Debug.Meta.Tactic.simp] "no theorems found for {tag}-rewriting {e}"
       return none
@@ -244,12 +332,26 @@ where
   Only the root symbol is taken into account. Most of the structure of the discrimination tree is ignored.
   -/
   rewriteNoIndex? : SimpM (Option Result) := do
-    let (candidates, numArgs) ← withSimpIndexConfig <| s.getMatchLiberal e
+    let (initialCandidates, numArgs) ← withSimpIndexConfig <| s.getMatchLiberalUsing e getConditionalSimpKeyArgs
+    let mut candidates := initialCandidates
+    if e matches .proj ``Decidable 0 _ then
+      let (named, _) ← withSimpIndexConfig <| s.getMatchLiberalUsing e decisionProjectionSimpKeys
+      candidates := candidates ++ named
+    let prefixSize? :=
+      if e.isAppOf ``cond && e.getAppNumArgs > 4 then some 4
+      else if e.isAppOf ``ite && e.getAppNumArgs > 5 then some 5
+      else none
+    if let some start := prefixSize? then
+      for size in [start:e.getAppNumArgs] do
+        let fn := mkAppN e.getAppFn e.getAppArgs[:size]
+        let (extraCandidates, _) ← withSimpIndexConfig <| s.getMatchLiberalUsing fn getConditionalSimpKeyArgs
+        candidates := candidates ++ extraCandidates
     if candidates.isEmpty then
       trace[Debug.Meta.Tactic.simp] "no theorems found for {tag}-rewriting {e}"
       return none
     else
-      let candidates := candidates.insertionSort fun e₁ e₂ => e₁.priority > e₂.priority
+      candidates := (uniqueSimpCandidates (candidates.map (·, 0))).map (·.1)
+      candidates := candidates.insertionSort fun e₁ e₂ => e₁.priority > e₂.priority
       let useBackward := backward.defeqAttrib.useBackward.get (← getOptions)
       for thm in candidates do
         checkSystem "simp"
@@ -260,7 +362,7 @@ where
             let (xs, bis, type) ← forallMetaTelescopeReducing type
             let type ← whnf (← instantiateMVars type)
             let lhs := type.appFn!.appArg!
-            let lhsNumArgs := lhs.getAppNumArgs
+            let lhsNumArgs := getPatternNumArgs lhs e
             tryTheoremCore lhs xs bis val type e thm (numArgs - lhsNumArgs)
           if let some result := result? then
             trace[Debug.Meta.Tactic.simp] "rewrite result {e} => {result.expr}"
@@ -273,7 +375,7 @@ where
 
   diagnoseWhenNoIndex (thm : SimpTheorem) : SimpM Unit := do
     if (← isDiagnosticsEnabled) then
-      let candidates ← withSimpIndexConfig <| s.getMatchWithExtra e
+      let candidates ← withSimpIndexConfig <| getRewriteCandidates s e
       for (candidate, _) in candidates do
         if unsafe ptrEq thm candidate then
           return ()

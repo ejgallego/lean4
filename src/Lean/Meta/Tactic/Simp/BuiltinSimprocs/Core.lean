@@ -7,6 +7,7 @@ module
 prelude
 public import Init.Simproc
 public import Lean.Meta.Tactic.Simp.Simproc
+import Lean.Meta.Tactic.Simp.Main
 import Lean.Meta.CtorRecognizer
 public section
 open Lean Meta Simp
@@ -14,7 +15,8 @@ open Lean Meta Simp
 set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_simproc ↓ [simp, seval] reduceIte (ite _ _ _) := fun e => do
   let_expr f@ite α c i tb eb ← e | return .continue
-  let r ← simp c
+  let normalized := (← normalizeDecisionCondition? c).getD { expr := c }
+  let r ← normalized.mkEqTrans (← simp normalized.expr)
   if r.expr.isTrue then
     let pr    := mkApp (mkApp5 (mkConst ``ite_eq_left_of_eq_true f.constLevels!) α c i tb eb) (← r.getProof)
     return .visit { expr := tb, proof? := pr }
@@ -26,7 +28,8 @@ builtin_simproc ↓ [simp, seval] reduceIte (ite _ _ _) := fun e => do
 set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_simproc ↓ [simp, seval] reduceDIte (dite _ _ _) := fun e => do
   let_expr f@dite α c i tb eb ← e | return .continue
-  let r ← simp c
+  let normalized := (← normalizeDecisionCondition? c).getD { expr := c }
+  let r ← normalized.mkEqTrans (← simp normalized.expr)
   if r.expr.isTrue then
     let pr    ← r.getProof
     let h     := mkApp2 (mkConst ``of_eq_true) c pr
@@ -83,6 +86,12 @@ builtin_dsimproc ↓ [simp, seval] dreduceDIte (dite _ _ _) := fun e => do
     | Bool.false => return .visit (mkApp eb (mkExpectedPropHint (.proj ``Decidable 1 i) (mkNot c))).headBeta
     | _ => return .continue
   return .continue
+
+set_option linter.coreInternal.internalModule false in
+/-- Recover the proposition tested by a primitive decision projection or `decide`. -/
+builtin_simproc ↓ [simp, seval] reduceDecisionEq (@Eq Bool _ _) := fun e => do
+  let some result ← normalizeDecisionCondition? e | return .continue
+  return .visit result
 
 set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_simproc [simp, seval] reduceCtorEq (_ = _) := fun e => withReducibleAndInstances do

@@ -140,24 +140,24 @@ protected theorem modCore_eq (x y : Nat) : Nat.modCore x y =
     rw [Nat.modCore.go]
     split
     next =>
-      simp only [and_self, ↓reduceIte, *]
+      simp only [and_self, *]
       apply modCore.go.fuel_congr
     next =>
-      simp only [and_false, ↓reduceIte, *]
+      simp only [and_false, *] <;> rfl
   next =>
-    simp only [false_and, ↓reduceIte, *]
+    simp only [false_and, *] <;> rfl
 
 protected theorem modCore_eq_mod (n m : Nat) : Nat.modCore n m = n % m := by
   change Nat.modCore n m = Nat.mod n m
   match n, m with
-  | 0, _ =>
+  | 0, m =>
     rw [Nat.modCore_eq]
-    exact ite_eq_right fun ⟨hlt, hle⟩ => Nat.lt_irrefl _ (Nat.lt_of_lt_of_le hlt hle)
-  | (_ + 1), _ =>
+    exact ite_eq_right (c := 0 < m ∧ m ≤ 0) fun ⟨hlt, hle⟩ => Nat.lt_irrefl _ (Nat.lt_of_lt_of_le hlt hle)
+  | (n + 1), m =>
     rw [Nat.mod]; dsimp
     refine iteInduction (fun _ => rfl) (fun h => ?false) -- cannot use `split` this early yet
     rw [Nat.modCore_eq]
-    exact ite_eq_right fun ⟨_hlt, hle⟩ => h hle
+    exact ite_eq_right (c := 0 < m ∧ m ≤ n + 1) fun ⟨_hlt, hle⟩ => h hle
 
 theorem mod_eq_ite (x y : Nat) : x % y = if 0 < y ∧ y ≤ x then (x - y) % y else x := by
   rw [←Nat.modCore_eq_mod, ←Nat.modCore_eq_mod, Nat.modCore_eq]
@@ -205,7 +205,7 @@ theorem mod_eq_of_lt {a b : Nat} (h : a < b) : a % b = a :=
 theorem mod_eq_sub_mod {a b : Nat} (h : a ≥ b) : a % b = (a - b) % b :=
   match eq_zero_or_pos b with
   | Or.inl h₁ => h₁.symm ▸ (Nat.sub_zero a).symm ▸ rfl
-  | Or.inr h₁ => (mod_eq_ite a b).symm ▸ ite_eq_left ⟨h₁, h⟩
+  | Or.inr h₁ => (mod_eq_ite a b).symm ▸ ite_eq_left (c := 0 < b ∧ b ≤ a) ⟨h₁, h⟩
 
 @[simp] protected theorem sub_mod_add_mod_cancel (a b : Nat) [NeZero a] : a - b % a + b % a = a := by
   rw [Nat.sub_add_cancel]
@@ -274,7 +274,7 @@ theorem mod_eq_sub_div_mul {x k : Nat} : x % k = x - (x / k) * k := by
   rw [div_eq_ite]; simp [Nat.lt_irrefl]
 
 @[simp] protected theorem zero_div (b : Nat) : 0 / b = 0 :=
-  (div_eq_ite 0 b).trans <| ite_eq_right <| And.rec Nat.not_le_of_gt
+  (div_eq_ite 0 b).trans <| ite_eq_right (c := 0 < b ∧ b ≤ 0) <| And.rec Nat.not_le_of_gt
 
 theorem le_div_iff_mul_le (k0 : 0 < k) : x ≤ y / k ↔ x * k ≤ y := by
   induction y, k using mod.inductionOn generalizing x with

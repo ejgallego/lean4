@@ -152,17 +152,28 @@ theorem Poly.combine_Nonneg (p₁ p₂ : Poly) : p₁.NonnegCoeffs → p₂.Nonn
   next => intros; assumption
   next ih =>
     intro h₁ h₂; cases h₁; cases h₂
-    apply ih <;> assumption
+    simp +zetaDelta [*]
+    all_goals try simp only [Bool.cond_eq_ite]
+    all_goals try simp +zetaDelta [*]
   next h ih =>
     intro h₁ h₂; cases h₁; cases h₂
+    simp +zetaDelta [*]
+    all_goals try simp only [Bool.cond_eq_ite]
+    all_goals try simp +zetaDelta [*]
     constructor; simp +zetaDelta; omega
     apply ih <;> assumption
   next ih =>
     intro h₁ h₂; cases h₁; cases h₂
+    try simp +zetaDelta [*]
+    all_goals try simp only [Bool.cond_eq_ite]
+    all_goals try simp +zetaDelta [Nat.beq_eq, *]
     constructor; simp +zetaDelta; omega
     apply ih; assumption; constructor; assumption; assumption
   next ih =>
     intro h₁ h₂; cases h₁; cases h₂
+    try simp +zetaDelta [*]
+    all_goals try simp only [Bool.cond_eq_ite]
+    all_goals try simp +zetaDelta [Nat.beq_eq, *]
     constructor; assumption
     apply ih; constructor; assumption; assumption; assumption
 

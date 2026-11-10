@@ -1,3 +1,5 @@
+/-! Test contextual simplification and custom dischargers inside conditional branches (#3943). -/
+
 example (f : Nat → Nat) : (if f x = 0 then f x else f x + 1) + f x = y := by
   simp (config := { contextual := true })
   guard_target =ₛ (if f x = 0 then 0 else f x + 1) + f x = y
@@ -20,20 +22,19 @@ def overlap : Nat → Nat
 
 example : (if (n = 0 → False) then overlap (n+1) else overlap (n+1)) = overlap n  := by
   simp (config := { contextual := true }) only [overlap]
-  guard_target =ₛ (if (n = 0 → False) then overlap n else overlap (n+1)) = overlap n
+  guard_target = (if (n = 0 → False) then overlap n else overlap (n+1)) = overlap n
   sorry
 
 example : (if (n = 0 → False) then overlap (n+1) else overlap (n+1)) = overlap n  := by
-  -- The following tactic should because the default discharger only uses assumptions available
-  -- when `simp` was invoked unless `contextual := true`
+  -- Branch facts must not discharge equation hypotheses without contextual simplification.
   fail_if_success simp only [overlap]
-  guard_target =ₛ (if (n = 0 → False) then overlap (n+1) else overlap (n+1)) = overlap n
+  guard_target = (if (n = 0 → False) then overlap (n+1) else overlap (n+1)) = overlap n
   sorry
 
 example : (if (n = 0 → False) then overlap (n+1) else overlap (n+1)) = overlap n  := by
   -- assumption is not a well-behaved discharger, and the following should still work as expected
   simp (discharger := assumption) only [overlap]
-  guard_target =ₛ (if (n = 0 → False) then overlap n else overlap (n+1)) = overlap n
+  guard_target = (if (n = 0 → False) then overlap n else overlap (n+1)) = overlap n
   sorry
 
 opaque p : Nat → Bool

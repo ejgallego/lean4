@@ -69,7 +69,7 @@ info: depTestOddType.fun_cases_unfolding
     (l : List Nat) →
       (match l with
         | [] => Unit
-        | x :: tail => if (x == 3) = true then Unit else Nat) →
+        | x :: tail => bif x == 3 then Unit else Nat) →
         Prop)
   (case1 : motive [] ())
   (case2 :

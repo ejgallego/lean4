@@ -284,9 +284,9 @@ namespace List
   | cons x xs ih =>
     congr; funext b
     cases b
-    · simp only [Bool.false_eq_true, ↓reduceIte, pure_bind]
+    · simp [Bool.false_eq_true, pure_bind]
       exact ih acc
-    · simp only [↓reduceIte, ← reverse_cons, pure_bind]
+    · simp [← reverse_cons, pure_bind]
       exact ih (x :: acc)
 
 /-- Variant of `filterM_toArray` with a side condition for the stop position. -/

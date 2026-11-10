@@ -638,7 +638,7 @@ theorem flatten_sublist_iff {L : List (List α)} {l} :
     if h_eq : hd₁ = hd₂ then
       simp [h_eq, cons_sublist_cons, isSublist_iff_sublist]
     else
-      simp only [beq_iff_eq, h_eq]
+      first | simp only [h_eq] | simp only [beq_iff_eq, h_eq]
       constructor
       · intro h_sub
         apply Sublist.cons

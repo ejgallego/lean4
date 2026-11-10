@@ -117,6 +117,11 @@ def M.run (x : M α) : GoalM (α × SearchState) :=
 @[inline] private abbrev withInitApp (e : Expr) (x : M α) : M α :=
   withReader (fun ctx => { ctx with initApp := e }) x
 
+/-- Conditional branches enter the e-graph only when a pattern needs to inspect them. -/
+private def internalizeMatchTarget (c : Choice) (e : Expr) : GoalM Unit := do
+  unless (← alreadyInternalized e) do
+    internalize e c.gen
+
 /--
 Assigns `bidx := e` in `c`. If `bidx` is already assigned in `c`, we check whether
 `e` and `c.assignment[bidx]` are in the same equivalence class.
@@ -129,6 +134,8 @@ private def assign? (c : Choice) (bidx : Nat) (e : Expr) : OptionT GoalM Choice 
     if isSameExpr v unassigned then
       return { c with assignment := c.assignment.set bidx e }
     else
+      internalizeMatchTarget c v
+      internalizeMatchTarget c e
       guard (← isEqv v e)
       return c
   else
@@ -172,6 +179,7 @@ private def eqvFunctions (pFn eFn : Expr) : Bool :=
   || (pFn.isConst && eFn.isConstOf pFn.constName!)
 
 protected def _root_.Lean.Meta.Grind.GenPatternInfo.assign? (genInfo : GenPatternInfo) (c : Choice) (x : Expr) : OptionT GoalM Choice := do
+  internalizeMatchTarget c x
   let c ← assign? c genInfo.xIdx x
   let c ← assignDelayedEqProof? c genInfo.hIdx
   return c
@@ -289,6 +297,7 @@ For each candidate application, we match the arguments and may update `c`s assig
 We add the updated choices to the choice stack.
 -/
 private partial def processMatch (c : Choice) (genInfo? : Option GenPatternInfo) (p : Expr) (e : Expr) : M Unit := do
+  internalizeMatchTarget c e
   let maxGeneration ← getMaxGeneration
   let pFn := p.getAppFn
   let numArgs := p.getAppNumArgs
@@ -307,6 +316,7 @@ private partial def processMatch (c : Choice) (genInfo? : Option GenPatternInfo)
 Matches offset pattern `pArg+k` with term `e` with respect to choice `c`.
 -/
 private partial def processOffset (c : Choice) (genInfo? : Option GenPatternInfo) (pArg : Expr) (k : Nat) (e : Expr) : M Unit := do
+  internalizeMatchTarget c e
   let maxGeneration ← getMaxGeneration
   let mut curr := e
   repeat
@@ -984,10 +994,11 @@ private def ematchCore (extraThms : Array EMatchTheorem) : GoalM InstanceMap := 
     return s.instanceMap
 
 /--
-Performs one round of E-matching, and returns `true` if new instances were generated.
+Performs one round of E-matching, and returns `true` if new instances or matching terms were generated.
 Recall that the mapping is nonempty only if tracing or instance marking is enabled.
 -/
 def ematch' (extraThms : Array EMatchTheorem := #[]) : GoalM (Bool × InstanceMap) := do
+  let nextIdx := (← get).nextIdx
   let numInstances := (← get).ematch.numInstances
   let numDelayedInstances := (← get).ematch.numDelayedInstances
   let map ← ematchCore extraThms
@@ -995,27 +1006,28 @@ def ematch' (extraThms : Array EMatchTheorem := #[]) : GoalM (Bool × InstanceMa
     (← get).ematch.numInstances != numInstances
     ||
     (← get).ematch.numDelayedInstances != numDelayedInstances
-  -- Matching offset patterns and activating guards internalizes terms, which queues work.
+  -- Matching lazy branches, offsets, and guards internalizes terms, which queues work.
   processToDo
   if (← getConfig).markInstances then
     modifyThe Grind.State fun s => { s with instanceMap := s.instanceMap.insertMany map.toArray }
-  return (progress, map)
+  return (progress || (← get).nextIdx != nextIdx, map)
 
 /--
-Performs one round of E-matching, and returns `true` if new instances were generated.
+Performs one round of E-matching, and returns `true` if new instances or matching terms were generated.
 -/
 def ematch (extraThms : Array EMatchTheorem := #[]) : GoalM Bool :=
   return (← ematch' extraThms).1
 
-/-- Performs one round of E-matching using the giving theorems, and returns `true` if new instances were generated. -/
+/-- Performs one round of E-matching using the given theorems, returning whether instances or matching terms were generated. -/
 def ematchOnly (thms : Array EMatchTheorem) : GoalM Bool := do
+  let nextIdx := (← get).nextIdx
   let numInstances := (← get).ematch.numInstances
   let (_, s) ← go |>.run
-  -- See `ematch'`: activating guards internalizes terms, which queues work.
+  -- See `ematch'`: matching can internalize terms even when no instance is generated.
   processToDo
   if (← getConfig).markInstances then
     modifyThe Grind.State fun st => { st with instanceMap := st.instanceMap.insertMany s.instanceMap.toArray }
-  return (← get).ematch.numInstances != numInstances
+  return (← get).ematch.numInstances != numInstances || (← get).nextIdx != nextIdx
 where
   go : EMatch.M Unit := do profileitM Exception "grind ematch" (← getOptions) do
     withReader (fun ctx => { ctx with useMT := false }) do

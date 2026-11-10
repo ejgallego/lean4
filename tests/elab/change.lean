@@ -47,18 +47,18 @@ the `Term.synthesizeSyntheticMVars (postpone := .partial); discard <| isDefEq p 
 example : foo 1 2 3 = 3 := by
   change (if _ then _ else _) = _
   change ite _ _ _ = _
-  change (if _ < _ then _ else _) = _
+  change (if True then _ else _) = _
   change _ = (if true then 3 else 4)
   rfl
 
 example (h : foo 1 2 3 = 4) : True := by
   change ite _ _ _ = _ at h
-  guard_hyp h :ₛ ite (1 < 2) 3 0 = 4
+  guard_hyp h :~ ite True 3 0 = 4
   trivial
 
 example (h : foo 1 2 3 = 4) : True := by
   change (if _ then _ else _) = _ at h
-  guard_hyp h : (if 1 < 2 then 3 else 0) = 4
+  guard_hyp h :~ (if True then 3 else 0) = 4
   trivial
 
 example (α : Type) [LT α] (x : α) (h : x < x) : x < id x := by
@@ -184,7 +184,7 @@ example (m n : Nat) : m + 2 = n := by
 conv `change` unsolved metavariables
 -/
 /--
-error: don't know how to synthesize placeholder for argument `e`
+error: don't know how to synthesize placeholder for argument `y`
 context:
 case a
 m n : Nat

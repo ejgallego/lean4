@@ -43,7 +43,8 @@ theorem nextPowerOfTwo_eq_iff {n m : Nat} :
       (nextPowerOfTwo.go n l h = m ↔
         n ≤ m ∧ m.isPowerOfTwo ∧ ∀ k, n ≤ k → k.isPowerOfTwo → m ≤ k) by
     obtain (rfl|hn) := Nat.eq_zero_or_pos n
-    · simp only [nextPowerOfTwo.go, not_lt_zero, ↓reduceIte, zero_le, forall_const, true_and]
+    · rw [nextPowerOfTwo.go]
+      simp only [not_lt_zero, zero_le, forall_const, true_and]
       refine ⟨fun h => ?_, fun ⟨h₁, h₂⟩ => ?_⟩
       · simp +contextual [← h, ← Nat.not_lt, ne_zero_of_isPowerOfTwo]
       · exact Nat.le_antisymm (by simp [← Nat.not_lt, ne_zero_of_isPowerOfTwo, h₁]) (h₂ _ (by simp))

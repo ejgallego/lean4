@@ -151,7 +151,7 @@ structure Config where
   enforceUnfoldReducible : Bool := true
   /--
   When `true`, `shareCommon` maintains the `SymM` invariant that kernel projections
-  have been folded into projection function applications: if a new term contains one,
+  other than decision projections have been folded into projection function applications: if a new term contains one,
   `shareCommon` folds it before adding the term to the table of maximally shared terms.
   `cbv` disables this check because it processes kernel projections natively.
   -/
@@ -261,13 +261,14 @@ def unfoldReducible (e : Expr) : MetaM Expr := do
 
 /--
 Converts nested `Expr.proj`s into projection applications if possible.
-The structural simplifier and pattern matcher do not handle kernel projection
-terms; this preprocessing step folds them into projection function applications.
+Decision projections retain their source proposition in the instance type. Other
+kernel projections are folded into projection function applications.
 -/
 def foldProjs (e : Expr) : MetaM Expr := do
   if Option.isNone <| e.find? fun e => e.isProj then return e
   let post (e : Expr) := do
     let .proj structName idx s := e | return .done e
+    if structName == ``Decidable && idx == 0 then return .done e
     let some info := getStructureInfo? (← getEnv) structName |
       trace[sym.issues] "found `Expr.proj` but `{structName}` is not marked as structure{indentExpr e}"
       return .done e

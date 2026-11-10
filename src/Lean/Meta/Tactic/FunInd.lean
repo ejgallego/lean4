@@ -10,6 +10,7 @@ prelude
 public import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Match.MatcherApp.Transform
 import Lean.Meta.Match.Rewrite
+import Lean.Meta.Tactic.Simp.Main
 import Lean.Meta.Injective -- for elimOptParam
 import Lean.Meta.ArgsPacker
 import Lean.Elab.PreDefinition.WF.Eqns
@@ -627,9 +628,7 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
   withTraceNode `Meta.FunInd
     (fun _ => pure m!"buildInductionBody: {oldIH.name} → {newIH.name}\ngoal: {goal}:{indentExpr e}") do
 
-  -- if-then-else cause case split:
-  match_expr e with
-  | ite _α c h t f =>
+  let buildPropConditional (c h t f : Expr) : M2 Expr := do
     let c' ← foldAndCollect oldIH newIH isRecCall c
     let h' ← foldAndCollect oldIH newIH isRecCall h
     let t' ← withLocalDecl `h .default c' fun h => M2.branch do
@@ -642,6 +641,10 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
       mkLambdaFVars #[h] f'
     let u ← getLevel goal
     return mkApp5 (mkConst ``dite [u]) goal c' h' t' f'
+
+  -- if-then-else cause case split:
+  match_expr e with
+  | ite _α c h t f => buildPropConditional c h t f
   | dite _α c h t f =>
     let c' ← foldAndCollect oldIH newIH isRecCall c
     let h' ← foldAndCollect oldIH newIH isRecCall h
@@ -658,6 +661,8 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
     let u ← getLevel goal
     return mkApp5 (mkConst ``dite [u]) goal c' h' t' f'
   | cond _α c t f =>
+    if let some (p, d) ← Simp.getBoolDecision? c then
+      return ← buildPropConditional p d t f
     let c' ← foldAndCollect oldIH newIH isRecCall c
     let t' ← withLocalDecl `h .default (← mkEq c' (mkConst ``Bool.true)) fun h => M2.branch do
       let t' ← withRewrittenMotiveArg goal (rwIfWith h) fun goal' =>

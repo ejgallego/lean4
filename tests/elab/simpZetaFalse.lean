@@ -1,14 +1,14 @@
 opaque f : Nat → Nat
 axiom f_eq (x : Nat) : f (f x) = x
 
-theorem ex0 (x : Nat) (h : f (f x) = x) : (have y := 0 + x*x; if f (f x) = x then 1 else y + 1) = 1 := by
+theorem ex0 (x : Nat) (h : f (f x) = x) : (have y := 0 + x*x; ite (f (f x) = x) 1 (y + 1)) = 1 := by
   simp (config := { zeta := false }) only [h, Nat.zero_add]
   trace_state
   simp
 
 #print ex0 -- uses have_congr
 
-theorem ex1 (x : Nat) (h : f (f x) = x) : (have y := x*x; if f (f x) = x then 1 else y + 1) = 1 := by
+theorem ex1 (x : Nat) (h : f (f x) = x) : (have y := x*x; ite (f (f x) = x) 1 (y + 1)) = 1 := by
   simp (config := { zeta := false }) only [h]
   trace_state
   simp

@@ -73,7 +73,11 @@ theorem Mon.degreeOf_cancelVar (m : Mon) (x y : Var) (h : x ≠ y) : (m.cancelVa
   | mult pw m ih =>
     simp only [cancelVar, cond_eq_ite]
     split
-    next h' => simp only [beq_iff_eq] at h'; subst h'; simp [degreeOf, h]
+    next h' =>
+      simp only [beq_iff_eq] at h'; subst h'
+      simp only [degreeOf]
+      all_goals try simp only [Bool.cond_eq_ite]
+      all_goals simp [h]
     next => simp [degreeOf, ih]
 
 /--
@@ -206,8 +210,8 @@ noncomputable def Poly.cancelInvs_k (p : Poly) (invs : InvAtoms) : Poly :=
 @[simp] theorem Mon.cancelInv_k_eq_cancelInv (x y : Var) (m : Mon) : Mon.cancelInv_k x y m = m.cancelInv x y := by
   simp only [Mon.cancelInv_k, Mon.degreeOf_k_eq_degreeOf, Mon.cancelVar_k_eq_cancelVar, Mon.mulPow_k_eq_mulPow, Bool.rec_eq,
     Mon.cancelInv, cond_eq_ite, Bool.or_eq_true, Nat.beq_eq_true_eq, Nat.beq_eq, Nat.blt_eq, decide_eq_true_eq]
-  split <;> simp_all
-  split <;> simp_all
+  repeat' split
+  all_goals simp_all
 
 @[simp] theorem Poly.cancelInv_k_eq_cancelInv (x y : Var) (p : Poly) : Poly.cancelInv_k x y p = p.cancelInv x y := by
   suffices h : ∀ acc, Poly.rec (motive := fun _ => Poly → Poly)
@@ -315,7 +319,8 @@ theorem Poly.gcdCoeffs_k_eq (p : Poly) : p.gcdCoeffs_k = p.gcdCoeffs := by
       unfold Poly.gcdCoeffs.go
       cases h : Nat.beq acc 1
       · have : (acc == 1) = false := h
-        simp only [this, Bool.false_eq_true, ↓reduceIte]
+        simp only [this, Bool.false_eq_true]
+        all_goals try simp only [↓reduceIte]
         show Poly.gcdCoeffs_k.go p _ = _
         rw [ih]; simp
       · have : (acc == 1) = true := h
@@ -344,7 +349,8 @@ theorem Poly.substInv_k_eq (p : Poly) (x : Var) (c : Nat) : p.substInv_k x c = p
     simp only [this, Bool.cond_false]
     rw [Poly.maxDegreeOf_k_eq, Poly.mulConst_k_eq_mulConst, Poly.cancelVar_k_eq]; rfl
   · have : (c == 0) = true := h
-    simp only [this, Bool.cond_true]
+    simp only [this]
+    all_goals try simp only [Bool.cond_true]
 
 noncomputable def PolyQ.substInv_k (q : PolyQ) (x : Var) (c : Nat) : PolyQ :=
   ⟨(q.num.substInv_k x c).num, Nat.mul q.den (q.num.substInv_k x c).den⟩
@@ -430,7 +436,8 @@ theorem PolyQ.denote_reduce [Field α] [IsCharP α 0] (ctx : Context α) (q : Po
     split
     next h =>
       simp only [Bool.and_eq_true, beq_iff_eq] at h
-      simp only [decide_eq_true_eq, Nat.not_le] at hg
+      try simp only [decide_eq_true_eq] at hg
+      simp only [Nat.not_le] at hg
       obtain ⟨h₁, h₂⟩ := h
       generalize Nat.gcd q.num.gcdCoeffs q.den = g at *
       generalize q.num.divConst g = num at *
@@ -550,7 +557,8 @@ theorem Poly.substInvB_k_den (p : Poly) (x : Var) (c : Nat) : (p.substInvB_k x c
   · have : (c == 0) = false := h
     simp only [this, Bool.cond_false]; rw [Poly.maxDegreeOf_k_eq]; rfl
   · have : (c == 0) = true := h
-    simp only [this, Bool.cond_true]
+    simp only [this]
+    all_goals try simp only [Bool.cond_true]
 
 theorem Poly.denote_substInvB_k [Field α] [IsCharP α 0] (ctx : Context α) (p : Poly) (x : Var) (c : Nat)
     (h : x.denote ctx = (OfNat.ofNat (α := α) c)⁻¹) : (p.substInvB_k x c).denote ctx = p.denote ctx := by

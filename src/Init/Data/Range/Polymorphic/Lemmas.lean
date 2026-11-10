@@ -487,9 +487,11 @@ theorem Rxc.Iterator.toList_eq_toList_rxoIterator [LE α] [DecidableLE α] [LT �
   rw [Rxc.Iterator.toList_eq_match, Rxo.Iterator.toList_eq_match]
   split
   · simp [*]
-  · simp only [UpwardEnumerable.le_iff, UpwardEnumerable.lt_iff, *]
+  · rename_i a heq
+    simp only [UpwardEnumerable.le_iff, UpwardEnumerable.lt_iff, *]
     split <;> rename_i h
-    · rw [ihy]; rotate_left
+    · have hle : a ≤ it.internalState.upperBound := by simpa only [UpwardEnumerable.le_iff] using h
+      rw [ihy]; rotate_left
       · simp [Iter.IsPlausibleStep, IterM.IsPlausibleStep, Iterator.IsPlausibleStep, instIteratorIteratorIdOfUpwardEnumerableOfDecidableLE, -- TODO
           Iterator.Monadic.step, Iter.toIterM, *]; rfl
       · simpa [UpwardEnumerable.lt_iff, UpwardEnumerable.le_iff, UpwardEnumerable.lt_succ_iff] using h
@@ -1587,7 +1589,8 @@ theorem forIn'_eq_match [LE α] [DecidableLE α] [LT α] [DecidableLT α]
   split <;> rename_i heq
   · simp [heq]
   · split <;> rename_i heq'
-    · simp only [Internal.forIn'_eq_forIn'_iter, Internal.iter, ↓reduceIte, heq', heq]
+    · simp only [Internal.forIn'_eq_forIn'_iter, Internal.iter, heq', heq]
+      try simp only [↓reduceIte]
       apply bind_congr; intro step
       split <;> simp
     · simp [heq, heq']
@@ -1826,7 +1829,8 @@ theorem forIn'_eq_match [LT α] [DecidableLT α]
   split <;> rename_i heq
   · simp [heq]
   · split <;> rename_i heq'
-    · simp only [Internal.forIn'_eq_forIn'_iter, Internal.iter, ↓reduceIte, heq', heq]
+    · simp only [Internal.forIn'_eq_forIn'_iter, Internal.iter, heq', heq]
+      try simp only [↓reduceIte]
       apply bind_congr; intro step
       split <;> rfl
     · simp [heq, heq']
@@ -3037,7 +3041,9 @@ theorem length_toList [LE α] [DecidableLE α] [UpwardEnumerable α]
     split
     · split
       · simp
-      · simp only [*, ↓reduceIte, Nat.add_right_cancel_iff] at h
+      · simp only [*] at h
+        try rw [ite_true] at h
+        simp only [Nat.add_right_cancel_iff] at h
         simp [h, ← ih _ h]
     · simp
 
@@ -3054,8 +3060,9 @@ theorem getElem?_toList_eq [LE α] [DecidableLE α] [UpwardEnumerable α] [Lawfu
     r.toList[i]? = (UpwardEnumerable.succMany? i r.lower).filter (· ≤ r.upper) := by
   induction i generalizing r
   · rw [toList_eq_ite_roc, UpwardEnumerable.succMany?_zero]
-    simp only [Option.filter_some, decide_eq_true_eq]
-    split <;> simp
+    simp only [Option.filter_some]
+    try simp only [decide_eq_true_eq]
+    split <;> simp_all
   · rename_i n ih
     rw [toList_eq_ite_roc]
     split
@@ -3070,9 +3077,11 @@ theorem getElem?_toList_eq [LE α] [DecidableLE α] [UpwardEnumerable α] [Lawfu
       cases hs : UpwardEnumerable.succMany? (n + 1) r.lower
       · simp
       · rename_i hl a
-        simp only [Option.filter_some, decide_eq_true_eq, right_eq_ite_iff,
+        simp only [Option.filter_some, right_eq_ite_iff,
           UpwardEnumerable.le_iff] at hl ⊢
+        try simp only [decide_eq_true_eq] at hl ⊢
         intro ha
+        try rw [UpwardEnumerable.le_iff] at ha
         exact hl.elim <| UpwardEnumerable.le_trans ⟨n + 1, hs⟩ ha
 
 theorem getElem?_toArray_eq [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
@@ -3428,7 +3437,9 @@ theorem length_toList [LT α] [DecidableLT α] [UpwardEnumerable α]
     split
     · split
       · simp
-      · simp only [*, ↓reduceIte, Nat.add_right_cancel_iff] at h
+      · simp only [*] at h
+        try rw [ite_true] at h
+        simp only [Nat.add_right_cancel_iff] at h
         simp [h, ← ih _ h]
     · simp
 
@@ -3446,8 +3457,9 @@ theorem getElem?_toList_eq [LT α] [DecidableLT α] [UpwardEnumerable α]
     r.toList[i]? = (UpwardEnumerable.succMany? i r.lower).filter (· < r.upper) := by
   induction i generalizing r
   · rw [toList_eq_ite_roo, UpwardEnumerable.succMany?_zero]
-    simp only [Option.filter_some, decide_eq_true_eq]
-    split <;> simp
+    simp only [Option.filter_some]
+    try simp only [decide_eq_true_eq]
+    split <;> simp_all
   · rename_i n ih
     rw [toList_eq_ite_roo]
     split
@@ -3462,9 +3474,11 @@ theorem getElem?_toList_eq [LT α] [DecidableLT α] [UpwardEnumerable α]
       cases hs : UpwardEnumerable.succMany? (n + 1) r.lower
       · simp
       · rename_i hl a
-        simp only [Option.filter_some, decide_eq_true_eq, right_eq_ite_iff,
+        simp only [Option.filter_some, right_eq_ite_iff,
           UpwardEnumerable.lt_iff] at hl ⊢
+        try simp only [decide_eq_true_eq] at hl ⊢
         intro ha
+        try rw [UpwardEnumerable.lt_iff] at ha
         exact hl.elim <| UpwardEnumerable.lt_trans ⟨n, hs⟩ ha
 
 theorem getElem?_toArray_eq [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]

@@ -52,6 +52,8 @@ theorem skipPrefix?_eq_some_iff {pat s : Slice} {pos : s.Pos} :
     rw [pos!_eq_pos hval]
     exact ⟨(· ▸ hsp.copy_sliceTo_eq), fun h => hsp.pos_eq (h ▸ pos.splits)⟩
   | case2 h =>
+    have h : ¬ startsWith pat s = true := by
+      first | exact h | exact Bool.ne_true_of_eq_false h
     simp only [startsWith_iff, not_exists] at h
     simp only [reduceCtorEq, false_iff]
     intro heq
@@ -143,6 +145,8 @@ theorem skipSuffix?_eq_some_iff {pat s : Slice} {pos : s.Pos} :
     exact ⟨(· ▸ hsp.copy_sliceFrom_eq),
       fun h => hsp.pos_eq_of_eq_right (h ▸ pos.splits)⟩
   | case2 h =>
+    have h : ¬ endsWith pat s = true := by
+      first | exact h | exact Bool.ne_true_of_eq_false h
     simp only [endsWith_iff, not_exists] at h
     simp only [reduceCtorEq, false_iff]
     intro heq

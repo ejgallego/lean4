@@ -28,5 +28,5 @@ depends on the value
   true
 
 h : true = false
-A : (b : Bool) → if b = true then Prop else Nat
+A : (b : Bool) → bif b then Prop else Nat
 ⊢ A true

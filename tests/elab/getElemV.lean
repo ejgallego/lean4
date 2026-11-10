@@ -522,8 +522,7 @@ theorem headV_insert [BEq α] [LawfulBEq α] {l : List α} {a : α} :
 
 theorem head_insert_copy [BEq α] [LawfulBEq α] {l : List α} {a : α} (w) :
     (l.insert a).head w = if h : a ∈ l then l.head (ne_nil_of_mem h) else a := by
-  -- RHS has a spurious dependency, preventing it to be rewritten to `ite`
-  simp [headV_insert, ← dite_eq_ite]
+  by_cases h : a ∈ l <;> simp [h, headV_insert, headV]
 
 theorem lex_eq_true_iff_exists_getElemV [Nonempty α] [BEq α] {lt : α → α → Bool}
     {l₁ l₂ : List α} :
@@ -559,12 +558,8 @@ theorem prefix_iff_getElemV [Nonempty α] {l₁ l₂ : List α} :
 theorem isEqv_eq_decide_getElemV {_ : Nonempty α} {as bs : List α} {r : α → α → Bool} :
     isEqv as bs r = if as.length = bs.length then
       decide (∀ (i : Nat), i < as.length → r as｢i｣ bs｢i｣) else false := by
-  -- Have to disable `Bool.ite_false_right` because of spurious dependency.
-  -- The `dite` in `isEqv_eq_decide`'s conclusion does not reduce to `ite` at
-  -- reducible transparency (`dite_eq_ite` requires the `fun _ => …` form
-  -- which simp cannot always normalize the hypothesis into), so we use
-  -- `simpa ... using!` to close at default transparency here.
-  simpa [- Bool.ite_false_right] using! isEqv_eq_decide (as := as) (bs := bs) (r := r)
+  by_cases h : as.length = bs.length <;>
+    simpa [h, - Bool.ite_false_right] using! isEqv_eq_decide (as := as) (bs := bs) (r := r)
 
 theorem head_append_copy {l₁ l₂ : List α} (w : l₁ ++ l₂ ≠ []) :
     head (l₁ ++ l₂) w =
@@ -572,8 +567,6 @@ theorem head_append_copy {l₁ l₂ : List α} (w : l₁ ++ l₂ ≠ []) :
         head l₂ (by simp_all [isEmpty_iff])
       else
         head l₁ (by simp_all [isEmpty_iff]) := by
-  -- `dite_eq_ite` doesn't trigger because of spurious dependency,
-  -- so we must apply it in reverse to assimilate LHS and RHS
-  simp [headV_append, ← dite_eq_ite]
+  by_cases h : l₁.isEmpty <;> simp [h, headV_append]
 
 end List

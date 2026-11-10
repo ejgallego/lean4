@@ -150,7 +150,10 @@ theorem PPoly.coeff_removeCode (c c' : Nat) (p : PPoly) :
     by_cases h : v = c
     · subst h
       by_cases h' : c' = v
-      · subst h'; simp only [removeCode, ite_true]; simpa using ih
+      · subst h'
+        simp only [removeCode]
+        try simp only [ite_true]
+        simpa using ih
       · simp [removeCode, coeff, h', Ne.symm h', ih]
     · by_cases h' : c' = c
       · subst h'; simp [removeCode, coeff, h, ih]
@@ -166,9 +169,14 @@ theorem PPoly.denote_removeCode {α} [Ring α] (f : Nat → α) (B c : Nat) (p :
   | add k d v p ih =>
     by_cases h : v = c
     · subst h
-      simp only [denote, coeff, removeCode, ite_true, intCast_add]
+      simp only [denote, coeff, removeCode, intCast_add]
+      all_goals try simp only [ite_true]
       rw [ih, right_distrib, add_assoc]
-    · simp only [denote, coeff, removeCode, h, ite_false, zero_add]
+    ·
+      simp only [denote, coeff, removeCode, h]
+      all_goals try simp only [ite_false]
+      all_goals try dsimp only [denote]
+      all_goals try rw [zero_add]
       rw [ih, add_left_comm]
 
 /-- A polynomial whose coefficients are all `0` denotes `0`, also when it repeats monomials. -/
@@ -697,9 +705,14 @@ theorem PPoly.denoteG_removeCode {α} [Ring α] (g : Nat → α) (hg : g 0 = 1) 
   | add k d v p ih =>
     by_cases h : v = c
     · subst h
-      simp only [denoteG, coeff, removeCode, ite_true, intCast_add]
+      simp only [denoteG, coeff, removeCode, intCast_add]
+      all_goals try simp only [ite_true]
       rw [ih, right_distrib, add_assoc]
-    · simp only [denoteG, coeff, removeCode, h, ite_false, zero_add]
+    ·
+      simp only [denoteG, coeff, removeCode, h]
+      all_goals try simp only [ite_false]
+      all_goals try dsimp only [denoteG]
+      all_goals try rw [zero_add]
       rw [ih, add_left_comm]
 
 theorem PPoly.denoteG_eq_zero_of_coeff {α} [Ring α] (g : Nat → α) (hg : g 0 = 1) :
@@ -2429,7 +2442,8 @@ theorem Expr.toLinQ_spec {α} [Field α] [IsCharP α 0] (f : Nat → α) (K : Na
       obtain ⟨c₁, c₂, c₃, c₄⟩ := Expr.evalQ_spec f invs hf a ha
       have ca := Expr.kronQLin_eq_evalQ K invs a ha
       have e₁ : (a.mul b).toLinQ invs = ((b.toLinQ invs).1.scale (a.evalQ invs).1, (a.evalQ invs).2 * (b.toLinQ invs).2) := by
-        simp only [toLinQ, ha, ite_true]
+        simp only [toLinQ, ha]
+        all_goals try simp only [ite_true]
       have e₂ : (a.mul b).kronQLin_k K invs = (Int.mul_k (a.kronQLin_k K invs).1 (b.kronQLin_k K invs).1,
           Nat.mul (a.kronQLin_k K invs).2 (b.kronQLin_k K invs).2) := rfl
       have e₃ : (a.mul b).majQ_k invs = (Nat.mul (a.majQ_k invs).1 (b.majQ_k invs).1, Nat.mul (a.majQ_k invs).2 (b.majQ_k invs).2) := rfl
@@ -2448,7 +2462,8 @@ theorem Expr.toLinQ_spec {α} [Field α] [IsCharP α 0] (f : Nat → α) (K : Na
       obtain ⟨c₁, c₂, c₃, c₄⟩ := Expr.evalQ_spec f invs hf b hb
       have cb := Expr.kronQLin_eq_evalQ K invs b hb
       have e₁ : (a.mul b).toLinQ invs = ((a.toLinQ invs).1.scale (b.evalQ invs).1, (a.toLinQ invs).2 * (b.evalQ invs).2) := by
-        simp only [toLinQ, ha, ite_false]
+        simp only [toLinQ, ha]
+        all_goals try simp only [ite_false]
       have e₂ : (a.mul b).kronQLin_k K invs = (Int.mul_k (a.kronQLin_k K invs).1 (b.kronQLin_k K invs).1,
           Nat.mul (a.kronQLin_k K invs).2 (b.kronQLin_k K invs).2) := rfl
       have e₃ : (a.mul b).majQ_k invs = (Nat.mul (a.majQ_k invs).1 (b.majQ_k invs).1, Nat.mul (a.majQ_k invs).2 (b.majQ_k invs).2) := rfl
@@ -2468,7 +2483,9 @@ theorem Expr.toLinQ_spec {α} [Field α] [IsCharP α 0] (f : Nat → α) (K : Na
     have e₃ : (a.pow k).majQ_k invs = (Nat.pow (a.majQ_k invs).1 k, Nat.pow (a.majQ_k invs).2 k) := rfl
     by_cases hk0 : k = 0
     · subst hk0
-      have e₁ : (a.pow 0).toLinQ invs = (.num 1, 1) := by simp only [toLinQ, ite_true]
+      have e₁ : (a.pow 0).toLinQ invs = (.num 1, 1) := by
+        simp only [toLinQ]
+        all_goals try simp only [ite_true]
       rw [e₁, e₂, e₃]
       refine ⟨?_, Nat.one_ne_zero, ?_, ?_, ?_, ?_⟩
       · show ((1 : Int) : α) = ((1 : Nat) : α) * a.denoteF f ^ 0; rw [pow_zero, Semiring.natCast_one, one_mul]; exact intCast_one
@@ -2496,7 +2513,8 @@ theorem Expr.toLinQ_spec {α} [Field α] [IsCharP α 0] (f : Nat → α) (K : Na
       obtain ⟨c₁, c₂, c₃, c₄⟩ := Expr.evalQ_spec f invs hf a ha
       have ca := Expr.kronQLin_eq_evalQ K invs a ha
       have e₁ : (a.pow k).toLinQ invs = (.num ((a.evalQ invs).1 ^ k), (a.evalQ invs).2 ^ k) := by
-        simp only [toLinQ, hk0, hk1, ite_false]
+        simp only [toLinQ, hk0, hk1]
+        all_goals try simp only [ite_false]
       rw [e₁, e₂, e₃, ca]
       refine ⟨?_, Nat.pos_iff_ne_zero.mp (Nat.pow_pos (Nat.pos_iff_ne_zero.mpr c₂)), ?_, rfl, ?_, ?_⟩
       · show (((a.evalQ invs).1 ^ k : Int) : α) = (((a.evalQ invs).2 ^ k : Nat) : α) * a.denoteF f ^ k
@@ -3104,17 +3122,28 @@ theorem PPoly.denoteSN_removeCode {α} [Semiring α] (f : Nat → α) (B c : Nat
   | num k =>
     by_cases h : c = 0
     · subst h
-      simp only [denoteSN, coeff, removeCode, ite_true, monDenote_zero, mul_one]
+      simp only [denoteSN, coeff, removeCode, monDenote_zero, mul_one]
+      all_goals try simp only [ite_true]
+      all_goals try dsimp only [denoteSN]
       rw [show (0 : Int).toNat = 0 from rfl, Semiring.natCast_zero, add_zero]
-    · simp only [denoteSN, coeff, removeCode, h, ite_false]
+    ·
+      simp only [denoteSN, coeff, removeCode, h]
+      all_goals try simp only [ite_false]
+      all_goals try dsimp only [denoteSN]
       rw [show (0 : Int).toNat = 0 from rfl, Semiring.natCast_zero, zero_mul, zero_add]
   | add k d v p ih =>
     have hc := NonNeg.coeff hp.2 c
     by_cases h : v = c
     · subst h
-      simp only [denoteSN, coeff, removeCode, ite_true]
+      simp only [denoteSN, coeff, removeCode]
+      all_goals try simp only [ite_true]
+      all_goals try dsimp only [denoteSN]
       rw [ih hp.2, Int.toNat_add hp.1 hc, Semiring.natCast_add, right_distrib, add_assoc]
-    · simp only [denoteSN, coeff, removeCode, h, ite_false, Int.zero_add]
+    ·
+      simp only [denoteSN, coeff, removeCode, h]
+      all_goals try simp only [ite_false]
+      all_goals try dsimp only [denoteSN]
+      all_goals try rw [Int.zero_add]
       rw [ih hp.2, add_left_comm]
 
 theorem PPoly.denoteSN_eq_of_coeff {α} [Semiring α] (f : Nat → α) (B : Nat) :
@@ -3129,7 +3158,12 @@ theorem PPoly.denoteSN_eq_of_coeff {α} [Semiring α] (f : Nat → α) (B : Nat)
     | num k =>
       cases q with
       | add => simp [size] at hs
-      | num k' => have := h 0; simp only [coeff, ite_true] at this; subst this; rfl
+      | num k' =>
+        have := h 0
+        simp only [coeff] at this
+        try simp only [ite_true] at this
+        subst this
+        rfl
   | succ n ih =>
     intro p q hs hp hq h
     have step : ∀ (c : Nat), (p.removeCode c).size + (q.removeCode c).size ≤ n → p.denoteSN f B = q.denoteSN f B := by
@@ -3153,7 +3187,12 @@ theorem PPoly.denoteSN_eq_of_coeff {α} [Semiring α] (f : Nat → α) (B : Nat)
         have : ((PPoly.add k' d' v' q).removeCode v').size = (q.removeCode v').size := by simp [removeCode]
         have : ((PPoly.num k).removeCode v').size = 0 := by simp only [removeCode]; split <;> rfl
         simp [size] at hs; omega
-      | num k' => have := h 0; simp only [coeff, ite_true] at this; subst this; rfl
+      | num k' =>
+        have := h 0
+        simp only [coeff] at this
+        try simp only [ite_true] at this
+        subst this
+        rfl
 
 /--
 Identities in commutative semirings, without cancellation: the terms of both sides have

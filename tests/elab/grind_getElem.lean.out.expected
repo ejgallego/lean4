@@ -7,7 +7,9 @@ Try these:
 Try these:
   [apply] [grind =] for pattern: [@getElem (List #4) `[Nat] _ _ _ (@List.cons _ #2 #1) #3 #0]
   [apply] [grind →] for pattern: [@LE.le `[Nat] `[instLENat] (#3 + 1) (@List.length #4 (@List.cons _ #2 #1))]
-Try this:
+Try these:
   [apply] [grind =] for pattern: [@getElem? (List #3) `[Nat] _ _ _ (@List.cons _ #2 #1) #0]
+  [apply] [grind
+    =_] for pattern: [@cond (Option #3) (decide _ _) (@some _ #2) (@getElem? (List _) `[Nat] _ _ _ #1 (@HSub.hSub `[Nat] `[Nat] `[Nat] `[instHSub] #0 `[1]))]
 Try this:
   [apply] [grind =] for pattern: [@getElem? (List #1) `[Nat] _ _ _ (@List.nil _) #0]

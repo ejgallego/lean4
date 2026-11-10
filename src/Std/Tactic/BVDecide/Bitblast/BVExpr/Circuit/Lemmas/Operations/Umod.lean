@@ -10,6 +10,8 @@ public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Udiv
 import all Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Udiv
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Umod
 
+import Init.ByCases
+
 @[expose] public section
 
 /-!
@@ -145,9 +147,11 @@ theorem denote_blastUmod (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Bo
   unfold blastUmod
   simp only [Ref.cast_eq, RefVec.denote_ite,
     RefVec.get_cast]
-  split
-  next hdiscr =>
-    rw [blastUdiv.go_denote_mem_prefix (hstart := Ref.hgate _)] at hdiscr
+  rw [blastUdiv.go_denote_mem_prefix (hstart := Ref.hgate _)]
+  by_cases hdiscr :
+      ⟦(BVPred.mkEq aig ⟨input.rhs, blastConst aig 0#w⟩).aig,
+        (BVPred.mkEq aig ⟨input.rhs, blastConst aig 0#w⟩).ref, assign⟧ = true
+  · rw [Bool.cond_eq_left _ hdiscr]
     rw [BVPred.mkEq_denote_eq (lhs := rhs) (rhs := 0#w)] at hdiscr
     · simp only [beq_iff_eq] at hdiscr
       rw [hdiscr]
@@ -164,8 +168,7 @@ theorem denote_blastUmod (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Bo
       simp only [BitVec.getLsbD_zero]
       rw [denote_blastConst]
       simp
-  next hdiscr =>
-    rw [blastUdiv.go_denote_mem_prefix (hstart := Ref.hgate _)] at hdiscr
+  · rw [Bool.cond_eq_right _ hdiscr]
     rw [BVPred.mkEq_denote_eq (lhs := rhs) (rhs := 0#w)] at hdiscr
     · have hzero : 0#w < rhs := by
         rw [Normalize.BitVec.zero_lt_iff_zero_neq]

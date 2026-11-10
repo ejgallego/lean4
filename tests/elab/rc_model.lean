@@ -168,7 +168,7 @@ theorem incRefHugeMt_spec (rc : Int32) (n : USize) (h : isUnstuckMt rc) :
     case vc2.step.isFalse =>
       rename_i b _ hg hinv
       obtain ⟨-, hmt, hsst, hex⟩ := hinv
-      simp only [Bool.and_eq_true, decide_eq_true_eq, not_and, not_lt] at hg
+      simp -failIfUnchanged only [Bool.and_eq_true, decide_eq_true_eq, not_and, not_lt] at hg
       cases System.Platform.numBits_eq <;> bv_decide
     case vc1.step.isTrue =>
       rename_i b mb rc1 n1 hg chunk rc2 n2 hinv

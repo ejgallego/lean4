@@ -28,8 +28,8 @@ def prog2 (b : Nat → Bool) : StateM Nat Unit := do
 /--
 info: prog2.eq_1 (b : Nat → Bool) :
   prog2 b =
-    have __do_jp := fun __r => if b 1 = true then modify fun x => x + 1 else modify fun x => x + 2;
-    if b 0 = true then do
+    have __do_jp := fun __r => bif b 1 then modify fun x => x + 1 else modify fun x => x + 2;
+    bif b 0 then do
       let __r ← modify fun x => x + 1
       __do_jp __r
     else do
@@ -78,7 +78,7 @@ info: rootMatch.eq_2 (b : Bool) (n : Nat) :
     have __do_jp := fun __r y => do
       let s ← get
       pure (y + s);
-    if b = true then
+    bif b then
       have y := 2;
       __do_jp () y
     else
@@ -104,11 +104,11 @@ info: seqIfs.eq_2 (b c : Bool) (n : Nat) :
       have __do_jp := fun __r y => do
         let s ← get
         pure (y + s);
-      if c = true then
+      bif c then
         have y := y + 1;
         __do_jp () y
       else __do_jp () y;
-    if b = true then
+    bif b then
       have y := 2;
       __do_jp () y
     else

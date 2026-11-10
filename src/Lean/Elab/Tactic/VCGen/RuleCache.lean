@@ -31,11 +31,14 @@ Cached version of spec rule construction.
 Both `Triple`/`⊑ wp` and equality entries go through `tryMkBackwardRuleFromSpec`, which normalizes
 an equality spec to `⊑ wp` form using the supplied `wp` metadata before building the rule.
 
-Cache key: `(proof key, instWP, excessArgs.size)`.
+Cache key: `(proof key, instWP, excessArgs.size, projectionProg?)`.
 -/
 public def mkBackwardRuleFromSpecCached (specThm : SpecTheorem) (info : WPApp) :
     OptionT VCGenM BackwardRule := do
-  let key := (specThm.proof.key, ExprPtr.mk info.instWP, info.excessArgs.size)
+  let projectionProg? ← if ← liftMetaM <| isProjectionEquationSpec specThm then
+    pure (some (ExprPtr.mk info.prog))
+  else pure none
+  let key := (specThm.proof.key, ExprPtr.mk info.instWP, info.excessArgs.size, projectionProg?)
   let s := (← get).specBackwardRuleCache
   if let some rule := s[key]? then return rule
   let some rule ← withNewMCtxDepth <| tryMkBackwardRuleFromSpec specThm info |>.run
@@ -48,15 +51,18 @@ open Lean.Elab.Tactic.Do in
 /--
 Cached version of `mkBackwardRuleForSplit`.
 
-Cache key: `(splitter name, instWP, excessArgs.size)`.
+Cache key: `(splitter name, instWP, excessArgs.size)`, distinguishing raw Boolean guards
+from decision projections because their rules abstract different binders.
 -/
 public def mkBackwardRuleForSplitCached (splitInfo : SplitInfo) (info : WPApp) :
     VCGenM BackwardRule := do
-  let cacheKey := match splitInfo with
-    | .ite .. => ``ite
-    | .dite .. => ``dite
-    | .cond .. => ``cond
-    | .matcher matcherApp => matcherApp.matcherName
+  let cacheKey ← match splitInfo with
+    | .ite .. => pure ``ite
+    | .dite .. => pure ``dite
+    | .cond e => do
+      let decision? ← liftMetaM <| Simp.getBoolDecision? (e.getArg! 1)
+      pure <| if decision?.isSome then ``Decidable.decide else ``cond
+    | .matcher matcherApp => pure matcherApp.matcherName
   let key := (cacheKey, ExprPtr.mk info.instWP, info.excessArgs.size)
   let s := (← get).splitBackwardRuleCache
   if let some rule := s[key]? then return rule

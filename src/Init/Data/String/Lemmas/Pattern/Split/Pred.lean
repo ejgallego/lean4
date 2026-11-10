@@ -72,10 +72,12 @@ theorem Pattern.Model.split_bool_eq_internal {p : Char → Bool} {s : Slice} (f 
   · simp only [h, split_endPos, subslice_endPos, ↓reduceDIte]
   · simp only [h, ↓reduceDIte]
     by_cases hp : p (curr.get h)
-    · simp only [hp, ↓reduceIte]
+    · simp only [hp]
+      try simp only [↓reduceIte]
       exact split_eq_of_isLongestMatchAt (isLongestMatchAt_of_get hp)
     · rw [Bool.not_eq_true] at hp
-      simp only [hp, Bool.false_eq_true, ↓reduceIte]
+      simp only [hp, Bool.false_eq_true]
+      try simp only [↓reduceIte]
       exact split_eq_next_of_not_matchesAt h (not_matchesAt_of_get hp)
 
 end

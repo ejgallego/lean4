@@ -202,8 +202,14 @@ theorem getElem_push_lt {xs : Array α} {x : α} {i : Nat} (h : i < xs.size) :
     simp [Nat.le_antisymm (Nat.le_of_lt_succ h) (Nat.ge_of_not_lt h')]
 
 @[grind =] theorem getElem?_push {xs : Array α} {x} : (xs.push x)[i]? = if i = xs.size then some x else xs[i]? := by
-  simp [getElem?_def, getElem_push]
-  (repeat' split) <;> first | rfl | omega
+  by_cases hlt : i < xs.size
+  · have heq : i ≠ xs.size := Nat.ne_of_lt hlt
+    simp [getElem_push, hlt, heq, Nat.lt_succ_of_lt hlt]
+  · by_cases heq : i = xs.size
+    · subst i
+      simp [getElem_push]
+    · have hge : xs.size + 1 ≤ i := by omega
+      simp [hlt, heq, Nat.not_lt_of_ge hge]
 
 theorem getElem?_push_size {xs : Array α} {x} : (xs.push x)[xs.size]? = some x := by
   simp
@@ -356,7 +362,7 @@ theorem replicate_succ : replicate (n + 1) a = (replicate n a).push a := by
 
 @[grind =] theorem getElem?_replicate {n : Nat} {v : α} {i : Nat} :
     (replicate n v)[i]? = if i < n then some v else none := by
-  simp [getElem?_def]
+  simp [getElem?_def] <;> rfl
 
 /-! ### mem -/
 
@@ -600,7 +606,8 @@ theorem anyM_loop_cons [Monad m] {p : α → m Bool} {a : α} {as : List α} {st
     funext b
     split
     · simp
-    · simp only [Bool.false_eq_true, ↓reduceIte]
+    · simp only [Bool.false_eq_true]
+      try rw [ite_false]
       rw [anyM_loop_cons]
       simpa [anyM] using! anyM_toList
 
@@ -1395,7 +1402,7 @@ theorem filter_congr {xs ys : Array α} (h : xs = ys)
   dsimp only [filter]
   rw [← foldl_toList]
   generalize xs.toList = xs
-  suffices ∀ as, (List.foldl (fun acc a => if p a = true then push acc a else acc) as xs).toList =
+  suffices ∀ as, (List.foldl (fun acc a => if p a then push acc a else acc) as xs).toList =
       as.toList ++ List.filter p xs by
     simpa using this #[]
   induction xs with simp
@@ -3007,8 +3014,7 @@ theorem foldrM_start_stop {m} [Monad m] {xs : Array α} {f : α → β → m β}
     simp
   | succ i ih =>
     unfold foldrM.fold
-    simp only [beq_iff_eq, Nat.add_eq_left, Nat.add_one_ne_zero, ↓reduceIte, Nat.add_eq,
-      getElem_extract]
+    simp [Nat.add_eq_left, Nat.add_eq, getElem_extract]
     congr
     funext b
     simp [ih b (by omega)]
@@ -4088,7 +4094,7 @@ theorem swap_comm {xs : Array α} {i j : Nat} (hi hj) : xs.swap i j hi hj = xs.s
   split <;> rename_i hi
   · split <;> rename_i hj
     · simp only [hi, hj, and_true]
-      exact getElem_swap _ _ _
+      split <;> (try split) <;> simp_all
     · simp only [hi, hj, and_true, and_false, dite_false]
       split <;> simp_all
   · simp only [hi, and_false, dite_false]
@@ -4176,6 +4182,7 @@ variable [LawfulBEq α]
   rcases xs with ⟨xs⟩
   simp only [List.replace_toArray, List.getElem?_toArray, List.getElem?_replace, take_eq_extract,
     List.extract_toArray, List.extract_eq_take_drop, Nat.sub_zero, List.drop_zero, List.mem_toArray]
+  all_goals by_cases h : xs[i]? = some a <;> simp [h]
 
 theorem getElem?_replace_of_ne {xs : Array α} {i : Nat} (h : xs[i]? ≠ some a) :
     (xs.replace a b)[i]? = xs[i]? := by
@@ -4316,7 +4323,7 @@ theorem getElem_range' {start size step : Nat} {i : Nat}
 @[grind =]
 theorem getElem?_range' {start size step : Nat} {i : Nat} :
     (Array.range' start size step)[i]? = if i < size then some (start + step * i) else none := by
-  simp [getElem?_def, getElem_range']
+  simp [getElem?_def, getElem_range'] <;> rfl
 
 @[simp, grind =] theorem _root_.List.toArray_range' {start size step : Nat} :
     (List.range' start size step).toArray = Array.range' start size step := by
@@ -4335,7 +4342,7 @@ theorem getElem_range {n : Nat} {i : Nat} (h : i < (Array.range n).size) : (Arra
 
 @[grind =]
 theorem getElem?_range {n : Nat} {i : Nat} : (Array.range n)[i]? = if i < n then some i else none := by
-  simp [getElem?_def, getElem_range]
+  simp [getElem?_def, getElem_range] <;> rfl
 
 @[simp, grind =] theorem _root_.List.toArray_range {n : Nat} : (List.range n).toArray = Array.range n := by
   apply ext'

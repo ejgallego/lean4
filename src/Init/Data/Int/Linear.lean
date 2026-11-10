@@ -451,7 +451,8 @@ def Poly.mul (p : Poly) (k : Int) : Poly :=
 @[simp] theorem Poly.mul_k_eq_mul (k : Int) (p : Poly) : p.mul_k k = p.mul k := by
   simp only [mul_k, mul, Int.beqZero_k_eq]
   cases h : k == 0
-  · simp only [Bool.false_eq_true, ↓reduceIte]
+  · simp only [Bool.false_eq_true]
+    try rw [ite_false]
     induction p
     next => simp [mul']
     next k m p ih => simp [mul', ← ih]
@@ -611,7 +612,8 @@ theorem Expr.denote_toPoly'_go (ctx : Context) (e : Expr) :
   (toPoly'.go k e p).denote ctx = k * e.denote ctx + p.denote ctx := by
     induction k, e using Expr.toPoly'.go.induct generalizing p with
   | case1 k k' h =>
-    simp only [toPoly'.go, h, Bool.cond_true]
+    simp only [toPoly'.go, h]
+    all_goals try simp only [Bool.cond_true]
     simp [eq_of_beq h]
   | case2 k k' h =>
     simp only [toPoly'.go, h, Bool.cond_false]
@@ -1149,7 +1151,7 @@ theorem Poly.dvd_denote_sub_bmodCoeffs (ctx : Context) (m : Nat) (p : Poly)
     simp only [bmodCoeffs]
     split
     next h =>
-      simp only [beq_iff_eq] at h
+      try simp only [beq_iff_eq] at h
       have : k * v.denote ctx + p.denote ctx - (p.bmodCoeffs m).denote ctx
            = k * v.denote ctx + (p.denote ctx - (p.bmodCoeffs m).denote ctx) := by omega
       simp only [denote, this]
@@ -2271,10 +2273,8 @@ theorem dvd_norm_poly (ctx : Context) (d : Int) (p p' : Poly) : p.denote' ctx = 
 theorem natCast_sub (x y : Nat)
     : (NatCast.natCast (x - y) : Int)
       =
-      if (NatCast.natCast y : Int) + (-1)*NatCast.natCast x ≤ 0 then
-        (NatCast.natCast x : Int) + -1*NatCast.natCast y
-      else
-        (0 : Int) := by
+      cond (decide ((NatCast.natCast y : Int) + (-1)*NatCast.natCast x ≤ 0))
+        ((NatCast.natCast x : Int) + -1*NatCast.natCast y) (0 : Int) := by
   change (↑(x - y) : Int) = if (↑y : Int) + (-1)*↑x ≤ 0 then (↑x : Int) + (-1)*↑y else 0
   rw [Int.neg_mul, ← Int.sub_eq_add_neg, Int.one_mul]
   rw [Int.neg_mul, ← Int.sub_eq_add_neg, Int.one_mul]

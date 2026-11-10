@@ -82,7 +82,7 @@ theorem Iter.val_step_intermediateDropWhile {α β} [Iterator α Id β]
   cases it.step using PlausibleIterStep.casesOn
   · cases dropping
     · simp
-    · simp only [↓reduceDIte, ↓reduceIte]
+    · simp only [↓reduceDIte]
       split <;> simp_all
   · simp
   · simp

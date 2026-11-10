@@ -179,10 +179,12 @@ public structure State where
   The particular rule depends on the theorem name, the `WPMonad` instance and the number of
   excess state arguments that the weakest precondition target is applied to.
 
+  Projection unfold equations additionally depend on the concrete program whose dictionary field they reduce.
+
   The instance is keyed by `ExprPtr`, so lookups compare it by pointer rather than structurally.
   This is sound because the instance is a subterm of the hash-consed goal target.
   -/
-  specBackwardRuleCache : Std.HashMap (Name × ExprPtr × Nat) BackwardRule := {}
+  specBackwardRuleCache : Std.HashMap (Name × ExprPtr × Nat × Option ExprPtr) BackwardRule := {}
   /--
   A cache mapping matchers to their splitting backward rule to apply.
   The particular rule depends on the matcher name, the monad and the number of excess state

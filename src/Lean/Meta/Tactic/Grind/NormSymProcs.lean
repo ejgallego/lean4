@@ -141,7 +141,7 @@ def simpEq : Simproc := fun e => do
       return .step (← mkNotS lhs) (mkApp (mkConst ``Grind.eq_false_eq) lhs)
     return .rfl
 
-/-- Converts `dite` with non-dependent branches into `ite`. -/
+/-- Converts `dite` with non-dependent branches into a native Boolean conditional. -/
 def simpDIte : Simproc := fun e => do
   let_expr f@dite α c inst a b := e | return .rfl
   let .lam _ _ aBody _ := a | return .rfl
@@ -149,8 +149,10 @@ def simpDIte : Simproc := fun e => do
   let .lam _ _ bBody _ := b | return .rfl
   if bBody.hasLooseBVars then return .rfl
   let us := f.constLevels!
-  let e' ← mkAppS₅ (← mkConstS ``ite us) α c inst aBody bBody
-  return .step e' (mkApp5 (mkConst ``dite_eq_ite us) c α aBody bBody inst)
+  let guard ← Sym.shareCommonWithoutChecks (.proj ``Decidable 0 inst)
+  let e' ← mkAppS₄ (← mkConstS ``cond us) α guard aBody bBody
+  let proof := mkApp5 (mkConst ``dite_eq_cond us) c α aBody bBody inst
+  return .step e' (mkExpectedPropHint proof (← mkEq e e'))
 
 /--
 Pushes negations inwards through the propositional connectives, `ite`, and the quantifiers.
@@ -173,7 +175,12 @@ def pushNot : Simproc := fun e => do
       | Bool.false => return .step (← mkAppS₃ f α a (← getBoolTrueExpr)) (mkApp (mkConst ``Bool.not_eq_false) a)
       | _ => return .rfl
   | f@ite α c inst a b =>
-    return .step (← mkAppS₅ f α c inst (← mkNotS a) (← mkNotS b)) (mkApp4 (mkConst ``Grind.not_ite) c inst a b)
+    let guard ← Sym.shareCommonWithoutChecks (.proj ``Decidable 0 inst)
+    let e' ← mkAppS₄ (← mkConstS ``cond f.constLevels!) α guard (← mkNotS a) (← mkNotS b)
+    let proof := mkApp4 (mkConst ``Grind.not_ite_eq_cond) c inst a b
+    return .step e' (mkExpectedPropHint proof (← mkEq e e'))
+  | f@cond α c a b =>
+    return .step (← mkAppS₄ f α c (← mkNotS a) (← mkNotS b)) (mkApp3 (mkConst ``Grind.not_cond) c a b)
   | Exists α q =>
     let e' ← mkForallS `a .default α (← mkNotS (← Sym.betaS q #[← mkBVarS 0]))
     let u ← Sym.getLevel α
@@ -286,7 +293,7 @@ where
 /--
 Normalizes universally quantified propositions and implications:
 `implies_true`, `Grind.imp_false_eq`, `Grind.true_imp_eq`,
-`Grind.false_imp_eq`, `Grind.imp_self_eq`, `Grind.forall_true`, `forall_false`,
+`Grind.false_imp_eq`, `Grind.imp_self_eq`, `Grind.forall_true`, `forall_false`, `forall_const`,
 `Grind.forall_or_forall`, `Grind.forall_forall_or`, `Grind.forall_and` (see `forallImpAnd?`).
 -/
 def simpForall : Simproc := fun e => do
@@ -305,6 +312,11 @@ def simpForall : Simproc := fun e => do
       -- Maximally shared terms: structural equality is pointer equality.
       if isSameExpr d b && (← isProp d) then
         return .step (← getTrueExpr) (mkApp (mkConst ``Grind.imp_self_eq) d) (done := true)
+    if !(← isProp d) && (← isProp b) && (← getEnv).contains ``forall_const then
+      if let .some inst ← trySynthInstance (mkApp (mkConst ``Nonempty [← getLevel d]) d) then
+        let iff := mkApp3 (mkConst ``forall_const [← getLevel d]) b d inst
+        let proof := mkApp3 (mkConst ``propext) e b iff
+        return .step b proof
   else
     match_expr d with
     | True =>

@@ -147,6 +147,7 @@ trace: [grind] Grind state
     [_] j < (bs.set i₂ v₂ ⋯).size
     [_] j < bs.size
   [eqc] Equivalence classes
+    [eqc] {false, decide (i₂ = j), (nestedDecidable (instDecidableEqNat i₂ j)).1}
     [eqc] {as.size, bs.size, cs.size, (as.set i₁ v₁ ⋯).size, (bs.set i₂ v₂ ⋯).size}
     [eqc] {cs[j], bs[j], (bs.set i₂ v₂ ⋯)[j]}
       [eqc] {if i₂ = j then v₂ else bs[j]}

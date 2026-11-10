@@ -552,39 +552,136 @@ def congrDefault (e : Expr) : SimpM Result := do
   else
     withParent e <| simpAppUsingCongr e
 
+private partial def isBoolCondition (p : Expr) : Bool :=
+  if p.isAppOfArity ``Not 1 then
+    isBoolCondition p.appArg!
+  else
+    p.isAppOfArity ``Eq 3 && (p.getArg! 0 3).isConstOf ``Bool
+
+private def addBoolReflectionLemma (s : SimpTheorems) (lemma : Name) (inv := false) : MetaM SimpTheorems := do
+  let info ← getConstVal lemma
+  let proof := mkConst lemma (info.levelParams.map mkLevelParam)
+  -- Keep preprocessing proofs inline across well-founded preprocessing's environment rollback.
+  let proof := mkExpectedPropHint proof info.type
+  s.add (.decl lemma (inv := inv)) info.levelParams.toArray proof (inv := inv)
+
+/-- Recover a decision's proposition and instance without reducing the instance. -/
+def getBoolDecision? (c : Expr) : MetaM (Option (Expr × Expr)) := do
+  let d ← match c with
+    | .proj ``Decidable 0 d => pure d
+    | _ =>
+      unless c.isAppOfArity ``Decidable.decide 2 do return none
+      pure c.getAppArgs[1]!
+  let type ← inferType d
+  let type ← if type.isAppOfArity ``Decidable 1 then pure type else whnfR type
+  unless type.isAppOfArity ``Decidable 1 do return none
+  return some (type.appArg!, d)
+
+/-- Remove exact Boolean comparisons of decision projections or `decide`, including under `Not`.
+Other Boolean expressions and their represented propositions are not unfolded. -/
+partial def normalizeDecisionCondition? (condition : Expr) : MetaM (Option Result) := do
+  if condition.isAppOfArity ``Not 1 then
+    let some r ← normalizeDecisionCondition? condition.appArg! | return none
+    let proof ← Meta.mkCongrArg (mkConst ``Not) (← r.getProof)
+    return some { expr := mkNot r.expr, proof? := some proof }
+  let_expr Eq α c value := condition | return none
+  unless α.isConstOf ``Bool do return none
+  unless value.isConstOf ``Bool.true || value.isConstOf ``Bool.false do return none
+  let some (p, d) ← getBoolDecision? c | return none
+  let positive := value.isConstOf ``Bool.true
+  let target := if positive then p else mkNot p
+  let forward := mkApp2 (mkConst (if positive then ``of_decide_eq_true else ``of_decide_eq_false)) p d
+  let backward := mkApp2 (mkConst (if positive then ``decide_eq_true else ``decide_eq_false)) p d
+  let iff := mkApp4 (mkConst ``Iff.intro) condition target forward backward
+  let result : Result := { expr := target, proof? := mkApp3 (mkConst ``propext) condition target iff }
+  if let some nested ← normalizeDecisionCondition? target then
+    return some (← result.mkEqTrans nested)
+  return some result
+
+/-- Recover a decision's original proposition, or normalize other Boolean conditions by reflection. -/
+def normalizeBoolCondition (p : Expr) : MetaM Result := do
+  if let some r ← normalizeDecisionCondition? p then
+    let r := { r with expr := r.expr.headBeta }
+    if let .forallE _ domain body _ := r.expr then
+      if body.isFalse && (← isProp domain) then
+        return { r with expr := mkNot domain }
+    return r
+  let env ← getEnv
+  let mut s : SimpTheorems := {}
+  let mut available := false
+  if env.contains ``decide_implies then
+    s ← addBoolReflectionLemma s ``decide_implies (inv := true)
+    available := true
+  for lemma in [``decide_eq_true_eq, ``decide_eq_false_iff_not, ``Nat.beq_eq, ``beq_iff_eq,
+      ``Nat.ble_eq, ``Nat.blt_eq, ``Nat.succ_le_iff, ``Bool.and_eq_true, ``Bool.or_eq_true,
+      ``Bool.not_eq_true', ``Bool.eq_false_iff, ``ne_eq, ``Decidable.not_not,
+      ``not_true_eq_false, ``not_false_eq_true] do
+    if env.contains lemma then
+      s ← addBoolReflectionLemma s lemma
+      available := true
+  unless available do return { expr := p }
+  let ctx ← Simp.mkContext (simpTheorems := #[s])
+    (config := { Simp.neutralConfig with dsimp := false })
+  let r := (← SimpM.run ctx {} (mkDefaultMethodsCore #[]) (simp p)).1
+  if let .forallE _ domain body _ := r.expr then
+    if body.isFalse && (← isProp domain) then
+      return { r with expr := mkApp (mkConst ``Not) domain }
+  return r
+
+private partial def withBoolConditionLemmas (xs : Array Expr)
+    (k : Array Expr → SimpM α) : SimpM α :=
+  go 0 #[]
+where
+  go (i : Nat) (derived : Array Expr) : SimpM α := do
+    if h : i < xs.size then
+      let x := xs[i]
+      let p ← inferType x
+      if isBoolCondition p then
+        let r ← normalizeBoolCondition p
+        if r.expr != p then
+          let value ← mkEqMP (← r.getProof) x
+          return ← withLetDecl (← mkFreshUserName `h) r.expr value fun h =>
+            go (i + 1) (derived.push h)
+      go (i + 1) derived
+    else
+      k derived
+
 /-- Process the given congruence theorem hypothesis. Return true if it made "progress". -/
-def processCongrHypothesis (h : Expr) (hType : Expr) : SimpM Bool := do
-  forallTelescopeReducing hType fun xs hType => withNewLemmas xs do
-    let lhs ← instantiateMVars hType.appFn!.appArg!
-    let r ← simp lhs
-    let rhs := hType.appArg!
-    rhs.withApp fun m zs => do
-      let val ← mkLambdaFVars zs r.expr
-      unless (← withSimpMetaConfig <| isDefEq m val) do
-        throwCongrHypothesisFailed
-      let mut proof ← r.getProof
-      if hType.isAppOf ``Iff then
-        try proof ← mkIffOfEq proof
-        catch _ => throwCongrHypothesisFailed
-      unless (← isDefEq h (← mkLambdaFVars xs proof)) do
-        throwCongrHypothesisFailed
-      /- We used to return `false` if `r.proof? = none` (i.e., an implicit `rfl` proof) because we
-          assumed `dsimp` would also be able to simplify the term, but this is not true
-          for non-trivial user-provided theorems.
-          Example:
-          ```
-          @[congr] theorem image_congr {f g : α → β} {s : Set α} (h : ∀ a, mem a s → f a = g a) : image f s = image g s :=
-          ...
+def processCongrHypothesis (h : Expr) (hType : Expr) (boolConditions := false) : SimpM Bool := do
+  forallTelescopeReducing hType fun xs hType => do
+    let withConditions := if boolConditions then withBoolConditionLemmas xs else fun k => k #[]
+    withConditions fun derived => withNewLemmas (xs ++ derived) do
+      let lhs ← instantiateMVars hType.appFn!.appArg!
+      let r ← simp lhs
+      let rhs := hType.appArg!
+      rhs.withApp fun m zs => do
+        let val ← mkLambdaFVars zs (← mkLetFVars derived r.expr)
+        unless (← withSimpMetaConfig <| isDefEq m val) do
+          throwCongrHypothesisFailed
+        let mut proof ← r.getProof
+        if hType.isAppOf ``Iff then
+          try proof ← mkIffOfEq proof
+          catch _ => throwCongrHypothesisFailed
+        proof ← mkLetFVars derived proof
+        unless (← isDefEq h (← mkLambdaFVars xs proof)) do
+          throwCongrHypothesisFailed
+        /- We used to return `false` if `r.proof? = none` (i.e., an implicit `rfl` proof) because we
+            assumed `dsimp` would also be able to simplify the term, but this is not true
+            for non-trivial user-provided theorems.
+            Example:
+            ```
+            @[congr] theorem image_congr {f g : α → β} {s : Set α} (h : ∀ a, mem a s → f a = g a) : image f s = image g s :=
+            ...
 
-          example {Γ: Set Nat}: (image (Nat.succ ∘ Nat.succ) Γ) = (image (fun a => a.succ.succ) Γ) := by
-            simp only [Function.comp_apply]
-          ```
-          `Function.comp_apply` is a `rfl` theorem, but `dsimp` will not apply it because the composition
-          is not fully applied. See comment at issue #1113
+            example {Γ: Set Nat}: (image (Nat.succ ∘ Nat.succ) Γ) = (image (fun a => a.succ.succ) Γ) := by
+              simp only [Function.comp_apply]
+            ```
+            `Function.comp_apply` is a `rfl` theorem, but `dsimp` will not apply it because the composition
+            is not fully applied. See comment at issue #1113
 
-          Thus, we have an extra check now if `xs.size > 0`. TODO: refine this test.
-      -/
-      return r.proof?.isSome || (xs.size > 0 && lhs != r.expr)
+            Thus, we have an extra check now if `xs.size > 0`. TODO: refine this test.
+        -/
+        return r.proof?.isSome || (xs.size > 0 && lhs != r.expr)
 
 /-- Try to rewrite `e` children using the given congruence theorem -/
 def trySimpCongrTheorem? (c : SimpCongrTheorem) (e : Expr) : SimpM (Option Result) := withNewMCtxDepth do withParent e do
@@ -613,7 +710,7 @@ def trySimpCongrTheorem? (c : SimpCongrTheorem) (e : Expr) : SimpM (Option Resul
       let hType ← instantiateMVars (← inferType h)
       let hType ← if thmHasBinderNameHint then hType.resolveBinderNameHint else pure hType
       try
-        if (← processCongrHypothesis h hType) then
+        if (← processCongrHypothesis h hType (boolConditions := c.theoremName == ``Bool.cond_congr)) then
           modified := true
       catch _ =>
         trace[Meta.Tactic.simp.congr] "processCongrHypothesis {c.theoremName} failed {hType}"
@@ -651,10 +748,92 @@ def congr (e : Expr) : SimpM Result := do
   else
     congrDefault e
 
+private def simpCond? (e : Expr) : SimpM (Option Result) := withParent e do
+  let_expr f@cond α c tb eb ← e | return none
+  let env ← getEnv
+  unless env.contains ``Bool.cond_eq_left || env.contains ``Bool.cond_eq_right do
+    return none
+  let condition := mkApp3 (mkConst ``Eq [1]) (mkConst ``Bool) c (mkConst ``Bool.true)
+  let projected? ← getBoolDecision? c
+  let normalized ← if projected?.isSome then normalizeBoolCondition condition
+    else pure ({ expr := condition } : Result)
+  let propResult ← simp normalized.expr
+  let primary ← normalized.mkEqTrans propResult
+  let reflected ← normalizeBoolCondition primary.expr
+  let mut r ← primary.mkEqTrans reflected
+  if projected?.isNone && !r.expr.isTrue && !r.expr.isFalse && reflected.expr != primary.expr then
+    let selected ← simp reflected.expr
+    let candidate ← r.mkEqTrans selected
+    let candidate ← candidate.mkEqTrans (← normalizeBoolCondition candidate.expr)
+    if candidate.expr.isTrue || candidate.expr.isFalse then
+      r := candidate
+  if r.expr.isTrue then
+    unless (← getEnv).contains ``Bool.cond_eq_left do return none
+    let h ← mkEqMPR (← r.getProof) (mkConst ``True.intro)
+    let pr := mkApp5 (mkConst ``Bool.cond_eq_left f.constLevels!) α c h tb eb
+    return some (← ({ expr := tb, proof? := pr, cache := r.cache } : Result).mkEqTrans (← simp tb))
+  if r.expr.isFalse then
+    unless (← getEnv).contains ``Bool.cond_eq_right do return none
+    let h ← withLocalDeclD `h condition fun h => do
+      mkLambdaFVars #[h] (← mkEqMP (← r.getProof) h)
+    let pr := mkApp5 (mkConst ``Bool.cond_eq_right f.constLevels!) α c h tb eb
+    return some (← ({ expr := eb, proof? := pr, cache := r.cache } : Result).mkEqTrans (← simp eb))
+  if propResult.expr != normalized.expr && env.contains `Decidable.decide_congr then
+    let view? ← match projected? with
+      | some view => pure (some view)
+      | none =>
+        if env.contains ``Bool.decide_eq_true then
+          pure (some (condition, mkApp2 (mkConst ``Bool.decEq) c (mkConst ``Bool.true)))
+        else
+          pure none
+    if let some (p, d) := view? then
+      if projected?.isSome && !(← isDefEq normalized.expr p) then return none
+      let q := propResult.expr
+      let h ← if projected?.isSome then propResult.getProof else
+        (← normalized.mkEqTrans propResult).getProof
+      let d' ← match ← trySynthInstance (mkApp (mkConst ``Decidable) q) with
+        | .some d' => pure d'
+        | _ => mkEqMP (← Meta.mkCongrArg (mkConst ``Decidable) h) d
+      let rawBool? := if env.contains ``Bool.decide_eq_true then
+        match q.eq? with
+        | some (α, b, value) =>
+          if α.isConstOf ``Bool && value.isConstOf ``Bool.true then some b else none
+        | none => none
+      else none
+      let c' := rawBool?.getD (mkProj ``Decidable 0 d')
+      if c' == c then return none
+      let hc := mkApp5 (mkConst `Decidable.decide_congr) p q h d d'
+      let hc ← if projected?.isSome then pure hc else
+        mkEqTrans (← mkEqSymm (mkApp2 (mkConst ``Bool.decide_eq_true) c d)) hc
+      let hc ← if let some b := rawBool? then
+        mkEqTrans hc (mkApp2 (mkConst ``Bool.decide_eq_true) b d')
+      else pure hc
+      let guard : Result := { expr := c', proof? := hc, cache := propResult.cache }
+      let guard ← guard.mkEqTrans (← simp c')
+      if guard.expr == c then
+        let result ← congr e
+        let cache := guard.cache && result.cache
+        return some (if result.expr == e then { expr := e, cache } else { result with cache })
+      let proof := mkApp6 (mkConst ``Bool.cond_cond_congr f.constLevels!) α c guard.expr (← guard.getProof) tb eb
+      let result : Result := { expr := mkApp4 f α guard.expr tb eb, proof? := proof, cache := guard.cache }
+      -- Revisit arguments without reconstructing the conditional's guard again.
+      let result ← result.mkEqTrans (← congr result.expr)
+      return some (if result.expr == e then { expr := e, cache := result.cache } else result)
+  return none
+
 def simpApp (e : Expr) : SimpM Result := do
   if isOfNatNatLit e || isOfScientificLit e || isCharLit e then
     -- Recall that we fold "orphan" kernel Nat literals `n` into `OfNat.ofNat n`
     return { expr := e }
+  else if e.isAppOf ``cond && e.getAppNumArgs >= 4 then
+    let args := e.getAppArgs
+    let condFn := mkAppN e.getAppFn args[:4]
+    if let some r ← simpCond? condFn then
+      if args.size == 4 then return r
+      let applied ← r.addExtraArgs args[4:]
+      let applied := { applied with cache := r.cache }
+      return ← applied.mkEqTrans (← simp applied.expr)
+    congr e
   else
     congr e
 

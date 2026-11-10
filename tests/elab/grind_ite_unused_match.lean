@@ -110,7 +110,7 @@ attribute [grind] List.mem_cons List.not_mem_nil List.mem_append
 attribute [local grind] normalized hasNestedIf hasConstantIf hasRedundantIf disjoint vars
 
 -- I'd prefer to use `TreeMap` here, but its `getElem?_insert` lemma is not useful.
-attribute [grind] Std.HashMap.getElem?_insert
+attribute [grind =] Std.HashMap.getElem?_insert
 
 /-!
 Lemmas for `eval`.

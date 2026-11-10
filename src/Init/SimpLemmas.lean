@@ -209,6 +209,16 @@ theorem ite_congr {x y u v : α} {s : Decidable b} [Decidable c]
   | inl h => rw [ite_eq_left h]; subst b; rw [ite_eq_left h]; exact h₂ h
   | inr h => rw [ite_eq_right h]; subst b; rw [ite_eq_right h]; exact h₃ h
 
+/-- Simplify a Boolean conditional's branches under the corresponding condition. -/
+@[congr]
+theorem Bool.cond_congr {α : Sort u} {b c : Bool} {x y u v : α}
+    (h₁ : b = c) (h₂ : c = true → x = u) (h₃ : ¬c = true → y = v) :
+    cond b x y = cond c u v := by
+  cases h₁
+  cases b with
+  | false => exact h₃ (by intro h; cases h)
+  | true => exact h₂ rfl
+
 theorem ite_cond_congr {α} {b c : Prop} {s : Decidable b} [Decidable c] {x y : α}
     (h₁ : b = c) : ite b x y = ite c x y := by
   cases Decidable.em c with
@@ -238,22 +248,34 @@ theorem dite_cond_congr {α} {b c : Prop} {s : Decidable b} [Decidable c]
 
 @[simp] theorem ne_eq (a b : α) : (a ≠ b) = ¬(a = b) := rfl
 norm_cast_add_elim ne_eq
-@[simp] theorem ite_true {_ : Decidable True} (a b : α) : (if True then a else b) = a := ite_eq_left trivial
-@[simp] theorem ite_false {_ : Decidable False} (a b : α) : (if False then a else b) = b := ite_eq_right id
+@[simp] theorem ite_true {_ : Decidable True} (a b : α) : ite True a b = a := ite_eq_left trivial
+@[simp] theorem ite_false {_ : Decidable False} (a b : α) : ite False a b = b := ite_eq_right id
 @[simp] theorem dite_true {α : Sort u} {_ : Decidable True} {t : True → α} {e : ¬ True → α} : (dite True t e) = t True.intro := dite_eq_left trivial
 @[simp] theorem dite_false {α : Sort u} {_ : Decidable False} {t : False → α} {e : ¬ False → α} : (dite False t e) = e not_false := dite_eq_right id
 section SimprocHelperLemmas
 set_option simprocs false
-theorem ite_eq_left_of_eq_true {α : Sort u} {c : Prop} {_ : Decidable c} (a b : α) (h : c = True) : (if c then a else b) = a := by simp [h]
-theorem ite_eq_right_of_eq_false {α : Sort u} {c : Prop} {_ : Decidable c} (a b : α) (h : c = False) : (if c then a else b) = b := by simp [h]
+theorem Bool.cond_eq_left_of_eq_true {α : Sort u} (c : Bool) (a b : α)
+    (h : (c = true) = True) : cond c a b = a := by
+  cases c with
+  | false => exact False.elim (Bool.noConfusion (of_eq_true h))
+  | true => rfl
+
+theorem Bool.cond_eq_right_of_eq_false {α : Sort u} (c : Bool) (a b : α)
+    (h : (c = true) = False) : cond c a b = b := by
+  cases c with
+  | false => rfl
+  | true => exact False.elim (of_eq_false h rfl)
+
+theorem ite_eq_left_of_eq_true {α : Sort u} {c : Prop} {_ : Decidable c} (a b : α) (h : c = True) : ite c a b = a := by simp [h]
+theorem ite_eq_right_of_eq_false {α : Sort u} {c : Prop} {_ : Decidable c} (a b : α) (h : c = False) : ite c a b = b := by simp [h]
 theorem dite_eq_left_of_eq_true {α : Sort u} {c : Prop} {_ : Decidable c} {t : c → α} {e : ¬ c → α} (h : c = True) : (dite c t e) = t (of_eq_true h) := by simp [h]
 theorem dite_eq_right_of_eq_false {α : Sort u} {c : Prop} {_ : Decidable c} {t : c → α} {e : ¬ c → α} (h : c = False) : (dite c t e) = e (of_eq_false h) := by simp [h]
 
 @[deprecated ite_eq_left_of_eq_true (since := "2026-07-24")]
-theorem ite_cond_eq_true {α : Sort u} {c : Prop} {_ : Decidable c} (a b : α) (h : c = True) : (if c then a else b) = a := ite_eq_left_of_eq_true a b h
+theorem ite_cond_eq_true {α : Sort u} {c : Prop} {_ : Decidable c} (a b : α) (h : c = True) : ite c a b = a := ite_eq_left_of_eq_true a b h
 
 @[deprecated ite_eq_right_of_eq_false (since := "2026-07-24")]
-theorem ite_cond_eq_false {α : Sort u} {c : Prop} {_ : Decidable c} (a b : α) (h : c = False) : (if c then a else b) = b := ite_eq_right_of_eq_false a b h
+theorem ite_cond_eq_false {α : Sort u} {c : Prop} {_ : Decidable c} (a b : α) (h : c = False) : ite c a b = b := ite_eq_right_of_eq_false a b h
 
 @[deprecated dite_eq_left_of_eq_true (since := "2026-07-24")]
 theorem dite_cond_eq_true {α : Sort u} {c : Prop} {_ : Decidable c} {t : c → α} {e : ¬ c → α} (h : c = True) : (dite c t e) = t (of_eq_true h) := dite_eq_left_of_eq_true h

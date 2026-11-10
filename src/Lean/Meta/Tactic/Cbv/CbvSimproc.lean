@@ -67,10 +67,16 @@ def CbvSimprocs.addCore (s : CbvSimprocs) (keys : Array DiscrTree.Key) (declName
     (phase : CbvSimprocPhase) (proc : Simproc) : CbvSimprocs :=
   let entry : CbvSimprocEntry := { declName, phase, keys, proc }
   let s := { s with simprocNames := s.simprocNames.insert declName, erased := s.erased.erase declName }
+  let insert (tree : DiscrTree CbvSimprocEntry) := Id.run do
+    let tree := tree.insertKeyValue keys entry
+    -- Generic named-decision keys may have been serialized by the bootstrap compiler.
+    if keys == #[.const ``Decidable.decide 2, .star, .star] then
+      return tree.insertKeyValue #[.proj ``Decidable 0 0] entry
+    return tree
   match phase with
-  | .pre  => { s with pre  := s.pre.insertKeyValue keys entry }
-  | .eval => { s with eval := s.eval.insertKeyValue keys entry }
-  | .post => { s with post := s.post.insertKeyValue keys entry }
+  | .pre  => { s with pre := insert s.pre }
+  | .eval => { s with eval := insert s.eval }
+  | .post => { s with post := insert s.post }
 
 def CbvSimprocs.erase (s : CbvSimprocs) (declName : Name) : CbvSimprocs :=
   { s with erased := s.erased.insert declName, simprocNames := s.simprocNames.erase declName }

@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Replace
 public import Lean.Elab.Tactic.Location
+import Lean.Meta.KAbstract
 
 public section
 
@@ -31,17 +32,17 @@ def elabChange (e : Expr) (p : Term) (mkDefeqError : Expr → Expr → MetaM Mes
     TacticM Expr := do
   let p ← runTermElab do
     let p ← Term.elabTermEnsuringType p (← inferType e)
-    unless ← isDefEq p e do
+    unless ← isDefEq p e <||> isDefEqIf p e do
       /-
       Sometimes isDefEq can fail due to postponed elaboration problems.
       We synthesize pending synthetic mvars while allowing typeclass instances to be postponed,
       which might enable solving for them with an additional `isDefEq`.
       -/
       Term.synthesizeSyntheticMVars (postpone := .partial)
-      discard <| isDefEq p e
+      discard <| isDefEq p e <||> isDefEqIf p e
     pure p
   withAssignableSyntheticOpaque do
-    unless ← isDefEq p e do
+    unless ← isDefEq p e <||> isDefEqIf p e do
       let config ← getConfig
       throwError MessageData.ofLazyM (es := #[p, e]) <| withConfig (fun _ => config) do
         let (p, tgt) ← addPPExplicitToExposeDiff p e

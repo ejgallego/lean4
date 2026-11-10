@@ -845,7 +845,7 @@ theorem or_eq_left_of_isSome {o o' : Option α} : o.isSome = true → o.or o' = 
 theorem or_none : or o none = o := by
   cases o <;> rfl
 
-theorem or_eq_ite : or o o' = if o.isSome then o else o' := by
+theorem or_eq_ite : or o o' = ite o.isSome o o' := by
   cases o <;> simp
 
 @[deprecated or_eq_ite +typeChanged (since := "2026-07-29")]
@@ -1021,6 +1021,22 @@ section ite
     some a = (if h : p then b h else none) ↔ ∃ h, some a = b h := by
   split <;> simp_all
 
+@[simp] theorem cond_none_left_eq_some {c : Bool} {b : Option β} :
+    cond c none b = some a ↔ ¬c = true ∧ b = some a := by
+  cases c <;> simp [cond]
+
+@[simp] theorem cond_none_right_eq_some {c : Bool} {b : Option α} :
+    cond c b none = some a ↔ c = true ∧ b = some a := by
+  cases c <;> simp [cond]
+
+@[simp] theorem some_eq_cond_none_left {c : Bool} {b : Option β} :
+    some a = cond c none b ↔ ¬c = true ∧ some a = b := by
+  cases c <;> simp [cond]
+
+@[simp] theorem some_eq_cond_none_right {c : Bool} {b : Option α} :
+    some a = cond c b none ↔ c = true ∧ some a = b := by
+  cases c <;> simp [cond]
+
 @[simp] theorem ite_none_left_eq_some {p : Prop} {_ : Decidable p} {b : Option β} :
     (if p then none else b) = some a ↔ ¬ p ∧ b = some a := by
   split <;> simp_all
@@ -1082,7 +1098,7 @@ theorem mem_ite_none_right {x : α} {_ : Decidable p} {l : Option α} :
 
 @[simp] theorem get_ite {p : Prop} {_ : Decidable p} (h) :
     (if p then some b else none).get h = b := by
-  simpa using! get_dite (p := p) (fun _ => b) (by simpa using h)
+  split <;> simp_all
 
 @[simp] theorem get_dite' {p : Prop} {_ : Decidable p} (b : ¬ p → β) (w) :
     (if h : p then none else some (b h)).get w = b (by simpa using w) := by
@@ -1094,7 +1110,7 @@ theorem mem_ite_none_right {x : α} {_ : Decidable p} {l : Option α} :
 
 @[simp] theorem get_ite' {p : Prop} {_ : Decidable p} (h) :
     (if p then none else some b).get h = b := by
-  simpa using! get_dite' (p := p) (fun _ => b) (by simpa using h)
+  split <;> simp_all
 
 end ite
 
@@ -1385,7 +1401,7 @@ theorem eq_some_of_pfilter_eq_some {o : Option α} {p : (a : α) → o = some a 
   cases o with
   | none => rfl
   | some a =>
-    simp only [pfilter, Option.filter, Bool.cond_eq_ite_iff]
+    simp only [pfilter, Option.filter] <;> rfl
 
 @[simp] theorem pfilter_filter {o : Option α} {p : α → Bool} {q : (a : α) → o.filter p = some a → Bool} :
     (o.filter p).pfilter q = o.pfilter (fun a h => if h' : p a then q a (Option.filter_eq_some_iff.2 ⟨h, h'⟩) else false) := by
@@ -1400,7 +1416,7 @@ theorem eq_some_of_pfilter_eq_some {o : Option α} {p : (a : α) → o = some a 
   cases o with
   | none => simp
   | some a =>
-    simp only [pfilter_some, Bool.and_eq_true]
+    simp only [pfilter_some]
     split <;> simp [filter_some, *]
 
 @[simp] theorem pfilter_pfilter {o : Option α} {p : (a : α) → o = some a → Bool}

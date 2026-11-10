@@ -20,7 +20,7 @@ of_eq_true (Eq.trans (congrFun' (congrArg Eq (eq_false_of_decide (Eq.refl false)
 #guard_msgs in
 #print ex5
 
-theorem ex6 : (if "hello" = "world" then 1 else 2) = 2 :=
+theorem ex6 : ite ("hello" = "world") 1 2 = 2 :=
   by simp (config := { decide := true })
 
 /--
@@ -30,8 +30,8 @@ of_eq_true (eq_true_of_decide (Eq.refl true))
 #guard_msgs in
 #print ex6
 
-theorem ex7 : (if "hello" = "world" then 1 else 2) = 2 := by
-  simp (config := { decide := false }) [-String.reduceEq]
+theorem ex7 : ¬ "hello" = "world" := by
+  fail_if_success simp (config := { decide := false }) [-String.reduceEq]
   guard_target =ₛ ¬ "hello" = "world"
   fail_if_success simp [-String.reduceEq]
   simp (config := { decide := true }) [-String.reduceEq]

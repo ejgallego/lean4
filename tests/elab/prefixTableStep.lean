@@ -35,7 +35,7 @@ info: PrefixTable.step.eq_def.{u_1} {α : Type u_1} [BEq α] (t : PrefixTable α
           let k' := t.toArray[k].snd;
           have hk' := ⋯;
           t.step x ⟨k', ⋯⟩;
-      if hsz : k < t.size then if (x == t.toArray[k].fst) = true then ⟨k + 1, ⋯⟩ else cont () else cont ()
+      if hsz : k < t.size then bif x == t.toArray[k].fst then ⟨k + 1, ⋯⟩ else cont () else cont ()
 -/
 #guard_msgs in
 #check PrefixTable.step.eq_def

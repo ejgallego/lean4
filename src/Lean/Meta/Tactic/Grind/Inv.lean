@@ -158,10 +158,19 @@ def checkCongrTable : GoalM Unit := do
       | throwError "`grind` internal error, stale congruence table entry{indentExpr e}"
     assert! isSameExpr e e'
 
+def checkCondParents : GoalM Unit := do
+  for (key, parents) in (← get).condParents.toList do
+    assert! isSameExpr (← getRoot key.expr) key.expr
+    for parent in parents.elems do
+      assert! isCond parent
+      let condition ← shareCommon (← condCondition parent)
+      assert! isSameExpr (← getRoot condition) key.expr
+
 /-- Checks invariants if `grind.debug` is enabled. -/
 public def checkInvariants (expensive := false) : GoalM Unit := do
   if (← isDebugEnabled) then
     checkCongrTable
+    checkCondParents
     for e in (← getExprs) do
       let node ← getENode e
       checkParents node.self

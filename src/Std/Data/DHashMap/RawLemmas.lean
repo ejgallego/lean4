@@ -4311,7 +4311,7 @@ theorem mem_alter_of_beq [LawfulBEq α] {k k': α} {f : Option (β k) → Option
 @[simp]
 theorem contains_alter_self [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} (h : m.WF) :
     (m.alter k f).contains k = (f (m.get? k)).isSome := by
-  simp only [contains_alter h, beq_self_eq_true, reduceIte]
+  simp only [contains_alter h, beq_self_eq_true] <;> rfl
 
 @[simp]
 theorem mem_alter_self [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} (h : m.WF) :
@@ -4320,7 +4320,7 @@ theorem mem_alter_self [LawfulBEq α] {k : α} {f : Option (β k) → Option (β
 
 theorem contains_alter_of_beq_eq_false [LawfulBEq α] {k k' : α} {f : Option (β k) → Option (β k)}
     (h : m.WF) (he : (k == k') = false) : (m.alter k f).contains k' = m.contains k' := by
-  simp only [contains_alter h, he, Bool.false_eq_true, reduceIte]
+  simp only [contains_alter h, he, Bool.false_eq_true] <;> rfl
 
 theorem mem_alter_of_beq_eq_false [LawfulBEq α] {k k' : α} {f : Option (β k) → Option (β k)}
     (h : m.WF) (he : (k == k') = false) : k' ∈ m.alter k f ↔ k' ∈ m := by
@@ -4534,7 +4534,7 @@ theorem mem_alter_of_beq [EquivBEq α] [LawfulHashable α] {k k': α} {f : Optio
 @[simp]
 theorem contains_alter_self [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β → Option β}
     (h : m.WF) : (Const.alter m k f).contains k = (f (Const.get? m k)).isSome := by
-  simp only [contains_alter h, BEq.refl, reduceIte]
+  simp only [contains_alter h, BEq.refl] <;> rfl
 
 @[simp]
 theorem mem_alter_self [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β → Option β}
@@ -4544,7 +4544,7 @@ theorem mem_alter_self [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β
 theorem contains_alter_of_beq_eq_false [EquivBEq α] [LawfulHashable α] {k k' : α}
     {f : Option β → Option β} (h : m.WF) (he : (k == k') = false) :
     (Const.alter m k f).contains k' = m.contains k' := by
-  simp only [contains_alter h, he, Bool.false_eq_true, reduceIte]
+  simp only [contains_alter h, he, Bool.false_eq_true] <;> rfl
 
 theorem mem_alter_of_beq_eq_false [EquivBEq α] [LawfulHashable α] {k k' : α}
     {f : Option β → Option β} (h : m.WF) (he : (k == k') = false) :

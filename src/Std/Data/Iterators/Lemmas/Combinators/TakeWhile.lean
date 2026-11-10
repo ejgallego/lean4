@@ -93,13 +93,13 @@ theorem Iter.atIdxSlow?_takeWhile {α β}
         split
         · exact hP
         · simp at hk
-          exact h _ hk
+          exact h _ (by omega)
       · rename_i hl
         rw [ite_eq_right]
         intro hl'
         apply hl
         intro k hk
-        exact hl' (k + 1) (Nat.succ_le_succ hk)
+        exact hl' (k + 1) (by omega)
   case skip_case l it it' h h' ih =>
     simp only [atIdxSlow?_eq_match (it := it.takeWhile P), step_takeWhile, h', ih]
     simp only [atIdxSlow?_eq_match (it := it), h']
@@ -119,11 +119,13 @@ private theorem List.getElem?_takeWhile {l : List α} {P : α → Bool} {k} :
       · simp [*]
       · simp [ih]
         split
-        · rw [ite_eq_left]
+        · rename_i h
+          rw [ite_eq_left]
           intro k' hk'
           cases k'
           · simp [*]
-          · simp_all
+          · rename_i k'
+            simpa using h k' (by omega)
         · rename_i hP
           rw [ite_eq_right]
           intro hP'

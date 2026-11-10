@@ -4,7 +4,7 @@
 [Elab.definition.body] «_aux_elab_ppNotationCode___macroRules_term_+++__1» : Lean.Macro :=
     fun x =>
       have __discr := x;
-      if __discr.isOfKind `«term_+++_» = true then
+      bif __discr.isOfKind `«term_+++_» then
         have __discr_1 := __discr.getArg 0;
         have __discr_2 := __discr.getArg 1;
         have __discr := __discr.getArg 2;
@@ -27,11 +27,11 @@
 [Elab.definition.body] _aux_elab_ppNotationCode___unexpand_Nat_add_1 : Lean.PrettyPrinter.Unexpander :=
     fun x =>
       have __discr := x;
-      if __discr.isOfKind `Lean.Parser.Term.app = true then
+      bif __discr.isOfKind `Lean.Parser.Term.app then
         have __discr_1 := __discr.getArg 0;
         bif false || __discr_1.isOfKind `ident then
           have __discr_2 := __discr.getArg 1;
-          if __discr_2.matchesNull 2 = true then
+          bif __discr_2.matchesNull 2 then
             have __discr := __discr_2.getArg 0;
             have __discr_3 := __discr_2.getArg 1;
             have rhs := { raw := __discr_3 };

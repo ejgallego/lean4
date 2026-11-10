@@ -246,7 +246,7 @@ info: have this :=
   do
   let p ←
     withFinalizer (pure ())
-        (if true = true then
+        (bif true then
           let s := "then";
           pure () s
         else

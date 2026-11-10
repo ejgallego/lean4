@@ -171,7 +171,7 @@ Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
 
 -- Simprocs
 
-#guard_msgs in example : if true then True else False := by simp only [↓reduceIte]
+#guard_msgs in example : ite (true : Bool) True False := by simp only [↓reduceIte]
 
 /--
 warning: This simp argument is unused:

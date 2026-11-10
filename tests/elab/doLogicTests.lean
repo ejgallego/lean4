@@ -579,7 +579,8 @@ theorem need_const_approx :
   unfold test
   mintro _
   mspec
-  split <;> mspec
+  try split
+  all_goals mspec
 
 theorem need_const_approx' :
    ⦃fun x => ⌜x = ()⌝⦄

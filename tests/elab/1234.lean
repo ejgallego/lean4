@@ -27,10 +27,6 @@ trace: [Meta.Tactic.simp.rewrite] h₁:1000:
       v - 1 + 1
     ==>
       v
-[Meta.Tactic.simp.rewrite] ite_true:1000:
-      if True then ⟨v, ⋯⟩ else ⟨v - 1, ⋯⟩
-    ==>
-      ⟨v, ⋯⟩
 [Meta.Tactic.simp.rewrite] eq_self:1000:
       ⟨v, ⋯⟩ = ⟨v, ⋯⟩
     ==>
@@ -67,10 +63,6 @@ trace: [Meta.Tactic.simp.rewrite] h₁:1000:
       v - 1 + 1
     ==>
       v
-[Meta.Tactic.simp.rewrite] ite_true:1000:
-      if True then ⟨v, ⋯⟩ else ⟨v - 1, ⋯⟩
-    ==>
-      ⟨v, ⋯⟩
 [Meta.Tactic.simp.rewrite] eq_self:1000:
       ⟨v, ⋯⟩ = ⟨v, ⋯⟩
     ==>
@@ -105,10 +97,6 @@ trace: [Meta.Tactic.simp.rewrite] h₁:1000:
       v - 1 + 1
     ==>
       v
-[Meta.Tactic.simp.rewrite] ite_true:1000:
-      if True then ⟨v, ⋯⟩ else ⟨v - 1, ⋯⟩
-    ==>
-      ⟨v, ⋯⟩
 [Meta.Tactic.simp.rewrite] eq_self:1000:
       ⟨v, ⋯⟩ = ⟨v, ⋯⟩
     ==>

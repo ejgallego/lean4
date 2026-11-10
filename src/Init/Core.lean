@@ -1168,6 +1168,25 @@ instance {p q} [dp : Decidable p] [dq : Decidable q] : Decidable (p ↔ q) where
 
 /-! # if-then-else expression theorems -/
 
+/-- Reduce a Boolean conditional using a proof that its condition is true. -/
+theorem Bool.cond_eq_left {α : Sort u} (c : Bool) (h : c = true) (t e : α) :
+    cond c t e = t := by
+  cases h
+  rfl
+
+/-- Reduce a Boolean conditional using a proof that its condition is not true. -/
+theorem Bool.cond_eq_right {α : Sort u} (c : Bool) (h : ¬ c = true) (t e : α) :
+    cond c t e = e := by
+  have h := Bool.of_not_eq_true h
+  cases h
+  rfl
+
+/-- Rewrite the condition of a Boolean conditional. -/
+theorem Bool.cond_cond_congr {α : Sort u} (c c' : Bool) (h : c = c') (t e : α) :
+    cond c t e = cond c' t e := by
+  cases h
+  rfl
+
 @[suggest_for ite_pos ite_of_pos]
 theorem ite_eq_left {c : Prop} {h : Decidable c} (hc : c) {α : Sort u} {t e : α} : (ite c t e) = t :=
   match h with
@@ -1175,7 +1194,7 @@ theorem ite_eq_left {c : Prop} {h : Decidable c} (hc : c) {α : Sort u} {t e : �
   | isFalse hnc => absurd hc hnc
 
 @[deprecated ite_eq_left (since := "2026-07-21")]
-theorem if_pos {c : Prop} {h : Decidable c} (hc : c) {α : Sort u} {t : α} {e : α} : (if c then t else e) = t := ite_eq_left hc
+theorem if_pos {c : Prop} {h : Decidable c} (hc : c) {α : Sort u} {t : α} {e : α} : ite c t e = t := ite_eq_left hc
 
 @[suggest_for ite_neg ite_of_neg]
 theorem ite_eq_right {c : Prop} {h : Decidable c} (hnc : ¬c) {α : Sort u} {t e : α} : (ite c t e) = e :=
@@ -1184,7 +1203,7 @@ theorem ite_eq_right {c : Prop} {h : Decidable c} (hnc : ¬c) {α : Sort u} {t e
   | isFalse _   => rfl
 
 @[deprecated ite_eq_right (since := "2026-07-21")]
-theorem if_neg {c : Prop} {h : Decidable c} (hnc : ¬c) {α : Sort u} {t : α} {e : α} : (if c then t else e) = e := ite_eq_right hnc
+theorem if_neg {c : Prop} {h : Decidable c} (hnc : ¬c) {α : Sort u} {t : α} {e : α} : ite c t e = e := ite_eq_right hnc
 
 /-- Split an if-then-else into cases. The `split` tactic is generally easier to use than this theorem. -/
 def iteInduction {c} [inst : Decidable c] {motive : α → Sort _} {t e : α}
@@ -1294,6 +1313,12 @@ instance (p : Prop) : Subsingleton (Decidable p) :=
     | isFalse f₁ => fun
       | isTrue t₂  => absurd t₂ f₁
       | isFalse _  => rfl
+
+/-- Decisions for equal propositions have the same Boolean value. -/
+theorem Decidable.decide_congr {p q : Prop} (h : p = q) (d : Decidable p) (d' : Decidable q) :
+    @Decidable.decide p d = @Decidable.decide q d' := by
+  cases h
+  exact congrArg (@Decidable.decide p) (Subsingleton.elim d d')
 
 example [Subsingleton α] (p : α → Prop) : Subsingleton (Subtype p) :=
   ⟨fun ⟨x, _⟩ ⟨y, _⟩ => by congr; exact Subsingleton.elim x y⟩

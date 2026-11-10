@@ -309,6 +309,14 @@ def mkSpecBackwardProof (info : WPApp)
 
   abstractMVars specApplied
 
+/-- Whether an equality spec exposes a dictionary field that must be reduced before folding. -/
+public def isProjectionEquationSpec (specThm : SpecTheorem) : MetaM Bool := do
+  unless specThm.kind matches .simp _ do return false
+  withNewMCtxDepth do
+    let (_, _, _, type) ← specThm.instantiate
+    let_expr Eq _ _ rhs := type | return false
+    return rhs.getAppFn.isProj
+
 /--
 Normalize an instantiated equality spec `lhs = rhs` (both of type `info.M α`) to the `⊑ wp` form
 `wp rhs Q E ⊑ wp lhs Q E` by instantiating `wp_le_wp_of_eq` with fresh schematic `Q`/`E`.
@@ -317,14 +325,13 @@ The schematic `Q`/`E` make the postcondition and exception-postcondition VCs col
 `mkSpecBackwardProof`, so the resulting rule rewrites a `wp lhs` goal to a `wp rhs` premise, matching
 the equational behaviour of a simp spec. Only the monad, the value type and the `WP` instance are
 pinned from the goal, mirroring how `tryMkBackwardRuleFromSpec` treats `⊑ wp` specs; the equation's
-remaining variables, including instance binders, stay schematic and become rule parameters that
-applying the rule binds against the concrete goal program. Dictionary projections this substitution
-exposes in the premise program (e.g. for class projection unfold equations like
-`MonadState.modifyGet.eq_1`) are reduced by `wpHeadReduce?` before the next spec lookup.
+remaining variables, including instance binders, stay schematic and become rule parameters.
+Projection unfold equations are specialized to the concrete program so their dictionary field can
+reduce before preprocessing folds projections back into accessor applications.
 -/
 def eqSpecToWp? (info : WPApp) (eqPrf eqType : Expr) :
     OptionT MetaM (Expr × Expr) := do
-  let_expr Eq eqα _lhs _rhs := eqType
+  let_expr Eq eqα lhs rhs := eqType
     | throwError "simp spec is not an equation: {eqType}"
   -- Unify the equation's type with the goal's program type. First-order approximation decomposes
   -- flex-headed equation types (e.g. class projection unfold equations quantified over the monad,
@@ -332,6 +339,17 @@ def eqSpecToWp? (info : WPApp) (eqPrf eqType : Expr) :
   -- current metavariable depth: `mkAppOptM` raises the depth, so the equation's type metavariables
   -- are read-only there.
   guard <| ← withReducible <| approxDefEq <| isDefEqGuarded eqα info.Prog
+  let eqPrf ← if rhs.getAppFn.isProj then do
+    -- Reduce the concrete dictionary field before preprocessing folds it back into its accessor.
+    guard <| ← withReducible <| approxDefEq <| isDefEqGuarded lhs info.prog
+    let rhs ← instantiateMVars rhs
+    let field ← withReducibleAndInstances <| Meta.reduceProj? rhs.getAppFn
+    let field ← Sym.unfoldReducible field
+    let rhs ← Sym.foldProjs (mkAppN field rhs.getAppArgs).headBeta
+    let lhs ← Sym.foldProjs (← Sym.unfoldReducible (← instantiateMVars lhs))
+    guard (lhs != rhs)
+    mkAppM ``Eq.trans #[eqPrf, ← mkEqRefl rhs]
+  else pure eqPrf
   -- `post`/`eposts` are schematic metavariables (their VCs collapse downstream).
   let post ← mkFreshExprMVar (userName := `Q) (← mkArrow info.Value info.Pred)
   let eposts ← mkFreshExprMVar (userName := `E) info.EPosts

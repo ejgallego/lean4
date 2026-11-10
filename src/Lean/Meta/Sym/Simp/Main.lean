@@ -11,6 +11,8 @@ import Lean.Meta.Sym.Simp.Simproc
 import Lean.Meta.Sym.Simp.App
 import Lean.Meta.Sym.Simp.Have
 import Lean.Meta.Sym.Simp.Forall
+import Lean.Meta.Sym.Simp.ControlFlow
+import Lean.Meta.Tactic.Simp.Main
 import Lean.Meta.Sym.InstantiateMVarsS
 
 namespace Lean.Meta.Sym.Simp
@@ -49,6 +51,13 @@ def simpStep : Simproc := fun e => do
   | .mvar _ =>
     let some e' ← instantiateAssignedMVarHeadS? e | return .rfl
     return .step e' (← mkEqRefl e')
+  | .proj ``Decidable 0 d =>
+    if d.isAppOfArity ``Decidable.intro 3 then
+      let value := d.getArg! 1
+      return .step (← shareCommon value) (← mkEqRefl value)
+    else
+      let some (p, _) ← Meta.Simp.getBoolDecision? e | return .rfl
+      return (← simpDecisionProjection (← shareCommon p) d).markAsNotDone
   | .proj .. =>
     throwError "unexpected kernel projection term during simplification{indentExpr e}\npre-process and fold them as projection applications"
   | .mdata m b =>

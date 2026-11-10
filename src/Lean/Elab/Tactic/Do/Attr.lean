@@ -534,6 +534,13 @@ private def hasOverlapHypothesis : Expr → Bool
   | .forallE _ d b _ => Simp.isEqnThmHypothesis d || hasOverlapHypothesis b
   | _ => false
 
+private def isProjectionUnfoldEquation : Expr → CoreM Bool
+  | .forallE _ _ body _ => isProjectionUnfoldEquation body
+  | type => do
+    let_expr Eq _ lhs rhs := type | return false
+    let .const name _ := lhs.getAppFn | return false
+    return rhs.getAppFn.isProj && (← getEnv).isProjectionFn name
+
 /--
 Create a `SpecTheorem` from a simp/equational declaration `declName : ∀ xs, lhs = rhs`, keyed on the
 LHS. Function-level equations (e.g. class projection unfold lemmas) are eta-expanded so the
@@ -544,9 +551,9 @@ def mkSpecTheoremFromSimpDecl? (declName : Name) (prio : Nat) : MetaM (Option Sp
   let (pattern, (eqTy, rhs)) ← Sym.mkPatternFromDeclWithKey declName fun body => do
     let_expr Eq eqTy lhs rhs := body | throwError "conclusion is not an equality{indentExpr body}"
     return (lhs, (eqTy, rhs))
-  -- Skip no-op equations whose preprocessed LHS key is syntactically the RHS, so rewriting makes no
-  -- progress (e.g. `getThe.eq_1 : getThe σ = MonadStateOf.get` after reducible unfolding).
-  if pattern.pattern == rhs then return none
+  -- Projection unfold equations reduce concrete dictionary fields when their rules are constructed.
+  -- Other equations whose preprocessed sides coincide make no progress.
+  if pattern.pattern == rhs && !(← isProjectionUnfoldEquation (← getConstInfo declName).type) then return none
   let (pattern, etaArgs) := etaExpandEqPattern pattern eqTy
   return some { pattern, proof := .global declName, kind := .simp etaArgs, priority := prio,
                 conjunctivePre := true }
@@ -561,7 +568,7 @@ def mkSpecTheoremFromSimpExpr? (ref : Syntax) (proof : Expr) (levelParams : List
   let (pattern, (eqTy, rhs)) ← Sym.mkPatternFromExprWithKey proof levelParams fun body => do
     let_expr Eq eqTy lhs rhs := body | throwError "conclusion is not an equality{indentExpr body}"
     return (lhs, (eqTy, rhs))
-  if pattern.pattern == rhs then return none
+  if pattern.pattern == rhs && !(← isProjectionUnfoldEquation (← inferType proof)) then return none
   let (pattern, etaArgs) := etaExpandEqPattern pattern eqTy
   return some { pattern, proof := .stx (← mkFreshId) ref proof, kind := .simp etaArgs,
                 priority := prio, conjunctivePre := true }

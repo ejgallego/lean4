@@ -99,6 +99,8 @@ private def checkDefaultSplitStatus (e : Expr) : GoalM SplitStatus := do
     else
       return .ready 2
   | _ =>
+    if isCond e then
+      return (← checkIteCondStatus (← shareCommon (← condCondition e)))
     if isIte e || isDIte e then
       return (← checkIteCondStatus (e.getArg! 1))
     if (← isResolvedCaseSplit e) then
@@ -249,6 +251,8 @@ private def mkCasesMajor (c : Expr) : GoalM Expr := do
       return mkGrindEM c
   | Not e => return mkGrindEM e
   | _ =>
+    if isCond c then
+      return mkGrindEM (← shareCommon (← condCondition c))
     if isIte c || isDIte c then
       return mkGrindEM (c.getArg! 1)
     else if (← isEqTrue c) then

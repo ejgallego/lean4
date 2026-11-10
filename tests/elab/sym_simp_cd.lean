@@ -135,6 +135,7 @@ trace: [sym.simp.debug.cache] persistent cache hit: f n
 [sym.simp.debug.cache] persistent cache hit: f n
 [sym.simp.debug.cache] persistent cache hit: f n
 [sym.simp.debug.cache] persistent cache hit: f n
+[sym.simp.debug.cache] persistent cache hit: true
 [sym.simp.debug.cache] persistent cache hit: 1
 [sym.simp.debug.cache] persistent cache hit: 1
 -/

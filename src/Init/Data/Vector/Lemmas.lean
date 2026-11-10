@@ -928,8 +928,14 @@ theorem getElem_push {xs : Vector α n} {x : α} {i : Nat} (h : i < n + 1) :
 
 @[grind =]
 theorem getElem?_push {xs : Vector α n} {x : α} {i : Nat} : (xs.push x)[i]? = if i = n then some x else xs[i]? := by
-  simp [getElem?_def, getElem_push]
-  (repeat' split) <;> first | rfl | omega
+  by_cases hlt : i < n
+  · have heq : i ≠ n := Nat.ne_of_lt hlt
+    simp [hlt, heq, Nat.lt_succ_of_lt hlt]
+  · by_cases heq : i = n
+    · subst i
+      simp
+    · have hge : n + 1 ≤ i := by omega
+      simp [hlt, heq, Nat.not_lt_of_ge hge]
 
 set_option linter.indexVariables false in
 theorem getElem?_push_size {xs : Vector α n} {x : α} : (xs.push x)[n]? = some x := by
@@ -2192,7 +2198,7 @@ theorem forall_mem_replicate {p : α → Prop} {a : α} {n} :
   simp
 
 @[grind =] theorem getElem?_replicate {a : α} {n i : Nat} : (replicate n a)[i]? = if i < n then some a else none := by
-  simp [getElem?_def]
+  by_cases h : i < n <;> simp [h]
 
 @[simp] theorem getElem?_replicate_of_lt {n : Nat} {i : Nat} (h : i < n) : (replicate n a)[i]? = some a := by
   simp [h]
@@ -2974,6 +2980,7 @@ variable [LawfulBEq α]
     (xs.replace a b)[i]? = if xs[i]? == some a then if a ∈ xs.take i then some a else some b else xs[i]? := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.getElem?_replace, -beq_iff_eq]
+  all_goals by_cases h : xs[i]? = some a <;> simp [h]
 
 theorem getElem?_replace_of_ne {xs : Vector α n} {i : Nat} (h : xs[i]? ≠ some a) :
     (xs.replace a b)[i]? = xs[i]? := by

@@ -59,7 +59,12 @@ def ordinal (c : Char) : Fin Char.numCodePoints :=
   if h : c.val < 0xd800 then
     ⟨c.val.toNat, by grind [UInt32.lt_iff_toNat_lt]⟩
   else
-    ⟨c.val.toNat - Char.numSurrogates, by grind [UInt32.lt_iff_toNat_lt]⟩
+    ⟨c.val.toNat - Char.numSurrogates, by
+      have hv := c.valid
+      simp only [UInt32.isValidChar, Nat.isValidChar, UInt32.lt_iff_toNat_lt,
+        UInt32.reduceToNat] at h hv
+      simp only [numSurrogates, numCodePoints]
+      omega⟩
 
 /--
 Unpacks {lean}`Fin Char.numCodePoints` bijectively to {name}`Char` by shifting code points which are
@@ -136,8 +141,14 @@ theorem ofOrdinal_ordinal {c : Char} : Char.ofOrdinal c.ordinal = c := by
   · grind [UInt32.lt_iff_toNat_lt, UInt32.ofNatLT_toNat]
   · rw [dite_eq_right]
     · simp only [← UInt32.toNat_inj, UInt32.toNat_add, UInt32.toNat_ofNatLT, Nat.reducePow]
-      grind [UInt32.toNat_lt, UInt32.lt_iff_toNat_lt]
-    · grind [UInt32.lt_iff_toNat_lt]
+      have hv : c.val.toNat < 0xd800 ∨ (0xdfff < c.val.toNat ∧ c.val.toNat < 0x110000) := c.valid
+      simp only [UInt32.lt_iff_toNat_lt, UInt32.reduceToNat] at *
+      simp only [numSurrogates]
+      omega
+    · have hv : c.val.toNat < 0xd800 ∨ (0xdfff < c.val.toNat ∧ c.val.toNat < 0x110000) := c.valid
+      simp only [UInt32.lt_iff_toNat_lt, UInt32.reduceToNat] at *
+      simp only [numSurrogates]
+      omega
 
 @[simp]
 theorem ordinal_ofOrdinal {f : Fin Char.numCodePoints} : (Char.ofOrdinal f).ordinal = f := by
@@ -179,7 +190,10 @@ theorem ofOrdinal_injective : Function.Injective Char.ofOrdinal :=
 theorem ordinal_le_of_le {c d : Char} (h : c ≤ d) : c.ordinal ≤ d.ordinal := by
   simp only [le_def, UInt32.le_iff_toNat_le] at h
   simp only [Fin.le_def, coe_ordinal, UInt32.lt_iff_toNat_lt, UInt32.reduceToNat]
-  grind
+  have hc : c.val.toNat < 0xd800 ∨ (0xdfff < c.val.toNat ∧ c.val.toNat < 0x110000) := c.valid
+  have hd : d.val.toNat < 0xd800 ∨ (0xdfff < d.val.toNat ∧ d.val.toNat < 0x110000) := d.valid
+  by_cases hc' : c.val.toNat < 0xd800 <;> by_cases hd' : d.val.toNat < 0xd800 <;>
+    simp [hc', hd', numSurrogates, -toNat_val] <;> omega
 
 theorem ofOrdinal_le_of_le {f g : Fin Char.numCodePoints} (h : f ≤ g) :
     Char.ofOrdinal f ≤ Char.ofOrdinal g := by
@@ -240,12 +254,25 @@ theorem succ?_eq {c : Char} : c.succ? = (c.ordinal.addNat? 1).map Char.ofOrdinal
       · rw [dite_eq_right]
         · simp only [← UInt32.toNat_inj, UInt32.toNat_add, UInt32.reduceToNat, Nat.reducePow,
             UInt32.toNat_ofNatLT, Nat.mod_add_mod]
-          grind [UInt32.lt_iff_toNat_lt, UInt32.toNat_inj]
-        · grind [UInt32.lt_iff_toNat_lt, UInt32.toNat_inj]
-    · grind [UInt32.lt_iff_toNat_lt]
+          have hv : c.val.toNat < 0xd800 ∨ (0xdfff < c.val.toNat ∧ c.val.toNat < 0x110000) := c.valid
+          simp only [UInt32.lt_iff_toNat_lt, UInt32.reduceToNat] at *
+          simp only [numSurrogates]
+          omega
+        · have hv : c.val.toNat < 0xd800 ∨ (0xdfff < c.val.toNat ∧ c.val.toNat < 0x110000) := c.valid
+          simp only [UInt32.lt_iff_toNat_lt, UInt32.reduceToNat] at *
+          simp only [numSurrogates]
+          omega
+    · have hv : c.val.toNat < 0xd800 ∨ (0xdfff < c.val.toNat ∧ c.val.toNat < 0x110000) := c.valid
+      simp only [UInt32.lt_iff_toNat_lt, ← UInt32.toNat_inj, UInt32.reduceToNat] at *
+      simp only [coe_ordinal, UInt32.lt_iff_toNat_lt, UInt32.reduceToNat, numSurrogates, numCodePoints]
+      by_cases hc : c.val.toNat < 0xd800 <;> simp [hc, -toNat_val] <;> omega
   | case4 =>
     rw [eq_comm]
-    grind [UInt32.lt_iff_toNat_lt]
+    have hv : c.val.toNat < 0xd800 ∨ (0xdfff < c.val.toNat ∧ c.val.toNat < 0x110000) := c.valid
+    simp only [UInt32.lt_iff_toNat_lt, UInt32.reduceToNat] at *
+    simp only [Option.map_eq_none_iff, Fin.addNat?_eq_none_iff, coe_ordinal,
+      UInt32.lt_iff_toNat_lt, UInt32.reduceToNat, numSurrogates, numCodePoints]
+    by_cases hc : c.val.toNat < 0xd800 <;> simp [hc, -toNat_val] <;> omega
 
 theorem map_ordinal_succ? {c : Char} : c.succ?.map ordinal = c.ordinal.addNat? 1 := by
   simp [succ?_eq]

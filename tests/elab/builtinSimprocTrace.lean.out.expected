@@ -1,1 +1,1 @@
-Try this: simp only [↓reduceIte, Nat.reduceAdd]
+Try this: simp only [Nat.reduceAdd]

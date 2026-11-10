@@ -705,7 +705,7 @@ protected theorem minIdxOn?_eq_some_zero_iff [LE β] [DecidableLE β] [IsLinearP
 protected theorem minIdxOn?_replicate [LE β] [DecidableLE β] [Refl (α := β) (· ≤ ·)]
     {n : Nat} {a : α} {f : α → β} :
     (replicate n a).minIdxOn? f = if n = 0 then none else some 0 := by
-  simp [List.minIdxOn?_eq_ite]
+  by_cases h : n = 0 <;> simp [List.minIdxOn?_eq_ite, h]
 
 @[simp]
 protected theorem minIdxOn?_replicate_of_pos [LE β] [DecidableLE β] [Refl (α := β) (· ≤ ·)]

@@ -234,11 +234,17 @@ attribute [local simp] Poly.denote_append
 theorem Poly.denote_combine {α} [IntModule α] (ctx : Context α) (p₁ p₂ : Poly) : (p₁.combine p₂).denote ctx = p₁.denote ctx + p₂.denote ctx := by
   fun_induction p₁.combine p₂ <;>
     simp_all +zetaDelta [denote]
+  all_goals try simp only [Bool.cond_eq_ite]
+  all_goals try simp_all +zetaDelta [denote]
   next h _ =>
     rw [Int.add_comm] at h
     rw [add_left_comm, add_assoc, ← add_assoc, ← add_zsmul, h, zero_zsmul, zero_add]
   next => rw [add_zsmul]; ac_rfl
-  all_goals ac_rfl
+  next => ac_rfl
+  next _ h _ =>
+    try rw [ite_eq_right (Nat.not_lt_of_ge h)]
+    try simp_all [denote]
+    ac_rfl
 
 attribute [local simp] Poly.denote_combine
 
@@ -289,7 +295,7 @@ noncomputable def Poly.mul_k (p : Poly) (k : Int) : Poly :=
   by_cases h : k = 0
   · subst h; rfl
   · have : (k == 0) = false := by simpa using h
-    rw [this]; simp only [Bool.false_eq_true, ite_false]
+    rw [this]; simp only [Bool.false_eq_true]
     induction p with
     | nil => rfl
     | add k' v p ih => show Poly.add (Int.mul_k k k') v _ = _; rw [ih, Int.mul_k_eq]; rfl
@@ -417,13 +423,13 @@ theorem Expr.toPoly'_k_go (e : Expr) (c : Int) (p : Poly) :
     rw [show (k == 0) = Nat.beq k 0 from rfl]
     cases Nat.beq k 0
     · simp only [Bool.cond_false]; rw [← ih, Int.mul_k_eq]; rfl
-    · simp only [Bool.cond_true]; rfl
+    · rfl
   | intMul k a ih =>
     simp only [toPoly'.go]
     rw [← Int.beqZero_k_eq]
     cases Int.beqZero_k k
     · simp only [Bool.cond_false]; rw [← ih, Int.mul_k_eq]
-    · simp only [Bool.cond_true]; rfl
+    · rfl
 
 noncomputable def Expr.norm_k (e : Expr) : Poly :=
   e.toPoly'_k.norm_k

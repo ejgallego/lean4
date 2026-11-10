@@ -96,8 +96,8 @@ structure Context where
   checkReducible : Bool := false
   /--
   When `true`, `shareCommonAlpha` and `shareCommonAlphaInc` throw when hash-consing
-  a new kernel projection (`Expr.proj`), which the `foldProjs` preprocessing step
-  should have folded.
+  a new kernel projection (`Expr.proj`) other than a decision projection, which
+  the `foldProjs` preprocessing step should have folded.
   -/
   checkProj : Bool := false
 
@@ -200,8 +200,8 @@ private def go (e : Expr) : M Expr := do
   | .forallE _ d b _ => visit e (return e.updateForallE! (← go d) (← go b))
   | .lam _ d b _ => visit e (return e.updateLambdaE! (← go d) (← go b))
   | .mdata _ b => visit e (return e.updateMData! (← go b))
-  | .proj _ _ b => visit e do
-      if (← read).checkProj then throw ()
+  | .proj n i b => visit e do
+      if (← read).checkProj && !(n == ``Decidable && i == 0) then throw ()
       return e.updateProj! (← go b)
 
 /--
@@ -281,8 +281,8 @@ where
   | .forallE _ d b _ => visitInc e (return e.updateForallE! (← go d) (← go b))
   | .lam _ d b _ => visitInc e (return e.updateLambdaE! (← go d) (← go b))
   | .mdata _ b => visitInc e (return e.updateMData! (← go b))
-  | .proj _ _ b => visitInc e do
-      if (← read).checkProj then throw {}
+  | .proj n i b => visitInc e do
+      if (← read).checkProj && !(n == ``Decidable && i == 0) then throw {}
       return e.updateProj! (← go b)
 
 end Lean.Meta.Sym

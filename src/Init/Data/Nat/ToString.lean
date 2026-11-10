@@ -36,7 +36,8 @@ theorem isDigit_digitChar : n.digitChar.isDigit = decide (n < 10) :=
   match n with
   | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 => by simp [digitChar]
   | _ + 10 => by
-    simp only [digitChar, ↓reduceIte, Nat.reduceEqDiff]
+    simp only [digitChar, Nat.reduceEqDiff]
+    try simp only [↓reduceIte]
     (repeat' split) <;> simp
 
 private theorem digitChar_iff_aux :

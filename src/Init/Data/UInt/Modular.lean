@@ -156,11 +156,12 @@ private theorem invMod?_go_spec (modulus : UInt64) (hm : modulus ≠ 0) (a oldR 
   | case2 oldR r oldS s hr quotient product nextS ih =>
     have hnext : nextS < modulus.toNat := by simp only [nextS]; split <;> omega
     have hkey : nextS * a % modulus.toNat = oldR % r % modulus.toNat := by
+      simp only [nextS, dite_eq_ite]
       refine nextS_mul_mod (Nat.mod_lt _ hm0) ?_
       rw [h1, ← Nat.add_mod_mod, Nat.mod_mul_mod, Nat.mul_assoc, ← Nat.mul_mod_mod, h2,
         Nat.mul_mod_mod, Nat.add_mod_mod, Nat.mod_add_div']
     rw [invMod?.go, dite_eq_right hr, Nat.gcd_comm oldR, Nat.gcd_rec r, Nat.gcd_comm]
-    exact ih hs hnext h2 hkey
+    simpa only [nextS, product, quotient, dite_eq_ite, ite, Decidable.decide] using ih hs hnext h2 hkey
 
 @[simp] theorem invMod?_zero (a : UInt64) : invMod? a 0 = none := by
   simp [invMod?]
@@ -184,7 +185,8 @@ private theorem invMod?_eq_some_spec {a modulus x : UInt64} (hm : modulus ≠ 0)
     (h : invMod? a modulus = some x) :
     x.toNat < modulus.toNat ∧ a.toNat * x.toNat % modulus.toNat = 1 % modulus.toNat := by
   obtain ⟨hg, hlt, hinv⟩ := invMod?_spec (a := a) hm
-  simp only [invMod?, hm, ↓reduceIte] at h
+  simp only [invMod?, hm] at h
+  try simp only [↓reduceIte] at h
   split at h <;> rename_i hgcd <;> simp only [Option.some.injEq, reduceCtorEq] at h
   subst h
   rw [UInt64.toNat_ofNat', Nat.mod_eq_of_lt (Nat.lt_trans hlt modulus.toNat_lt)]
@@ -340,11 +342,17 @@ private theorem toNat_powModWord (base e modulus result : UInt64)
   induction base, e, result using powModWord.induct (modulus := modulus) with
   | case1 base result => simp [powModWord, Nat.mod_eq_of_lt hres]
   | case2 base e result he e' he' =>
+    have he' : e' = 0 := by simpa only [UInt64.toBitVec_inj] using he'
     have hlt : e.toNat < 2 := by simpa [e', ← UInt64.toNat_inj, Nat.div_eq_zero_iff] using he'
-    rw [powModWord, dite_eq_right he, ite_eq_left he', toNat_condMul hres, Nat.mod_eq_of_lt hlt]
+    rw [powModWord, dite_eq_right he]
+    dsimp only
+    rw [ite_eq_left he', toNat_condMul hres, Nat.mod_eq_of_lt hlt]
   | case3 base e result he result' e' he' ih =>
     simp only [result', e', dite_eq_ite] at he' ih
-    rw [powModWord, dite_eq_right he, ite_eq_right he', ih (toNat_condMul_lt hres),
+    try simp only [UInt64.toBitVec_inj] at he' ih
+    rw [powModWord, dite_eq_right he]
+    dsimp only
+    rw [ite_eq_right he', ih (toNat_condMul_lt hres),
       toNat_condMul hres, toNat_mulMod', toNat_div_two, mul_pow_step]
 
 private theorem toNat_powModChunk_fst (modulus : UInt64) (n : Nat) (base e result : UInt64) :

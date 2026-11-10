@@ -1910,11 +1910,13 @@ theorem add_one_tdiv_of_pos {a b : Int} (h : 0 < b) :
     simp only [this]
     simp only [Int.add_zero]
     split <;> rename_i h
-    · simp only [h, or_true, ↓reduceIte, and_true]
+    · simp only [h, or_true, and_true]
+      try simp only [↓reduceIte]
       omega
     · simp only [h, or_false, and_false]
       by_cases h₂ : 0 ≤ a
-      · simp only [Int.add_zero, h₂, true_or, ↓reduceIte, false_or]
+      · simp only [Int.add_zero, h₂, true_or, false_or]
+        try simp only [↓reduceIte]
         have : 0 ≤ a + 1 := by omega
         have : 0 < a + 1 := by omega
         have : ¬ a < 0 := by omega
@@ -2036,8 +2038,10 @@ theorem fdiv_eq_zero_of_lt {a b : Int} (H1 : 0 ≤ a) (H2 : a < b) : a.fdiv b = 
 @[simp] theorem mul_fdiv_mul_of_pos {a : Int}
     (b c : Int) (H : 0 < a) : (a * b).fdiv (a * c) = b.fdiv c := by
   rw [fdiv_eq_ediv, mul_ediv_mul_of_pos _ _ H, fdiv_eq_ediv]
-  congr 2
-  simp [Int.mul_dvd_mul_iff_left (Int.ne_of_gt H)]
+  congr 1
+  apply ite_cond_congr (b := 0 ≤ a * c ∨ a * c ∣ a * b) (c := 0 ≤ c ∨ c ∣ b)
+  apply propext
+  simp only [Int.mul_dvd_mul_iff_left (Int.ne_of_gt H)]
   constructor
   · rintro (h | h)
     · exact .inl (Int.nonneg_of_mul_nonneg_right h H)
@@ -2082,10 +2086,13 @@ theorem neg_fdiv {a b : Int} : (-a).fdiv b = -(a.fdiv b) - if b = 0 ∨ b ∣ a 
     by_cases h' : 0 ≤ b
     · by_cases h'' : b = 0
       · simp [h'']
-      · simp only [h', ↓reduceIte, Int.sub_zero, h'']
+      · simp only [h', h'']
+        try simp only [↓reduceIte]
+        simp only [Int.sub_zero]
         replace h' : 0 < b := by omega
         rw [sign_eq_one_of_pos (by omega)]
-    · simp only [h', ↓reduceIte]
+    · simp only [h']
+      try simp only [↓reduceIte]
       rw [sign_eq_neg_one_of_neg (by omega), ite_eq_right (by omega)]
       omega
 
@@ -2409,7 +2416,7 @@ theorem natAbs_fdiv_le_natAbs (a b : Int) : natAbs (a.fdiv b) ≤ natAbs a := by
     | .negSucc a, .negSucc b, h =>
       simp [negSucc_eq]
       norm_cast
-      rw [Int.neg_ediv, ite_eq_right (by simpa using h.2)]
+      rw [Int.neg_ediv, ite_eq_right (by simpa [← Int.dvd_iff_emod_eq_zero] using h.2)]
       norm_cast
       rw [sign_eq_one_of_pos (by omega), Int.sub_eq_add_neg, ← Int.neg_add, natAbs_neg,
         Int.sub_add_cancel, natAbs_neg, natAbs_natCast]
@@ -2525,10 +2532,13 @@ theorem bmod_pos (x : Int) (m : Nat) (p : x % m < (m + 1) / 2) : bmod x m = x % 
 theorem bmod_neg (x : Int) (m : Nat) (p : x % m ≥ (m + 1) / 2) : bmod x m = (x % m) - m := by
   simp [bmod_def, Int.not_lt.mpr p]
 
-theorem bmod_eq_emod (x : Int) (m : Nat) : bmod x m = x % m - if x % m ≥ (m + 1) / 2 then m else 0 := by
-  split
-  · rwa [bmod_neg]
-  · rw [bmod_eq_emod_of_lt] <;> simp_all
+theorem bmod_eq_emod (x : Int) (m : Nat) :
+    bmod x m = x % m - (cond (decide (x % m ≥ (m + 1) / 2)) m 0 : Nat) := by
+  by_cases h : x % m ≥ (m + 1) / 2
+  · rw [bmod_neg x m h]
+    simp [h]
+  · rw [bmod_eq_emod_of_lt (Int.lt_of_not_ge h)]
+    simp [h]
 
 @[simp]
 theorem bmod_one (x : Int) : Int.bmod x 1 = 0 := by

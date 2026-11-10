@@ -113,7 +113,9 @@ example (x y : Int) (d : Fin (x - y).toNat → Nat) (b : Buf) (hb : b = ⟨x - y
 trace: [grind.debug.lia.norm] not normalized: x - 1
 [grind.debug.lia.norm] normalized: -1 * x + 4 ≤ 0
 [grind.debug.lia.norm] not normalized: x - 1 ≤ 2
+[grind.debug.lia.norm] normalized: x + -3 ≤ 0
 [grind.debug.lia.norm] not normalized: x - 1 ≤ 2
+[grind.debug.lia.norm] normalized: x + -3 ≤ 0
 -/
 #guard_msgs in
 set_option trace.grind.debug.lia.norm true in

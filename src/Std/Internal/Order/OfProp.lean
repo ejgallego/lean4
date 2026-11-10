@@ -38,7 +38,7 @@ theorem CompleteLattice.ofProp_le_eq_imp [CompleteLattice l]
   apply propext
   constructor
   · intro hle hp
-    simp only [hp, ↓reduceIte] at hle
+    simp only [hp] at hle
     exact hle
   · intro himp
     split
@@ -50,7 +50,7 @@ theorem CompleteLattice.meet_ofProp_le_eq_imp [CompleteLattice l] (p : Prop) (x 
   apply propext
   constructor
   · intro h hp
-    have hxy : x ⊓ ⊤ ⊑ y := by simp only [CompleteLattice.ofProp, hp, ↓reduceIte] at h; exact h
+    have hxy : x ⊓ ⊤ ⊑ y := by simp only [CompleteLattice.ofProp, hp] at h; exact h
     have hx_le_meet : x ⊑ x ⊓ ⊤ := le_meet x x ⊤ PartialOrder.rel_refl (le_top x)
     exact PartialOrder.rel_trans hx_le_meet hxy
   · intro h
@@ -64,7 +64,7 @@ theorem CompleteLattice.ofProp_meet_le_eq_imp [CompleteLattice l] (p : Prop) (x 
   apply propext
   constructor
   · intro h hp
-    have hxy : ⊤ ⊓ x ⊑ y := by simp only [CompleteLattice.ofProp, hp, ↓reduceIte] at h; exact h
+    have hxy : ⊤ ⊓ x ⊑ y := by simp only [CompleteLattice.ofProp, hp] at h; exact h
     have hx_le_meet : x ⊑ ⊤ ⊓ x := le_meet x ⊤ x (le_top x) PartialOrder.rel_refl
     exact PartialOrder.rel_trans hx_le_meet hxy
   · intro h
@@ -75,7 +75,7 @@ theorem CompleteLattice.ofProp_meet_le_eq_imp [CompleteLattice l] (p : Prop) (x 
 
 theorem CompleteLattice.top_le_ofProp [CompleteLattice l] (p : Prop) : p → (⊤ : l) ⊑ ⌜p⌝ := by
   intro hp
-  simp only [CompleteLattice.ofProp, hp, ↓reduceIte]
+  simp only [CompleteLattice.ofProp, hp]
   exact PartialOrder.rel_refl
 
 theorem CompleteLattice.top_le_ofProp_iff [CompleteLattice l] (p : Prop) :

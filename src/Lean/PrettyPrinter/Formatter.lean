@@ -577,6 +577,9 @@ def interpolatedStr.formatter (p : Formatter) : Formatter := do
 
 @[combinator_formatter hexnumNoAntiquot, expose] def hexnum.formatter := visitAtom hexnumKind
 
+@[combinator_formatter _root_.cond, expose, macro_inline] def cond {_ : Type} (c : Bool) (t e : Formatter) : Formatter :=
+  bif c then t else e
+
 @[combinator_formatter _root_.ite, expose, macro_inline] def ite {_ : Type} (c : Prop) [Decidable c] (t e : Formatter) : Formatter :=
   if c then t else e
 

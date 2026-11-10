@@ -233,7 +233,7 @@ theorem take_add_one {l : List α} {i : Nat} : l.take (i + 1) = l.take i ++ l[i]
     simp only [take_nil, Option.toList, append_nil, getElem?_nil]
   | cons hd tl hl =>
     cases i
-    · simp only [take, Option.toList, nil_append, getElem?_cons, ↓reduceIte]
+    · simp only [take, Option.toList, nil_append, getElem?_cons] <;> try (first | rw [ite_true] | rw [ite_false])
     · simp only [take, hl, getElem?_cons_succ, cons_append]
 
 @[deprecated take_add_one (since := "2025-10-26")]

@@ -76,7 +76,7 @@ def filter (p : Nat → Bool) : List Nat → List Nat
 /--
 info: filter.fun_cases (p : Nat → Bool) (motive : List Nat → Prop) (case1 : motive [])
   (case2 : ∀ (x : Nat) (xs : List Nat), p x = true → motive (x :: xs))
-  (case3 : ∀ (x : Nat) (xs : List Nat), ¬p x = true → motive (x :: xs)) (x✝ : List Nat) : motive x✝
+  (case3 : ∀ (x : Nat) (xs : List Nat), p x = false → motive (x :: xs)) (x✝ : List Nat) : motive x✝
 -/
 #guard_msgs(pass trace, all) in
 #check filter.fun_cases
@@ -84,7 +84,7 @@ info: filter.fun_cases (p : Nat → Bool) (motive : List Nat → Prop) (case1 : 
 /--
 info: filter.fun_cases_unfolding (p : Nat → Bool) (motive : List Nat → List Nat → Prop) (case1 : motive [] [])
   (case2 : ∀ (x : Nat) (xs : List Nat), p x = true → motive (x :: xs) (x :: filter p xs))
-  (case3 : ∀ (x : Nat) (xs : List Nat), ¬p x = true → motive (x :: xs) (filter p xs)) (x✝ : List Nat) :
+  (case3 : ∀ (x : Nat) (xs : List Nat), p x = false → motive (x :: xs) (filter p xs)) (x✝ : List Nat) :
   motive x✝ (filter p x✝)
 -/
 #guard_msgs(pass trace, all) in
@@ -93,7 +93,7 @@ info: filter.fun_cases_unfolding (p : Nat → Bool) (motive : List Nat → List 
 /--
 info: filter.induct (p : Nat → Bool) (motive : List Nat → Prop) (case1 : motive [])
   (case2 : ∀ (x : Nat) (xs : List Nat), p x = true → motive xs → motive (x :: xs))
-  (case3 : ∀ (x : Nat) (xs : List Nat), ¬p x = true → motive xs → motive (x :: xs)) (a✝ : List Nat) : motive a✝
+  (case3 : ∀ (x : Nat) (xs : List Nat), p x = false → motive xs → motive (x :: xs)) (a✝ : List Nat) : motive a✝
 -/
 #guard_msgs(pass trace, all) in
 #check filter.induct
@@ -101,7 +101,7 @@ info: filter.induct (p : Nat → Bool) (motive : List Nat → Prop) (case1 : mot
 /--
 info: filter.induct_unfolding (p : Nat → Bool) (motive : List Nat → List Nat → Prop) (case1 : motive [] [])
   (case2 : ∀ (x : Nat) (xs : List Nat), p x = true → motive xs (filter p xs) → motive (x :: xs) (x :: filter p xs))
-  (case3 : ∀ (x : Nat) (xs : List Nat), ¬p x = true → motive xs (filter p xs) → motive (x :: xs) (filter p xs))
+  (case3 : ∀ (x : Nat) (xs : List Nat), p x = false → motive xs (filter p xs) → motive (x :: xs) (filter p xs))
   (a✝ : List Nat) : motive a✝ (filter p a✝)
 -/
 #guard_msgs(pass trace, all) in
@@ -373,7 +373,7 @@ info: siftDown.induct_unfolding (e : Nat) (motive : (a : Array Int) → Nat → 
     ∀ (a : Array Int) (root : Nat) (h : e ≤ a.size),
       leftChild root < e →
         let child := leftChild root;
-        let child := if x : child + 1 < e then if h : a[child] < a[child + 1] then child + 1 else child else child;
+        let child := if x : child + 1 < e then if a[child] < a[child + 1] then child + 1 else child else child;
         a[root]! < a[child]! →
           let a_1 := a.swapIfInBounds root child;
           motive a_1 child ⋯ (siftDown a_1 child e ⋯) → motive a root h (siftDown a_1 child e ⋯))
@@ -381,7 +381,7 @@ info: siftDown.induct_unfolding (e : Nat) (motive : (a : Array Int) → Nat → 
     ∀ (a : Array Int) (root : Nat) (h : e ≤ a.size),
       leftChild root < e →
         let child := leftChild root;
-        have child := if x : child + 1 < e then if h : a[child] < a[child + 1] then child + 1 else child else child;
+        have child := if x : child + 1 < e then if a[child] < a[child + 1] then child + 1 else child else child;
         ¬a[root]! < a[child]! → motive a root h a)
   (case3 : ∀ (a : Array Int) (root : Nat) (h : e ≤ a.size), ¬leftChild root < e → motive a root h a) (a : Array Int)
   (root : Nat) (h : e ≤ a.size) : motive a root h (siftDown a root e h)
@@ -395,7 +395,7 @@ info: siftDown.induct (e : Nat) (motive : (a : Array Int) → Nat → e ≤ a.si
     ∀ (a : Array Int) (root : Nat) (h : e ≤ a.size),
       leftChild root < e →
         let child := leftChild root;
-        let child := if x : child + 1 < e then if h : a[child] < a[child + 1] then child + 1 else child else child;
+        let child := if x : child + 1 < e then if a[child] < a[child + 1] then child + 1 else child else child;
         a[root]! < a[child]! →
           let a_1 := a.swapIfInBounds root child;
           motive a_1 child ⋯ → motive a root h)
@@ -403,7 +403,7 @@ info: siftDown.induct (e : Nat) (motive : (a : Array Int) → Nat → e ≤ a.si
     ∀ (a : Array Int) (root : Nat) (h : e ≤ a.size),
       leftChild root < e →
         let child := leftChild root;
-        have child := if x : child + 1 < e then if h : a[child] < a[child + 1] then child + 1 else child else child;
+        have child := if x : child + 1 < e then if a[child] < a[child + 1] then child + 1 else child else child;
         ¬a[root]! < a[child]! → motive a root h)
   (case3 : ∀ (a : Array Int) (root : Nat) (h : e ≤ a.size), ¬leftChild root < e → motive a root h) (a : Array Int)
   (root : Nat) (h : e ≤ a.size) : motive a root h
@@ -546,7 +546,7 @@ info: with_bif_tailrec.induct_unfolding (motive : Nat → Nat → Prop) (case1 :
   (case2 : ∀ (n : Nat), (n % 2 == 0) = true → motive n (with_bif_tailrec n) → motive n.succ (with_bif_tailrec n))
   (case3 :
     ∀ (n : Nat),
-      (n % 2 == 0) = false → motive (n - 1) (with_bif_tailrec (n - 1)) → motive n.succ (with_bif_tailrec (n - 1)))
+      ¬(n % 2 == 0) = true → motive (n - 1) (with_bif_tailrec (n - 1)) → motive n.succ (with_bif_tailrec (n - 1)))
   (a✝ : Nat) : motive a✝ (with_bif_tailrec a✝)
 -/
 #guard_msgs in

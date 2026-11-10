@@ -31,7 +31,7 @@ partial_fixpoint
 
 /--
 info: equations:
-theorem find.eq_1 : ∀ (P : Nat → Bool) (x : Nat), find P x = if P x = true then some x else find P (x + 1)
+theorem find.eq_1 : ∀ (P : Nat → Bool) (x : Nat), find P x = bif P x then some x else find P (x + 1)
 -/
 #guard_msgs in
 #print equations find
@@ -202,7 +202,7 @@ info: equations:
 theorem computeLfp'.eq_1.{u} : ∀ {α : Type u} [inst : DecidableEq α] (f : α → α) (x : α),
   computeLfp' f x =
     have next := f x;
-    if x ≠ next then computeLfp' f next else x
+    if ¬x = next then computeLfp' f next else x
 -/
 #guard_msgs in #print equations computeLfp'
 

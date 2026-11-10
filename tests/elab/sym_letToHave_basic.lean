@@ -232,7 +232,7 @@ info: fun a =>
   have x : Nat := 1 * x;
   have b' : Bool := !b';
   have x : Nat := 1 * x;
-  if b' = true then x else 0
+  bif b' then x else 0
 -/
 #guard_msgs in #sym_let_to_have fun a => deepLets% 5 true (0 + a)
 

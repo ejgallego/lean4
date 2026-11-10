@@ -1,8 +1,6 @@
 Try this:
   [apply] [grind =] for pattern: [@filter #1 #0 (@nil _)]
 Try this:
-  [apply] [grind =] for pattern: [@filter #3 #0 (@cons _ #2 #1)]
-Try this:
   [apply] [grind =] for pattern: [@List.any #1 (@nil _) #0]
 Try this:
   [apply] [grind =] for pattern: [@List.any #3 (@cons _ #2 #1) #0]

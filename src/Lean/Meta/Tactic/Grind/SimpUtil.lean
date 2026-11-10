@@ -76,6 +76,18 @@ builtin_simproc_decl simpEq (@Eq _ _ _) := fun e => do
       return .visit { expr := mkNot lhs, proof? := mkApp (mkConst ``Grind.eq_false_eq) lhs }
   return .continue
 
+builtin_simproc_decl simpIteToCond (@ite _ _ _ _ _) := fun e => do
+  let_expr f@ite α p d a b ← e | return .continue
+  let expr := mkApp4 (mkConst ``cond f.constLevels!) α (.proj ``Decidable 0 d) a b
+  let proof := mkApp5 (mkConst ``Grind.ite_eq_cond f.constLevels!) α p d a b
+  return .visit { expr, proof? := mkExpectedPropHint proof (← mkEq e expr) }
+
+builtin_simproc_decl simpProjectedDecisionEq (@Eq Bool _ _) := fun e => do
+  let_expr Eq _ c value ← e | return .continue
+  unless value.isConstOf ``Bool.true || value.isConstOf ``Bool.false do return .continue
+  let some _ ← Simp.getBoolDecision? c | return .continue
+  return .visit (← Simp.normalizeBoolCondition e)
+
 builtin_simproc_decl simpDIte (@dite _ _ _ _ _) := fun e => do
  let_expr f@dite α c inst a b ← e | return .continue
  let .lam _ _ aBody _ := a | return .continue
@@ -83,8 +95,9 @@ builtin_simproc_decl simpDIte (@dite _ _ _ _ _) := fun e => do
  let .lam _ _ bBody _ := b | return .continue
  if bBody.hasLooseBVars then return .continue
  let us := f.constLevels!
- let expr := mkApp5 (mkConst ``ite us) α c inst aBody bBody
- return .visit { expr, proof? := some (mkApp5 (mkConst ``dite_eq_ite us) c α aBody bBody inst) }
+ let expr := mkApp4 (mkConst ``cond us) α (.proj ``Decidable 0 inst) aBody bBody
+ let proof := mkApp5 (mkConst ``dite_eq_cond us) c α aBody bBody inst
+ return .visit { expr, proof? := mkExpectedPropHint proof (← mkEq e expr) }
 
 builtin_simproc_decl pushNot (Not _) := fun e => do
  let_expr Not p ← e | return .continue
@@ -101,7 +114,13 @@ builtin_simproc_decl pushNot (Not _) := fun e => do
      | Bool.true => return .visit { expr := mkApp3 f α a (mkConst ``Bool.false), proof? := some <| mkApp (mkConst ``Bool.not_eq_true) a }
      | Bool.false => return .visit { expr := mkApp3 f α a (mkConst ``Bool.true), proof? := some <| mkApp (mkConst ``Bool.not_eq_false) a }
      | _ => return .continue
- | f@ite α c inst a b => return .visit { expr := mkApp5 f α c inst (mkNot a) (mkNot b), proof? := some <| mkApp4 (mkConst ``Grind.not_ite) c inst a b }
+ | f@ite α c inst a b =>
+   let expr := mkApp4 (mkConst ``cond f.constLevels!) α (.proj ``Decidable 0 inst) (mkNot a) (mkNot b)
+   let proof := mkApp4 (mkConst ``Grind.not_ite_eq_cond) c inst a b
+   return .visit { expr, proof? := mkExpectedPropHint proof (← mkEq e expr) }
+ | f@cond α c a b =>
+   let expr := mkApp4 f α c (mkNot a) (mkNot b)
+   return .visit { expr, proof? := mkApp3 (mkConst ``Grind.not_cond) c a b }
  | Exists α p =>
    let expr := mkForall `a .default α (mkNot (mkApp p (mkBVar 0)))
    let u ← getLevel α
@@ -178,6 +197,8 @@ protected def getSimprocs : MetaM (Array Simprocs) := do
   let s ← s.add ``simpEq (post := true)
   let s ← s.add ``simpOr (post := true)
   let s ← s.add ``simpDIte (post := true)
+  let s ← s.add ``simpIteToCond (post := false)
+  let s ← s.add ``simpProjectedDecisionEq (post := false)
   let s ← s.add ``pushNot (post := false)
   let s ← s.add ``unfoldReducibleSimproc (post := false)
   return #[s]

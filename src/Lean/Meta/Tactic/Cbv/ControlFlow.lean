@@ -16,6 +16,7 @@ import Lean.Meta.Sym.Simp.App
 import Lean.Meta.SynthInstance
 import Lean.Meta.WHNF
 import Lean.Meta.AppBuilder
+import Lean.Meta.Tactic.Simp.Main
 import Init.Sym.Lemmas
 import Lean.Meta.Sym.Simp.TheoremsLookup
 import Lean.Meta.Tactic.Cbv.Opaque
@@ -29,11 +30,9 @@ import Lean.Meta.Tactic.Cbv.CbvSimproc
 
 Cbv-specific simprocs for `ite`, `dite`, `cond`, `match`, `Decidable.rec`, and `Decidable.decide`.
 
-The standard `Sym.Simp` control flow simprocs (`simpIte`, `simpDIte`) give up
-when the condition does not reduce to `True` or `False` directly. The Cbv variants
-(`simpIteCbv`, `simpDIteCbv`) go further: they evaluate `Decidable.decide` on the
-condition and use `eq_true_of_decide` / `eq_false_of_decide` to take the
-corresponding branch.
+Non-dependent conditionals use primitive `cond` terms with decision projections.
+The CBV decision evaluator also reduces the instance, respecting `@[cbv_opaque]`.
+Dependent conditionals retain their proof-dependent branches.
 -/
 
 namespace Lean.Meta.Tactic.Cbv
@@ -85,115 +84,8 @@ def rewriteDecidableInstance (inst : Expr) : SimpM (Result × Expr) :=
       let revArgs := e'.getAppRevArgs
       return (.step (← betaRevS p revArgs) proof done cd, mkAppRev fn revArgs)
 
-/-- Reduce `ite` by matching the `Decidable` instance for `isTrue`/`isFalse`. -/
-def matchIteDecidable (f α c inst a b instToMatch : Expr) (fallback : SimpM Result) : SimpM Result := do
-  match_expr instToMatch with
-  | Decidable.intro _ bool hp =>
-    match_expr bool with
-    | Bool.true =>
-      return .step a <| mkApp6 (mkConst ``Sym.ite_true f.constLevels!) α c inst a b hp
-    | Bool.false =>
-      return .step b <| mkApp6 (mkConst ``Sym.ite_false f.constLevels!) α c inst a b hp
-    | _ => fallback
-  | _ => fallback
-
-/-- Like `matchIteDecidable`, but for the congruence case where `c` was simplified to `c'` with proof `h`. -/
-def matchIteDecidableCongr (f α c inst a b c' h inst' : Expr) (fallback : SimpM Result) : SimpM Result := do
-  match_expr inst' with
-  | Decidable.intro _ bool hp =>
-    match_expr bool with
-    | Bool.true =>
-        return .step a <| mkApp8 (mkConst ``Sym.ite_true_congr f.constLevels!) α c inst a b c' h hp
-    | Bool.false =>
-      return .step b <| mkApp8 (mkConst ``Sym.ite_false_congr f.constLevels!) α c inst a b c' h hp
-    | _ => fallback
-  | _ => fallback
-
-/-- Simplify the `Decidable` instance, then try `simpIteDecidable`. -/
-def simpAndMatchIteDecidable (f α c inst a b : Expr) (fallback : SimpM Result) : SimpM Result := do
-  let reduced ← Tactic.Cbv.withCbvOpaqueGuard <| withImplicit <| project? inst 0
-  match reduced with
-  | some reduced =>
-    let decide := mkApp2 (mkConst ``decide) c inst
-    let reduced ← share reduced
-    let refl := mkApp2 (.const ``Eq.refl [1]) (mkConst ``Bool) reduced
-    let result ← simp reduced
-    let result ← mkEqTransResult decide reduced refl result
-    let .step bool hbool _ cd := result | unreachable!
-    match_expr bool with
-    | Bool.true =>
-      return .step a (mkApp6 (mkConst ``Sym.ite_of_decide_eq_true f.constLevels!) α c inst a b hbool) (contextDependent := cd)
-    | Bool.false =>
-      return .step b (mkApp6 (mkConst ``Sym.ite_of_decide_eq_false f.constLevels!) α c inst a b hbool) (contextDependent := cd)
-    | _ => fallback
-  | none =>
-    -- Propagate cd from `simp inst`: in another context the instance might simplify differently.
-    match (← simp inst) with
-    | .rfl _ cd =>
-      let r ← matchIteDecidable f α c inst a b inst fallback
-      return if cd && !r.isContextDependent then r.withContextDependent else r
-    | .step inst' _ _ cd =>
-      let r ← matchIteDecidable f α c inst a b inst' fallback
-      return if cd && !r.isContextDependent then r.withContextDependent else r
-
-/-- Like `simpAndMatchIteDecidable`, but for the congruence case where `c` was simplified to `c'`. -/
-def simpAndMatchIteDecidableCongr (f α c inst a b c' h inst' : Expr) (fallback : SimpM Result) : SimpM Result := do
-  let reduced ← Tactic.Cbv.withCbvOpaqueGuard <| withImplicit <| project? inst' 0
-  match reduced with
-  | some reduced =>
-    let decide := mkApp2 (mkConst ``decide) c' inst'
-    let reduced ← share reduced
-    let refl := mkApp2 (.const ``Eq.refl [1]) (mkConst ``Bool) reduced
-    let result ← simp reduced
-    let result ← mkEqTransResult decide reduced refl result
-    let .step bool hbool _ cd := result | unreachable!
-    match_expr bool with
-    | Bool.true =>
-      return .step a (mkApp9 (mkConst ``Sym.ite_of_decide_eq_true_congr f.constLevels!) α c inst a b c' h inst' hbool) (contextDependent := cd)
-    | Bool.false =>
-      return .step b (mkApp9 (mkConst ``Sym.ite_of_decide_eq_false_congr f.constLevels!) α c inst a b c' h inst' hbool) (contextDependent := cd)
-    | _ => fallback
-  | none =>
-    match (← simp inst') with
-    | .rfl _ cd =>
-      let r ← matchIteDecidableCongr f α c inst a b c' h inst' fallback
-      return if cd && !r.isContextDependent then r.withContextDependent else r
-    | .step inst'' _ _ cd =>
-      let r ← matchIteDecidableCongr f α c inst a b c' h inst'' fallback
-      return if cd && !r.isContextDependent then r.withContextDependent else r
-
-/-- Like `simpIte` but also evaluates `Decidable.decide` when the condition does not
-reduce to `True`/`False` directly. -/
-builtin_cbv_simproc ↓ simpIteCbv (@ite _ _ _ _ _) := fun e => do
-  let numArgs := e.getAppNumArgs
-  if numArgs < 5 then return .rfl (done := true)
-  propagateOverApplied e (numArgs - 5) fun e => do
-    let_expr f@ite α c inst a b := e | return .rfl
-    -- See Sym.Simp.ControlFlow.simpIte for why cd is propagated to all branches.
-    match (← simp c) with
-    | .rfl _ cd =>
-      if (← isTrueExpr c) then
-        return .step a (mkApp4 (mkConst ``ite_true f.constLevels!) α inst a b) (contextDependent := cd)
-      else if (← isFalseExpr c) then
-        return .step b (mkApp4 (mkConst ``ite_false f.constLevels!) α inst a b) (contextDependent := cd)
-      else
-        simpAndMatchIteDecidable f α c inst a b do return mkRflResult (done := true) (contextDependent := cd)
-    | .step c' h _ cd =>
-      if (← isTrueExpr c') then
-        return .step a (mkApp (e.replaceFn ``ite_eq_left_of_eq_true) h) (contextDependent := cd)
-      else if (← isFalseExpr c') then
-        return .step b (mkApp (e.replaceFn ``ite_eq_right_of_eq_false) h) (contextDependent := cd)
-      else
-        let (condRes, inst') ← rewriteDecidableInstance inst
-        match condRes with
-        | .rfl _ cd =>
-          simpAndMatchIteDecidable f α c inst a b do return mkRflResult (done := true) (contextDependent := cd)
-        | .step c' h _ cd =>
-          simpAndMatchIteDecidableCongr f α c inst a b c' h inst' do
-            let e' := e.getBoundedAppFn 4
-            let e' ← mkAppS₄ e' c' inst' a b
-            let h' := mkApp3 (e.replaceFn ``Sym.ite_cond_congr) c' inst' h
-            return .step e' h' (done := true) (contextDependent := cd)
+/-- Explicit `ite` terms enter the same native conditional evaluator as ordinary `if`. -/
+builtin_cbv_simproc ↓ simpIteCbv (@ite _ _ _ _ _) := simpIte
 
 /-- Reduce `dite` by matching the `Decidable` instance for `isTrue`/`isFalse`. -/
 def matchDIteDecidable (f α c inst a b instToMatch : Expr) (fallback : SimpM Result) : SimpM Result := do
@@ -393,12 +285,9 @@ corresponding boolean directly. Otherwise, simplifies the `Decidable` instance a
 on `isTrue`/`isFalse` to determine the boolean value. When `p` simplified to a new `p'`
 but the instance doesn't reduce to `isTrue`/`isFalse`, falls back to rebuilding
 `decide p'` with a congruence proof. -/
-builtin_cbv_simproc ↓ simpDecideCbv (@Decidable.decide _ _) := fun e => do
-  let numArgs := e.getAppNumArgs
-  if numArgs < 2 then return .rfl (done := true)
-  propagateOverApplied e (numArgs - 2) fun e => do
-    let_expr Decidable.decide p inst := e | return .rfl
-    match (← simp p) with
+def simpDecisionProjectionCbv (p inst : Expr) : SimpM Result := do
+  let propositionResult ← simp p
+  let result ← match propositionResult with
     | .rfl _ cd =>
       if (← isTrueExpr p) then
         return .step (← getBoolTrueExpr) (mkApp (mkConst ``decide_true) inst) (contextDependent := cd)
@@ -418,17 +307,28 @@ builtin_cbv_simproc ↓ simpDecideCbv (@Decidable.decide _ _) := fun e => do
           simpAndMatchDecideDecidable p inst do return mkRflResult (done := true) (contextDependent := cd)
         | .step p' hp _ cd =>
           simpAndMatchDecideDecidableCongr p p' hp inst inst' do
-            let res := (mkConst ``Decidable.decide)
-            let res ← shareCommon res
-            let res ← mkAppS₂ res p' inst'
+            let res ← mkProjS ``Decidable 0 inst'
             return .step res (mkApp5 (mkConst ``Decidable.decide.congr_simp) p p' hp inst inst') (done := true) (contextDependent := cd)
+  return if propositionResult.isContextDependent && !result.isContextDependent then
+    result.withContextDependent
+  else result
+
+builtin_cbv_simproc ↓ simpDecideCbv (@Decidable.decide _ _) := fun e => do
+  if let .proj ``Decidable 0 inst := e then
+    let some (p, _) ← Meta.Simp.getBoolDecision? e | return .rfl
+    return ← simpDecisionProjectionCbv (← shareCommon p) inst
+  let numArgs := e.getAppNumArgs
+  if numArgs < 2 then return .rfl (done := true)
+  propagateOverApplied e (numArgs - 2) fun e => do
+    let_expr Decidable.decide p inst := e | return .rfl
+    simpDecisionProjectionCbv p inst
 
 end Lean.Meta.Sym.Simp
 
 namespace Lean.Meta.Tactic.Cbv
 open Lean.Meta.Sym.Simp
 
-builtin_cbv_simproc ↓ simpCbvCond (@cond _ _ _ _) := simpCond
+builtin_cbv_simproc ↓ simpCbvCond (@cond _ _ _ _) := simpCondWith simpDecisionProjectionCbv
 
 public def reduceRecMatcher : Simproc := fun e => do
   if let some e' ← withCbvOpaqueGuard <| reduceRecMatcher? e then

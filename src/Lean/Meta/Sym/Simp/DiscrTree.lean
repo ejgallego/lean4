@@ -76,6 +76,10 @@ def pushArgsUsingInfo (infos : Array ProofInstArgInfo) (i : Nat) (e : Expr) (tod
       pushArgsUsingInfo infos (i-1) f (todo.push a)
   | _ => todo
 
+def isDecisionProjection (e : Expr) : Bool :=
+  let e := e.consumeMData
+  e.isAppOfArity ``Decidable.decide 2 || e matches .proj ``Decidable 0 _
+
 /--
 Computes the discrimination tree key for an expression and pushes its subterms onto the todo stack.
 Returns `Key.star` for bound variables and `noindex`-annotated terms.
@@ -83,6 +87,9 @@ Returns `Key.star` for bound variables and `noindex`-annotated terms.
 def pushArgs (root : Bool) (fnInfos : AssocList Name ProofInstInfo) (todo : Array Expr) (e : Expr) : Key × Array Expr :=
   if hasNoindexAnnotation e then
     (.star, todo)
+  else if isDecisionProjection e then
+    -- The matcher recovers the proposition from the instance type.
+    (if root then .proj ``Decidable 0 0 else .star, todo)
   else
     let fn := e.getAppFn
     match fn with
@@ -132,6 +139,7 @@ abbrev findKey? (cs : Array (Key × Trie α)) (k : Key) : Option (Key × Trie α
   cs.binSearch (k, default) (fun a b => a.1 < b.1)
 
 def getKey (e : Expr) : Key :=
+  if isDecisionProjection e then .proj ``Decidable 0 0 else
   match e.getAppFn' with
   | .lit v            => .lit v
   | .const declName _ => .const declName e.getAppNumArgs'
@@ -159,6 +167,7 @@ partial def resolveAssignedMVars (mctx : MetavarContext) (e : Expr) : Expr :=
 
 /-- Push `e` arguments/children into the `todo` stack.  -/
 def pushArgsTodo (todo : Array Expr) (e : Expr) : Array Expr :=
+  if isDecisionProjection e then todo else
   match e with
   | .app f a => pushArgsTodo (todo.push a) f
   | .forallE _ d b _ => todo.push b |>.push d

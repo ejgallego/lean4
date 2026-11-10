@@ -18,43 +18,20 @@ import Lean.Meta.Sym.Reduce
 import Lean.Meta.WHNF
 import Lean.Meta.Match.Value
 import Lean.Meta.AppBuilder
+import Lean.Meta.Tactic.Simp.Main
 import Init.Sym.Lemmas
 namespace Lean.Meta.Sym.Simp
 open Lean.Meta.Sym.Internal
 
-/--
-Simplifies a non-dependent `if-then-else` expression.
--/
-def simpIte : Simproc := fun e => do
+/-- Normalize an explicit `ite` to a primitive conditional without reducing its decision. -/
+public def simpIte : Simproc := fun e => do
   let numArgs := e.getAppNumArgs
   if numArgs < 5 then return .rfl (done := true)
   propagateOverApplied e (numArgs - 5) fun e => do
-    let_expr f@ite α c inst a b := e | return .rfl
-    -- **cd propagation**: `cd` from `simp c` is propagated to ALL branches.
-    -- When `cd = true`, `simp c` might produce a different result in another context
-    -- (e.g., a conditional rewrite could change `c`). This means the entire `ite`
-    -- result might differ — even branches like `isTrueExpr c` that seem ground-determined,
-    -- because in another context `simp c` might not return `.rfl` at all.
-    match (← simp c) with
-    | .rfl _ cd =>
-      if (← isTrueExpr c) then
-        return .step a (mkApp4 (mkConst ``ite_true f.constLevels!) α inst a b) (contextDependent := cd)
-      else if (← isFalseExpr  c) then
-        return .step b (mkApp4 (mkConst ``ite_false f.constLevels!) α inst a b) (contextDependent := cd)
-      else
-        return mkRflResult (done := true) (contextDependent := cd)
-    | .step c' h _ cd =>
-      if (← isTrueExpr c') then
-        return .step a (mkApp (e.replaceFn ``ite_eq_left_of_eq_true) h) (contextDependent := cd)
-      else if (← isFalseExpr c') then
-        return .step b (mkApp (e.replaceFn ``ite_eq_right_of_eq_false) h) (contextDependent := cd)
-      else
-        let .some inst' ← trySynthInstance (mkApp (mkConst ``Decidable) c') | return .rfl
-        let inst' ← shareCommon inst'
-        let e' := e.getBoundedAppFn 4
-        let e' ← mkAppS₄ e' c' inst' a b
-        let h' := mkApp3 (e.replaceFn ``Sym.ite_cond_congr) c' inst' h
-        return .step e' h' (done := true) (contextDependent := cd)
+    let_expr f@ite α p inst a b := e | return .rfl
+    let c ← mkProjS ``Decidable 0 inst
+    let result ← mkAppS₄ (← mkConstS ``cond f.constLevels!) α c a b
+    return .step result (mkApp5 (mkConst ``Sym.ite_eq_cond f.constLevels!) α p inst a b)
 
 /--
 Simplifies a dependent `if-then-else` expression.
@@ -64,7 +41,7 @@ def simpDIte : Simproc := fun e => do
   if numArgs < 5 then return .rfl (done := true)
   propagateOverApplied e (numArgs - 5) fun e => do
     let_expr f@dite α c inst a b := e | return .rfl
-    -- See `simpIte` for why `cd` is propagated to all branches.
+    -- Predicate simplification can depend on the local context even when a branch is selected.
     match (← simp c) with
     | .rfl _ cd =>
       if (← isTrueExpr c) then
@@ -85,7 +62,8 @@ def simpDIte : Simproc := fun e => do
         let b ← share <| b.betaRev #[h']
         return .step b (mkApp (e.replaceFn ``dite_eq_right_of_eq_false) h) (contextDependent := cd)
       else
-        let .some inst' ← trySynthInstance (mkApp (mkConst ``Decidable) c') | return .rfl
+        let .some inst' ← trySynthInstance (mkApp (mkConst ``Decidable) c')
+          | return mkRflResult (done := true) (contextDependent := cd)
         let inst' ← shareCommon inst'
         let e' := e.getBoundedAppFn 4
         let h ← shareCommon h
@@ -95,16 +73,47 @@ def simpDIte : Simproc := fun e => do
         let h' := mkApp3 (e.replaceFn ``Sym.dite_cond_congr) c' inst' h
         return .step e' h' (done := true) (contextDependent := cd)
 
-/--
-Simplifies a `cond` expression (aka Boolean `if-then-else`).
--/
-public def simpCond : Simproc := fun e => do
+/-- Simplify a decision projection without evaluating its instance. -/
+public def simpDecisionProjection (p inst : Expr) : SimpM Result := do
+  match ← simp p with
+  | .rfl _ cd =>
+    if ← isTrueExpr p then
+      return .step (← getBoolTrueExpr) (mkApp (mkConst ``decide_true) inst) (contextDependent := cd)
+    else if ← isFalseExpr p then
+      return .step (← getBoolFalseExpr) (mkApp (mkConst ``decide_false) inst) (contextDependent := cd)
+    else
+      return mkRflResult (done := true) (contextDependent := cd)
+  | .step p' h _ cd =>
+    if ← isTrueExpr p' then
+      return .step (← getBoolTrueExpr) (mkApp3 (mkConst ``Sym.decide_prop_eq_true) p inst h) (contextDependent := cd)
+    else if ← isFalseExpr p' then
+      return .step (← getBoolFalseExpr) (mkApp3 (mkConst ``Sym.decide_prop_eq_false) p inst h) (contextDependent := cd)
+    else
+      let .some inst' ← trySynthInstance (mkApp (mkConst ``Decidable) p')
+        | return mkRflResult (done := true) (contextDependent := cd)
+      let inst' ← shareCommon inst'
+      let c' ← mkProjS ``Decidable 0 inst'
+      let proof := mkApp5 (mkConst ``Decidable.decide.congr_simp) p p' h inst inst'
+      return .step c' proof (contextDependent := cd)
+
+/-- Simplify a Boolean conditional, retaining primitive decision projections in residual guards. -/
+public def simpCondWith (simplifyDecision : Expr → Expr → SimpM Result) : Simproc := fun e => do
   let numArgs := e.getAppNumArgs
   if numArgs < 4 then return .rfl (done := true)
   propagateOverApplied e (numArgs - 4) fun e => do
     let_expr f@cond α c a b := e | return .rfl
-    -- See `simpIte` for why `cd` is propagated to all branches.
-    match (← simp c) with
+    let result ← if let some (p, inst) ← Meta.Simp.getBoolDecision? c then
+      -- The predicate comes from the inferred instance type, not a shared subterm of `e`.
+      simplifyDecision (← shareCommon p) inst
+    else
+      simp c
+    let result ← match result with
+      | .step c' h false cd =>
+        let r ← mkEqTransResult c c' h (← simp c')
+        pure <| if cd && !r.isContextDependent then r.withContextDependent else r
+      | r => pure r
+    -- Guard rewrites can depend on the local context even when a branch is selected.
+    match result with
     | .rfl _ cd =>
       if isSameExpr c (← getBoolTrueExpr) then
         return .step a (mkApp3 (mkConst ``cond_true f.constLevels!) α a b) (contextDependent := cd)
@@ -122,6 +131,9 @@ public def simpCond : Simproc := fun e => do
         let e' ← mkAppS₃ e' c' a b
         let h' := mkApp2 (e.replaceFn ``Sym.cond_cond_congr) c' h
         return .step e' h' (done := true) (contextDependent := cd)
+
+/-- Simplifies a Boolean conditional and its underlying proposition when available. -/
+public def simpCond : Simproc := simpCondWith simpDecisionProjection
 
 /--
 Simplifies a `match`-expression.

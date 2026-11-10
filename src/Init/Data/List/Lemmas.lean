@@ -650,7 +650,7 @@ theorem getElem?_set_self' {l : List α} {i : Nat} {a : α} :
 @[grind =] theorem getElem_set {l : List α} {i j} {a} (h) :
     (set l i a)[j]'h = if i = j then a else l[j]'(length_set .. ▸ h) := by
   if h : i = j then
-    subst h; simp only [getElem_set_self, ↓reduceIte]
+    subst h; simp only [getElem_set_self] <;> rfl
   else
     simp [h]
 
@@ -670,8 +670,8 @@ over the `Option` returned by `l[j]`? -/
 theorem getElem?_set' {l : List α} {i j : Nat} {a : α} :
     (set l i a)[j]? = if i = j then Function.const _ a <$> l[j]? else l[j]? := by
   by_cases i = j
-  · simp only [getElem?_set_self', Option.map_eq_map, ↓reduceIte, *]
-  · simp only [ne_eq, not_false_eq_true, getElem?_set_ne, ↓reduceIte, *]
+  · simp only [getElem?_set_self', Option.map_eq_map, *] <;> rfl
+  · simp only [ne_eq, not_false_eq_true, getElem?_set_ne, *] <;> rfl
 
 @[simp] theorem set_getElem_self {as : List α} {i : Nat} (h : i < as.length) :
     as.set i as[i] = as := by
@@ -3694,9 +3694,15 @@ private theorem eraseDupsBy_loop_cons {as bs : List α} {r : α → α → Bool}
     conv => lhs; unfold eraseDupsBy.loop
     simp only [filter_cons]
     split <;> rename_i h
-    · simp only [h, Bool.not_true, Bool.false_eq_true, ↓reduceIte]
+    · simp only [h]
+      try simp only [Bool.not_true, Bool.false_eq_true, ↓reduceIte]
       rw [eraseDupsBy_loop_cons]
-    · simp only [h, Bool.not_false, ↓reduceIte]
+    · simp only [h]
+      try rw [Bool.not_false]
+      try rw [Bool.false_eq_true]
+      try rw [not_false_eq_true]
+      try (first | rw [ite_true] | rw [ite_false])
+      try simp only [↓reduceIte]
       rw [eraseDupsBy_loop_cons, eraseDupsBy.loop]
       have : (filter (fun a => !bs.any (r a)) as).length < as.length + 1 :=
         lt_add_one_of_le (List.length_filter_le _ as)

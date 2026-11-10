@@ -4,8 +4,7 @@ f._mutual._proof_1.fix fun x a =>
     ((y : (_ : Nat) ×' Bool ⊕' Nat) →
         (invImage
                 (fun x =>
-                  PSum.casesOn x (fun _x => PSigma.casesOn _x fun a a_1 => (a, if a_1 = true then 2 else 1)) fun n =>
-                    (n, 0))
+                  PSum.casesOn x (fun _x => PSigma.casesOn _x fun a a_1 => (a, bif a_1 then 2 else 1)) fun n => (n, 0))
                 Prod.instWellFoundedRelation).1
             y x →
           PSum.casesOn y (fun _x => Nat) fun _x => Nat) →
@@ -16,8 +15,8 @@ f._mutual._proof_1.fix fun x a =>
         ((y : (_ : Nat) ×' Bool ⊕' Nat) →
             (invImage
                     (fun x =>
-                      PSum.casesOn x (fun _x => PSigma.casesOn _x fun a a_1 => (a, if a_1 = true then 2 else 1))
-                        fun n => (n, 0))
+                      PSum.casesOn x (fun _x => PSigma.casesOn _x fun a a_1 => (a, bif a_1 then 2 else 1)) fun n =>
+                        (n, 0))
                     Prod.instWellFoundedRelation).1
                 y (PSum.inl _x) →
               PSum.casesOn y (fun _x => Nat) fun _x => Nat) →
@@ -30,9 +29,8 @@ f._mutual._proof_1.fix fun x a =>
                   ((y : (_ : Nat) ×' Bool ⊕' Nat) →
                       (invImage
                               (fun x =>
-                                PSum.casesOn x
-                                  (fun _x => PSigma.casesOn _x fun a a_3 => (a, if a_3 = true then 2 else 1)) fun n =>
-                                  (n, 0))
+                                PSum.casesOn x (fun _x => PSigma.casesOn _x fun a a_3 => (a, bif a_3 then 2 else 1))
+                                  fun n => (n, 0))
                               Prod.instWellFoundedRelation).1
                           y (PSum.inl ⟨x, x_1⟩) →
                         PSum.casesOn y (fun _x => Nat) fun _x => Nat) →

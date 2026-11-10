@@ -446,8 +446,8 @@ theorem takeWhile_replicate {p : α → Bool} :
 
 theorem popWhile_replicate {p : α → Bool} :
     (replicate n a).popWhile p = if p a then #[] else replicate n a := by
-  simp only [popWhile_replicate_eq_filter_not, size_replicate, filter_replicate, Bool.not_eq_eq_eq_not,
-    Bool.not_true]
+  simp only [popWhile_replicate_eq_filter_not, size_replicate, filter_replicate]
+  try simp only [Bool.not_eq_eq_eq_not, Bool.not_true]
   split <;> simp_all
 
 theorem extract_takeWhile {as : Array α} {i : Nat} :

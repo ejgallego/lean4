@@ -11,6 +11,7 @@ public import Lean.Elab.Tactic.FalseOrByContra
 import Lean.Elab.ConfigEval
 public import Lean.Meta.Tactic.Simp.Attr
 import Lean.Elab.Tactic.BuiltinTactic
+import Init.Data.Bool
 import Init.Data.Int.Pow
 import Init.Data.List.MapIdx
 import Init.Data.Nat.Dvd
@@ -91,6 +92,15 @@ def mkCoordinateEvalAtomsEq (e : Expr) (n : Nat) : OmegaM Expr := do
 def mkAtomLinearCombo (e : Expr) : OmegaM (LinearCombo × OmegaM Expr × List Expr) := do
   let (n, facts) ← lookup e
   return ⟨LinearCombo.coordinate n, mkCoordinateEvalAtomsEq e n, facts.getD ∅⟩
+
+/-- Canonicalizes explicit `ite` inputs without reducing their decision instances. -/
+private def iteToCond? (e : Expr) : MetaM (Option Expr) := do
+  let_expr f@ite α p d a b := e | return none
+  if let some (type, c, value) := p.eq? then
+    if type.isConstOf ``Bool && value.isConstOf ``Bool.true then
+      return some (mkApp5 (mkConst ``Bool.ite_eq_cond f.constLevels!) α c d a b)
+  let rhs := mkApp4 (mkConst ``cond f.constLevels!) α (.proj ``Decidable 0 d) a b
+  return some (← mkEqReflWithExpectedType e rhs)
 
 mutual
 
@@ -237,6 +247,8 @@ partial def asLinearComboImpl (e : Expr) : OmegaM (LinearCombo × OmegaM Expr ×
     | .app (.app (.app (.app (.const ``Prod.mk [u, v]) _) _) x) y =>
       rewrite e (mkApp4 (.const ``Prod.snd_mk [u, v]) α x β y)
     | _ => mkAtomLinearCombo e
+  | (``ite, _) =>
+    if let some proof ← iteToCond? e then rewrite e proof else mkAtomLinearCombo e
   | (``Int.negSucc, #[n]) => rewrite e (mkApp (.const ``Int.negSucc_eq []) n)
   | _ => mkAtomLinearCombo e
 where
@@ -286,6 +298,12 @@ where
       | _ => mkAtomLinearCombo e
     | (``Min.min, #[_, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_min []) a b)
     | (``Max.max, #[_, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_max []) a b)
+    | (``ite, _) =>
+      if let some proof ← iteToCond? n then
+        let cast := mkApp2 (.const ``Nat.cast [0]) (.const ``Int []) i
+        rewrite e (← mkCongrArg cast proof)
+      else
+        mkAtomLinearCombo e
     | (``Int.toNat, #[n]) => rewrite e (mkApp (.const ``Int.toNat_eq_max []) n)
     | (``HShiftLeft.hShiftLeft, #[_, _, _, _, a, b]) =>
       rewrite e (mkApp2 (.const ``Int.ofNat_shiftLeft_eq []) a b)
@@ -368,9 +386,42 @@ def addIntInequality (p : MetaProblem) (h y : Expr) : OmegaM MetaProblem := do
     problem := ← (p.problem.addInequality lc.const lc.coeffs
       (some do mkAppM ``le_of_le_of_eq #[h, (← prf)])) |>.solveEqualities }
 
+/-- Recover arithmetic propositions from Boolean branch conditions. -/
+private def boolConditionEq? (p : Expr) : MetaM (Option Expr) := do
+  let some (α, c, v) := p.eq? | return none
+  unless α.isConstOf ``Bool do return none
+  unless v.isConstOf ``Bool.true do
+    if v.isConstOf ``Bool.false then return none
+    return some (← mkAppM ``propext #[mkApp2 (mkConst ``Bool.eq_iff_iff) c v])
+  if let .proj ``Decidable 0 inst := c then
+    let type ← whnfR (← inferType inst)
+    let_expr Decidable p := type | return none
+    return some (mkApp2 (mkConst ``decide_eq_true_eq) p inst)
+  match c.getAppFnArgs with
+  | (``Decidable.decide, #[p, inst]) =>
+    return some (mkApp2 (mkConst ``decide_eq_true_eq) p inst)
+  | (``Bool.and, #[a, b]) => return some (mkApp2 (mkConst ``Bool.and_eq_true) a b)
+  | (``Bool.or, #[a, b]) => return some (mkApp2 (mkConst ``Bool.or_eq_true) a b)
+  | (``Bool.not, #[a]) =>
+    return some (← mkEqTrans (mkApp (mkConst ``Bool.not_eq_true') a)
+      (← mkEqSymm (mkApp (mkConst ``Bool.not_eq_true) a)))
+  | (``BEq.beq, #[α, _, a, b]) =>
+    if α.isConstOf ``Nat && (← isDefEq c (mkApp2 (mkConst ``Nat.beq) a b)) then
+      return some (mkApp2 (mkConst ``Nat.beq_eq) a b)
+    if α.isConstOf ``Bool && (← isDefEq c (mkApp2 (mkConst ``Bool.beq) a b)) then
+      return some (mkApp2 (mkConst ``Bool.beq_to_eq) a b)
+    return none
+  | (``Bool.beq, #[a, b]) => return some (mkApp2 (mkConst ``Bool.beq_to_eq) a b)
+  | (``Nat.beq, #[a, b]) => return some (mkApp2 (mkConst ``Nat.beq_eq) a b)
+  | (``Nat.ble, #[a, b]) => return some (mkApp2 (mkConst ``Nat.ble_eq) a b)
+  | (``Nat.blt, #[a, b]) => return some (mkApp2 (mkConst ``Nat.blt_eq) a b)
+  | _ => return none
+
 /-- Given a fact `h` with type `¬ P`, return a more useful fact obtained by pushing the negation. -/
 def pushNot (h P : Expr) : MetaM (Option Expr) := do
   let P ← whnfR P
+  if let some eq ← boolConditionEq? P then
+    return some (← mkEqMP (← mkCongrArg (mkConst ``Not) eq) h)
   trace[omega] "pushing negation: {P}"
   match P with
   | .forallE _ t b _ =>
@@ -427,6 +478,8 @@ partial def addFact (p : MetaProblem) (h : Expr) : OmegaM (MetaProblem × Nat) :
     return (p, 0)
   else
     let t ← instantiateMVars (← whnfR (← inferType h))
+    if let some eq ← boolConditionEq? t then
+      return ← p.addFact (← mkEqMP eq h)
     trace[omega] "adding fact: {t}"
     match t with
     | .forallE _ x y _ =>
@@ -446,6 +499,11 @@ partial def addFact (p : MetaProblem) (h : Expr) : OmegaM (MetaProblem × Nat) :
           | _ => p.addFact (mkApp3 (.const ``Int.sub_eq_zero_of_eq []) x y h)
         | Nat => p.addFact (mkApp3 (.const ``Int.ofNat_congr []) x y h)
         | Fin n => p.addFact (mkApp4 (.const ``Fin.val_congr []) n x y h)
+        | Bool =>
+          if y.isConstOf ``Bool.false then
+            p.addFact (← mkEqMPR (mkApp (mkConst ``Bool.not_eq_true) x) h)
+          else
+            pure (p, 0)
         | _ => pure (p, 0)
       | LE.le α _ x y =>
         match_expr α with

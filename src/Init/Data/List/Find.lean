@@ -555,7 +555,8 @@ where
     | nil => unfold findIdx.go; exact Nat.succ_eq_add_one n
     | cons hd tl =>
       unfold findIdx.go
-      cases p hd <;> simp only [Bool.false_eq_true, ↓reduceIte]
+      cases p hd <;> simp only [Bool.false_eq_true]
+      all_goals repeat' first | rw [ite_true] | rw [ite_false]
       exact findIdx_go_succ p tl (n + 1)
 
 @[simp] theorem findIdx_singleton {a : α} {p : α → Bool} : [a].findIdx p = if p a then 0 else 1 := by
@@ -698,7 +699,9 @@ theorem findIdx_append {p : α → Bool} {l₁ l₂ : List α} :
     simp only [findIdx_cons, length_cons, cons_append]
     by_cases h : p x
     · simp [h]
-    · simp only [h, ih, Bool.false_eq_true, ↓reduceIte, add_one_lt_add_one_iff]
+    · simp only [h, ih, Bool.false_eq_true]
+      repeat' rw [ite_false]
+      try simp only [add_one_lt_add_one_iff]
       split <;> simp [Nat.add_assoc]
 
 theorem IsPrefix.findIdx_le {l₁ l₂ : List α} {p : α → Bool} (h : l₁ <+: l₂) :
@@ -910,9 +913,10 @@ theorem findIdx?_eq_findSome?_zipIdx {xs : List α} {p : α → Bool} :
     simp only [findIdx?_cons, Nat.zero_add, zipIdx]
     split
     · simp_all
-    · simp_all only [ite_false, Option.isNone_none, findSome?_cons_of_isNone, reduceCtorEq]
-      rw [← map_snd_add_zipIdx_eq_zipIdx (n := 1) (k := 0)]
-      simp [Function.comp_def, findSome?_map]
+    · simp_all
+      all_goals
+        rw [← map_snd_add_zipIdx_eq_zipIdx (n := 1) (k := 0)]
+        simp [Function.comp_def, findSome?_map]
 
 theorem findIdx?_eq_fst_find?_zipIdx {xs : List α} {p : α → Bool} :
     xs.findIdx? p = (xs.zipIdx.find? fun ⟨x, _⟩ => p x).map (·.2) := by
@@ -1173,7 +1177,8 @@ theorem idxOf_eq_length [BEq α] [LawfulBEq α] {l : List α} (h : a ∉ l) : l.
   | nil => rfl
   | cons x xs ih =>
     simp only [mem_cons, not_or] at h
-    simp only [idxOf_cons, beq_iff_eq]
+    simp only [idxOf_cons]
+    try simp only [beq_iff_eq]
     split <;> simp_all
 
 theorem idxOf_lt_length_of_mem [BEq α] [EquivBEq α] {l : List α} (h : a ∈ l) : l.idxOf a < l.length := by

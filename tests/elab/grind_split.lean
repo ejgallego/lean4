@@ -9,6 +9,7 @@ opaque R : Nat → Prop
 /--
 trace: [grind] working on goal `grind`
 [grind.eqc] (if p then a else b) = c
+[grind.eqc] (Lean.Grind.nestedDecidable inst).1 = decide p
 [grind.eqc] R a = True
 [grind.eqc] R b = True
 [grind.eqc] R c = False

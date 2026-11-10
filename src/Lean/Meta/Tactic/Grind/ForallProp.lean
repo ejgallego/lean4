@@ -185,6 +185,7 @@ Applies the following rewriting rules:
 - `Grind.imp_self_eq`
 - `forall_true`
 - `forall_false`
+- `forall_const`
 - `Grind.forall_or_forall`
 - `Grind.forall_forall_or`
 - `Grind.forall_and` (see `forallImpAnd?`)
@@ -203,6 +204,11 @@ builtin_simproc_decl simpForall ((a : _) → _) := fun e => do
     | False => if (← isProp d) then return .visit { expr := mkNot d, proof? := mkApp (mkConst ``Grind.imp_false_eq) d }
     | _ => if (← isProp d <&&> isDefEq d b) then
       return .done { expr := mkConst ``True, proof? := mkApp (mkConst ``Grind.imp_self_eq) d }
+    if !(← isProp d) && (← isProp b) && (← getEnv).contains ``forall_const then
+      if let .some inst ← trySynthInstance (mkApp (mkConst ``Nonempty [← getLevel d]) d) then
+        let iff := mkApp3 (mkConst ``forall_const [← getLevel d]) b d inst
+        let proof := mkApp3 (mkConst ``propext) e b iff
+        return .visit { expr := b, proof? := proof }
   else
     -- `b` has loose bound variables
     match_expr d with

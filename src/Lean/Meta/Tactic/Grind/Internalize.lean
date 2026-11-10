@@ -130,7 +130,7 @@ private def addDefaultSplitCandidate (e : Expr) : GoalM Unit := do
 private def checkAndAddSplitCandidate (e : Expr) : GoalM Unit := do
   match h : e with
   | .app .. =>
-    if (← getConfig).splitIte && (isIte e || isDIte e) then
+    if (← getConfig).splitIte && (isCond e || isIte e || isDIte e) then
       addDefaultSplitCandidate e
       return ()
     if isMorallyIff e then
@@ -424,7 +424,7 @@ private def propagateEtaStruct (a : Expr) (generation : Nat) : GoalM Unit := do
 
 /-- Returns `true` if we can ignore `ext` for functions occurring as arguments of a `declName`-application. -/
 private def extParentsToIgnore (declName : Name) : Bool :=
-  declName == ``Eq || declName == ``HEq || declName == ``dite || declName == ``ite
+  declName == ``Eq || declName == ``HEq || declName == ``dite || declName == ``ite || declName == ``cond
   || declName == ``Exists || declName == ``Subtype
 
 /--
@@ -694,6 +694,13 @@ where
       reportIssue! "unexpected metadata found during internalization{indentExpr e}\n`grind` uses a pre-processing step that eliminates metadata"
       mkENode' e generation
       Solvers.internalize e parent?
+    | .proj ``Decidable 0 d =>
+      let some (p, _) ← Simp.getBoolDecision? e | unreachable!
+      mkENode' e generation
+      let view ← Sym.shareCommonWithoutChecks (mkApp2 (mkConst ``Decidable.decide) p d)
+      let proof := mkExpectedPropHint (← mkEqRefl e) (← mkEq e view)
+      pushInternalizeRhsAddEq e view proof generation
+      Solvers.internalize e parent?
     | .proj .. =>
       reportIssue! "unexpected kernel projection term during internalization{indentExpr e}\n`grind` uses a pre-processing step that folds them as projection applications, the pre-processor failed to fold this term"
       mkENode' e generation
@@ -740,6 +747,23 @@ where
       let c := args[0]!
       internalizeImpl c generation e
       registerParent e c
+    else if f.isConstOf ``cond && args.size >= 4 then
+      internalizeImpl args[1]! generation e
+      if funCC then
+        internalizeImpl e.appFn! generation e
+        internalizeImpl e.appArg! generation e
+        registerParent e e.appFn!
+      let condition ← shareCommon (← condCondition e)
+      internalizeImpl condition generation e
+      registerCondParent e condition
+      let normalized ← preprocess condition
+      if normalized.expr != condition then
+        let rhs ← shareCommon normalized.expr
+        pushInternalizeRhsAddEq condition rhs (← normalized.getProof) generation
+      for arg in args[4:] do
+        internalizeImpl arg generation e
+      for arg in args do
+        registerParent e arg
     else if f.isConstOf ``ite && args.size == 5 then
       -- Only the condition is internalized; the branches are internalized by `propagateIte`
       -- once the condition is decided. The congruence hash of `e` covers every argument,

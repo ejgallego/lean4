@@ -482,7 +482,8 @@ macro_rules
 /-- use `left` for `t` and `right` for `e` -/
 recommended_spelling "dite" for "if h : c then t else e" in [dite, termDepIfThenElse]
 
-@[inherit_doc ite] syntax (name := termIfThenElse)
+/-- A conditional with a Boolean condition; decidable propositions are coerced to `Bool`. -/
+syntax (name := termIfThenElse)
   ppRealGroup(ppRealFill(ppIndent("if " term " then") ppSpace term)
     ppDedent(ppSpace) ppRealFill("else " term)) : term
 
@@ -492,7 +493,7 @@ macro_rules
     `(let_mvar% ?m := $c; wait_if_type_mvar% ?m; ite $mvar $t $e)
 
 /-- use `left` for `t` and `right` for `e` -/
-recommended_spelling "ite" for "if c then t else e" in [ite, termIfThenElse]
+recommended_spelling "cond" for "if c then t else e" in [cond, termIfThenElse]
 
 /--
 `if let pat := d then t else e` is a shorthand syntax for:

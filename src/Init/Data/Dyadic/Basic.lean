@@ -568,7 +568,7 @@ theorem blt_iff_toRat {x y : Dyadic} : blt x y ↔ x.toRat < y.toRat := by
       ← Rat.zpow_add, Int.shiftLeft_eq]
     rw [Int.add_comm, Int.add_neg_eq_sub]
     split
-    · simp [decide_eq_true_eq, ← Rat.intCast_lt_intCast, Rat.zpow_natCast, *]
+    · simp [← Rat.intCast_lt_intCast, Rat.zpow_natCast, *]
     · simp only [decide_eq_true_eq, Int.negSucc_eq, *]
       rw [Rat.zpow_neg, ← Rat.div_def, Rat.div_lt_iff (Rat.zpow_pos (by decide))]
       simp [← Rat.intCast_lt_intCast, ← Rat.zpow_natCast, *]

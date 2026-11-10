@@ -587,7 +587,7 @@ theorem findValidLevel_aligned
           rwa [List.getElem!_eq_getElem?_getD, List.getElem?_drop, Nat.add_zero,
             ← List.getElem!_eq_getElem?_getD] at this
         have heq : origGens[d]! = gens[offset]! := by
-          rw [hv, hw]; exact beq_iff_eq.mp hvw
+          rw [hv, hw]; simpa using hvw
         rw [← hGensSuffix d hd offset ho heq, ← hE]
       · split at hfvl
         · simp at hfvl

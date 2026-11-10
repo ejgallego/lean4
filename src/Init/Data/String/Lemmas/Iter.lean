@@ -40,11 +40,14 @@ public theorem intercalateString_eq {α β : Type} [Std.Iterator α Id β] [Std.
   | cons hd tl ih =>
     rw [List.append_cons, ← ih, List.foldl_cons]
     congr
-    simp only [List.append_eq_nil_iff, List.cons_ne_self, and_false, ↓reduceIte]
+    simp only [List.append_eq_nil_iff, List.cons_ne_self, and_false]
+    try simp only [↓reduceIte]
     match m with
     | [] => simp
     | x::xs =>
-      simp only [List.cons_append, Option.some.injEq, reduceCtorEq, ↓reduceIte]
+      simp only [List.cons_append, reduceCtorEq]
+      try simp only [↓reduceIte]
+      try simp only [Option.some.injEq]
       rw [← List.cons_append, String.intercalate_append_of_ne_nil (by simp) (by simp),
         String.intercalate_singleton]
 
