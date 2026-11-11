@@ -53,12 +53,12 @@ example : ∀ x y, s x y → q x ∧ r y := by nf
 #guard_msgs (info, drop warning) in
 example : ∀ x y, s x y → q x ∧ r y := by nf_sym
 
--- A non-dependent domain that is not a proposition is an arrow too.
-/-- info: (∀ (x a : Nat), q x) ∧ ∀ (x a : Nat), r x -/
+-- An unused binder over the nonempty type `Nat` is eliminated before splitting.
+/-- info: (∀ (x : Nat), q x) ∧ ∀ (x : Nat), r x -/
 #guard_msgs (info, drop warning) in
 example : ∀ x, Nat → q x ∧ r x := by nf
 
-/-- info: (∀ (x a : Nat), q x) ∧ ∀ (x a : Nat), r x -/
+/-- info: (∀ (x : Nat), q x) ∧ ∀ (x : Nat), r x -/
 #guard_msgs (info, drop warning) in
 example : ∀ x, Nat → q x ∧ r x := by nf_sym
 
