@@ -286,7 +286,7 @@ where
 /--
 Normalizes universally quantified propositions and implications:
 `implies_true`, `Grind.imp_false_eq`, `Grind.true_imp_eq`,
-`Grind.false_imp_eq`, `Grind.imp_self_eq`, `Grind.forall_true`, `forall_false`,
+`Grind.false_imp_eq`, `Grind.imp_self_eq`, `Grind.forall_true`, `forall_false`, `forall_const`,
 `Grind.forall_or_forall`, `Grind.forall_forall_or`, `Grind.forall_and` (see `forallImpAnd?`).
 -/
 def simpForall : Simproc := fun e => do
@@ -305,6 +305,11 @@ def simpForall : Simproc := fun e => do
       -- Maximally shared terms: structural equality is pointer equality.
       if isSameExpr d b && (← isProp d) then
         return .step (← getTrueExpr) (mkApp (mkConst ``Grind.imp_self_eq) d) (done := true)
+    if !(← isProp d) && (← isProp b) && (← getEnv).contains ``forall_const then
+      if let .some inst ← trySynthInstance (mkApp (mkConst ``Nonempty [← getLevel d]) d) then
+        let iff := mkApp3 (mkConst ``forall_const [← getLevel d]) b d inst
+        let proof := mkApp3 (mkConst ``propext) e b iff
+        return .step b proof
   else
     match_expr d with
     | True =>
