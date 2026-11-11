@@ -219,8 +219,7 @@ theorem exists_erase_eq [LawfulBEq α] {a : α} {xs : Array α} (h : a ∈ xs) :
 theorem size_erase [LawfulBEq α] {a : α} {xs : Array α} :
     (xs.erase a).size = if a ∈ xs then xs.size - 1 else xs.size := by
   rw [erase_eq_eraseP, size_eraseP]
-  congr
-  simp [mem_iff_getElem, eq_comm (a := a)]
+  congr <;> simp [mem_iff_getElem, eq_comm (a := a)]
 
 theorem size_erase_le {a : α} {xs : Array α} : (xs.erase a).size ≤ xs.size := by
   rcases xs with ⟨xs⟩
@@ -273,7 +272,8 @@ theorem erase_append [LawfulBEq α] {a : α} {xs ys : Array α} :
 theorem erase_replicate [LawfulBEq α] {n : Nat} {a b : α} :
     (replicate n a).erase b = if b == a then replicate (n - 1) a else replicate n a := by
   simp only [← List.toArray_replicate, List.erase_toArray]
-  simp only [List.erase_replicate, beq_iff_eq, List.toArray_replicate]
+  simp only [List.erase_replicate, List.toArray_replicate]
+  try simp only [beq_iff_eq]
   split <;> simp
 
 -- The arguments `a b` are explicit,

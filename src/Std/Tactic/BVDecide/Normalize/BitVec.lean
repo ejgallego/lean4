@@ -109,7 +109,7 @@ theorem BitVec.smod_umod (x y : BitVec w) :
         else
           x.umod y := by
   rw [BitVec.smod_eq, ← BitVec.msb_eq_getLsbD_last, ← BitVec.msb_eq_getLsbD_last]
-  cases x.msb <;> cases y.msb <;> simp
+  cases x.msb <;> cases y.msb <;> simp <;> rfl
 
 attribute [bv_normalize] BitVec.smtUDiv_eq
 
@@ -147,7 +147,7 @@ theorem BitVec.srem_umod (x y : BitVec w) :
 
 @[bv_normalize]
 theorem BitVec.abs_eq (x : BitVec w) : x.abs = bif x.getLsbD (w - 1) then -x else x := by
-  simp [_root_.BitVec.abs_eq, BitVec.msb_eq_getLsbD_last]
+  simp [_root_.BitVec.abs_eq, BitVec.msb_eq_getLsbD_last] <;> rfl
 
 attribute [bv_normalize] BitVec.twoPow_eq
 
@@ -569,52 +569,52 @@ theorem ISize.toBitVec_cond :
 
 @[int_toBitVec]
 theorem UInt8.toBitVec_ite [Decidable c] :
-    UInt8.toBitVec (if c then t else e) = if c then t.toBitVec else e.toBitVec := by
+    UInt8.toBitVec (ite c t e) = ite c t.toBitVec e.toBitVec := by
   rw [apply_ite UInt8.toBitVec]
 
 @[int_toBitVec]
 theorem UInt16.toBitVec_ite [Decidable c] :
-    UInt16.toBitVec (if c then t else e) = if c then t.toBitVec else e.toBitVec := by
+    UInt16.toBitVec (ite c t e) = ite c t.toBitVec e.toBitVec := by
   rw [apply_ite UInt16.toBitVec]
 
 @[int_toBitVec]
 theorem UInt32.toBitVec_ite [Decidable c] :
-    UInt32.toBitVec (if c then t else e) = if c then t.toBitVec else e.toBitVec := by
+    UInt32.toBitVec (ite c t e) = ite c t.toBitVec e.toBitVec := by
   rw [apply_ite UInt32.toBitVec]
 
 @[int_toBitVec]
 theorem UInt64.toBitVec_ite [Decidable c] :
-    UInt64.toBitVec (if c then t else e) = if c then t.toBitVec else e.toBitVec := by
+    UInt64.toBitVec (ite c t e) = ite c t.toBitVec e.toBitVec := by
   rw [apply_ite UInt64.toBitVec]
 
 @[int_toBitVec]
 theorem USize.toBitVec_ite [Decidable c] :
-    USize.toBitVec (if c then t else e) = if c then t.toBitVec else e.toBitVec := by
+    USize.toBitVec (ite c t e) = ite c t.toBitVec e.toBitVec := by
   rw [apply_ite USize.toBitVec]
 
 @[int_toBitVec]
 theorem Int8.toBitVec_ite [Decidable c] :
-    Int8.toBitVec (if c then t else e) = if c then t.toBitVec else e.toBitVec := by
+    Int8.toBitVec (ite c t e) = ite c t.toBitVec e.toBitVec := by
   rw [apply_ite Int8.toBitVec]
 
 @[int_toBitVec]
 theorem Int16.toBitVec_ite [Decidable c] :
-    Int16.toBitVec (if c then t else e) = if c then t.toBitVec else e.toBitVec := by
+    Int16.toBitVec (ite c t e) = ite c t.toBitVec e.toBitVec := by
   rw [apply_ite Int16.toBitVec]
 
 @[int_toBitVec]
 theorem Int32.toBitVec_ite [Decidable c] :
-    Int32.toBitVec (if c then t else e) = if c then t.toBitVec else e.toBitVec := by
+    Int32.toBitVec (ite c t e) = ite c t.toBitVec e.toBitVec := by
   rw [apply_ite Int32.toBitVec]
 
 @[int_toBitVec]
 theorem Int64.toBitVec_ite [Decidable c] :
-    Int64.toBitVec (if c then t else e) = if c then t.toBitVec else e.toBitVec := by
+    Int64.toBitVec (ite c t e) = ite c t.toBitVec e.toBitVec := by
   rw [apply_ite Int64.toBitVec]
 
 @[int_toBitVec]
 theorem ISize.toBitVec_ite [Decidable c] :
-    ISize.toBitVec (if c then t else e) = if c then t.toBitVec else e.toBitVec := by
+    ISize.toBitVec (ite c t e) = ite c t.toBitVec e.toBitVec := by
   rw [apply_ite ISize.toBitVec]
 
 @[int_toBitVec]

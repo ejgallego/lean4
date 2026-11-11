@@ -46,10 +46,14 @@ theorem Decidable.and_not_of_not_imp [Decidable a] (h : ¬(a → b)) : a ∧ ¬b
   Decidable.not_imp_iff_and_not.mp h
 
 theorem ite_disjunction {α : Type u} {P : Prop} [Decidable P] {a b : α} :
-    (P ∧ (if P then a else b) = a) ∨ (¬ P ∧ (if P then a else b) = b) :=
+    (P ∧ ite P a b = a) ∨ (¬ P ∧ ite P a b = b) :=
   if h : P then
     .inl ⟨h, ite_eq_left h⟩
   else
     .inr ⟨h, ite_eq_right h⟩
+
+theorem cond_disjunction {α : Type u} (c : Bool) (a b : α) :
+    (c = true ∧ cond c a b = a) ∨ (¬ c = true ∧ cond c a b = b) := by
+  cases c <;> simp [cond]
 
 end Lean.Omega

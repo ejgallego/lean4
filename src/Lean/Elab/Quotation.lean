@@ -501,7 +501,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
             | _     => `(Syntax.isOfKind __discr $(quote kind))
             let newDiscrs ← (List.range argPats.size).mapM fun i => `(Syntax.getArg __discr $(quote i))
             pure (cond, newDiscrs)
-          `(ite (Eq $cond true) $(← yes newDiscrs) $(← no))
+          `(cond $cond $(← yes newDiscrs) $(← no))
       }
   else match pat with
     | `(_)              => unconditionally pure

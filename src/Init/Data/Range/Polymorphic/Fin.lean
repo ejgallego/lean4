@@ -39,9 +39,14 @@ instance : LawfulUpwardEnumerable (Fin n) where
 
 instance : LawfulUpwardEnumerableLE (Fin n) where
   le_iff x y := by
-    simp only [le_def, UpwardEnumerable.LE, pRangeSuccMany?_eq, Fin.addNat?_eq_dite,
-      Option.dite_none_right_eq_some, Option.some.injEq, ← val_inj, exists_prop]
-    exact ⟨fun h => ⟨y - x, by grind⟩, by grind⟩
+    simp only [le_def, UpwardEnumerable.LE, pRangeSuccMany?_eq, Fin.addNat?_eq_some_iff]
+    constructor
+    · intro h
+      refine ⟨y - x, ?_⟩
+      have := y.isLt
+      omega
+    · rintro ⟨m, _, h⟩
+      omega
 
 instance : Least? (Fin 0) where
   least? := none
@@ -104,8 +109,15 @@ theorem rxiHasSize_eq :
     Rxi.HasSize.size (α := Fin n) = fun (lo : Fin n) => (n - lo : Nat) := rfl
 
 instance : Rxi.LawfulHasSize (Fin n) where
-  size_eq_one_of_succ?_eq_none x := by grind
-  size_eq_succ_of_succ?_eq_some lo lo' := by grind
+  size_eq_one_of_succ?_eq_none x h := by
+    simp only [pRangeSucc?_eq, Fin.addNat?_eq_none_iff, rxiHasSize_eq] at h ⊢
+    have := x.isLt
+    omega
+  size_eq_succ_of_succ?_eq_some lo lo' h := by
+    simp only [pRangeSucc?_eq, Fin.addNat?_eq_some_iff, rxiHasSize_eq] at h ⊢
+    have := lo.isLt
+    have := lo'.isLt
+    omega
 
 instance : Rxi.IsAlwaysFinite (Fin n) := inferInstance
 

@@ -276,7 +276,7 @@ b : Nat → Bool
 s₀ s✝¹ : Nat
 x✝ : PUnit
 s✝ : Nat
-h✝¹ : b 0 = true ∧ s✝ = s₀ + 1 ∨ ¬b 0 = true ∧ s✝ = s₀ + 2
+h✝¹ : b 0 = true ∧ s✝ = s₀ + 1 ∨ b 0 = false ∧ s✝ = s₀ + 2
 h✝ : b 1 = true
 ⊢ s₀ + 2 ≤ s✝ + 1
 
@@ -285,8 +285,8 @@ b : Nat → Bool
 s₀ s✝¹ : Nat
 x✝ : PUnit
 s✝ : Nat
-h✝¹ : b 0 = true ∧ s✝ = s₀ + 1 ∨ ¬b 0 = true ∧ s✝ = s₀ + 2
-h✝ : ¬b 1 = true
+h✝¹ : b 0 = true ∧ s✝ = s₀ + 1 ∨ b 0 = false ∧ s✝ = s₀ + 2
+h✝ : b 1 = false
 ⊢ s₀ + 2 ≤ s✝ + 2
 -/
 #guard_msgs in
@@ -345,7 +345,7 @@ b : Bool
 s✝ : Nat
 x✝¹ : PUnit
 x✝ s : Nat
-h✝ : b = true ∧ x✝ = 2 ∧ s = s✝ ∨ ¬b = true ∧ x✝ = 3 ∧ s = s✝
+h✝ : b = true ∧ x✝ = 2 ∧ s = s✝ ∨ b = false ∧ x✝ = 3 ∧ s = s✝
 ⊢ 0 < x✝ + s
 -/
 #guard_msgs in

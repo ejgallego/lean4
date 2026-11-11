@@ -273,21 +273,21 @@ theorem Poly.denoteS_insert {α} [Semiring α] (ctx : Context α) (k : Int) (m :
     split
     next h =>
       intro _ hn
-      simp at h <;> simp [*, Mon.denote, denoteS_addConst, add_comm]
+      have hm : m = .unit := by first | exact h | simpa using h
+      simp [Mon.denote, denoteS_addConst, add_comm, *]
     next =>
       fun_induction insert.go <;> simp_all +zetaDelta [denoteS]
-      next a m p _ _ h₁ h₂ =>
+      next =>
         intro hk hn
         cases hn; rename_i hn₁ hn₂
-        replace h₂ : k.toNat + a.toNat = 0 := by
-          apply Int.ofNat_inj.mp
-          rw [Int.natCast_add, Int.toNat_of_nonneg hn₁,
-              Int.toNat_of_nonneg hk, h₂]; rfl
-        rw [← add_assoc, Mon.eq_of_grevlex h₁, ← right_distrib, ← natCast_add, h₂]
+        have sumZero (a : Int) (ha : 0 ≤ a) (hsum : k + a = 0) : k.toNat + a.toNat = 0 := by
+          rw [← Int.toNat_add hk ha, hsum]; rfl
+        rw [← add_assoc, Mon.eq_of_grevlex (m₁ := m) (by assumption), ← right_distrib, ← natCast_add,
+          sumZero _ hn₁ (by assumption)]
         simp
-      next h₁ _ =>
+      next =>
         intro _ hn; cases hn
-        rw [Int.toNat_add, natCast_add, right_distrib, add_assoc, Mon.eq_of_grevlex h₁] <;> assumption
+        rw [Int.toNat_add, natCast_add, right_distrib, add_assoc, Mon.eq_of_grevlex (m₁ := m) (by assumption)] <;> assumption
       next ih =>
         intro hk hn; cases hn; rename_i hn₁ hn₂
         rw [ih hk hn₂, add_left_comm]
@@ -353,7 +353,8 @@ theorem Poly.denoteS_mulMon {α} [CommSemiring α] (ctx : Context α) (k : Int) 
     split
     next h =>
       intro h₁ h₂
-      simp at h; simp [*, Mon.denote, denoteS_mulConst _ _ _ h₁ h₂]
+      have hm : m = .unit := by first | exact h | simpa using h
+      simp [hm, Mon.denote, denoteS_mulConst _ _ _ h₁ h₂]
     next =>
       fun_induction mulMon.go <;> simp [denoteS, *]
       next h => simp +zetaDelta at h; simp [*]
@@ -426,7 +427,8 @@ theorem Poly.denoteS_mulMon_nc {α} [Semiring α] (ctx : Context α) (k : Int) (
     split
     next h =>
       intro h₁ h₂
-      simp at h; simp [*, Mon.denote, denoteS_mulConst _ _ _ h₁ h₂]
+      have hm : m = .unit := by first | exact h | simpa using h
+      simp [hm, Mon.denote, denoteS_mulConst _ _ _ h₁ h₂]
     next =>
       intro h₁ h₂
       have := Poly.denoteS_mulMon_nc_go ctx k m p (.num 0) h₁ h₂ Poly.num_zero_NonnegCoeffs

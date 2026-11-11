@@ -402,14 +402,14 @@ theorem compareOfLessAndEq_eq_swap_of_lt_iff_not_gt_and_ne {α : Type u} [LT α]
   split
   · rename_i h'
     rw [h] at h'
-    simp only [h'.1, h'.2.symm, ↓reduceIte, Ordering.swap_gt]
+    simp only [h'.1, h'.2.symm] <;> rfl
   · split
     · rename_i h'
       have : ¬ y < y := Not.imp (·.2 rfl) <| (h y y).mp
-      simp only [h', this, ↓reduceIte, Ordering.swap_eq]
+      simp only [h', this] <;> rfl
     · rename_i h' h''
       replace h' := (h y x).mpr ⟨h', Ne.symm h''⟩
-      simp only [h', ↓reduceIte, Ordering.swap_lt]
+      simp only [h'] <;> rfl
 
 theorem lt_iff_not_gt_and_ne_of_antisymm_of_total_of_not_le
     {α : Type u} [LT α] [LE α] [DecidableLT α] [DecidableEq α]

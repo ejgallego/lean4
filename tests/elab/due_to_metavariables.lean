@@ -77,7 +77,7 @@ scrutinee. The error message associated with the smaller range is better.
 -/
 /--
 error: typeclass instance problem is stuck
-  LT ?m.13
+  LT ?m.12
 
 Note: Lean will not try to resolve this typeclass instance problem because the type argument to `LT` is a metavariable. This argument must be fully determined before Lean will try to resolve the typeclass.
 
@@ -97,14 +97,12 @@ stuck typeclass resolution instance. Preferring smaller ranges generically
 would also work here.
 -/
 /--
-error: Application type mismatch: The argument
+error: Type mismatch
   isDigitEven? n
 has type
-  ?m.3 Bool
+  ?m.7 Bool
 but is expected to have type
-  Prop
-in the application
-  @ite (Option Nat) (isDigitEven? n)
+  Bool
 -/
 #guard_msgs in
 def myOption (s : String) : Option Nat := do

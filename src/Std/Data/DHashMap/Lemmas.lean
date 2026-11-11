@@ -3743,7 +3743,7 @@ theorem mem_alter_of_beq [LawfulBEq α] {k k': α} {f : Option (β k) → Option
 @[simp]
 theorem contains_alter_self [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} :
     (m.alter k f).contains k = (f (m.get? k)).isSome := by
-  simp only [contains_alter, beq_self_eq_true, reduceIte]
+  simp only [contains_alter, beq_self_eq_true] <;> rfl
 
 @[simp]
 theorem mem_alter_self [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} :
@@ -3752,7 +3752,7 @@ theorem mem_alter_self [LawfulBEq α] {k : α} {f : Option (β k) → Option (β
 
 theorem contains_alter_of_beq_eq_false [LawfulBEq α] {k k' : α} {f : Option (β k) → Option (β k)}
     (h : (k == k') = false) : (m.alter k f).contains k' = m.contains k' := by
-  simp only [contains_alter, h, Bool.false_eq_true, reduceIte]
+  simp only [contains_alter, h, Bool.false_eq_true] <;> rfl
 
 theorem mem_alter_of_beq_eq_false [LawfulBEq α] {k k' : α} {f : Option (β k) → Option (β k)}
     (h : (k == k') = false) : k' ∈ m.alter k f ↔ k' ∈ m := by
@@ -3873,7 +3873,7 @@ theorem getKey?_alter [LawfulBEq α] {k k' : α} {f : Option (β k) → Option (
 
 theorem getKey?_alter_self [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} :
     (m.alter k f).getKey? k = if (f (m.get? k)).isSome then some k else none := by
-  simp only [getKey?_alter, beq_self_eq_true, ↓reduceIte]
+  simp only [getKey?_alter, beq_self_eq_true] <;> rfl
 
 @[grind =]
 theorem getKey!_alter [LawfulBEq α] [Inhabited α] {k k' : α} {f : Option (β k) → Option (β k)} :
@@ -3891,7 +3891,7 @@ theorem getKey!_alter [LawfulBEq α] [Inhabited α] {k k' : α} {f : Option (β 
 
 theorem getKey!_alter_self [LawfulBEq α] [Inhabited α] {k : α} {f : Option (β k) → Option (β k)} :
     (m.alter k f).getKey! k = if (f (m.get? k)).isSome then k else default := by
-  simp only [getKey!_alter, beq_self_eq_true, reduceIte]
+  simp only [getKey!_alter, beq_self_eq_true] <;> rfl
 
 theorem getKey_alter_self [LawfulBEq α] [Inhabited α] {k : α} {f : Option (β k) → Option (β k)}
     {h : k ∈ m.alter k f} : (m.alter k f).getKey k h = k := by
@@ -3945,7 +3945,7 @@ theorem mem_alter_of_beq [EquivBEq α] [LawfulHashable α] {k k': α} {f : Optio
 @[simp]
 theorem contains_alter_self [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β → Option β} :
     (Const.alter m k f).contains k = (f (Const.get? m k)).isSome := by
-  simp only [contains_alter, BEq.refl, reduceIte]
+  simp only [contains_alter, BEq.refl] <;> rfl
 
 @[simp]
 theorem mem_alter_self [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β → Option β} :
@@ -3955,7 +3955,7 @@ theorem mem_alter_self [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β
 theorem contains_alter_of_beq_eq_false [EquivBEq α] [LawfulHashable α] {k k' : α}
     {f : Option β → Option β} (h : (k == k') = false) :
     (Const.alter m k f).contains k' = m.contains k' := by
-  simp only [contains_alter, h, Bool.false_eq_true, reduceIte]
+  simp only [contains_alter, h, Bool.false_eq_true] <;> rfl
 
 theorem mem_alter_of_beq_eq_false [EquivBEq α] [LawfulHashable α] {k k' : α}
     {f : Option β → Option β} (h : (k == k') = false) : k' ∈ Const.alter m k f ↔ k' ∈ m := by

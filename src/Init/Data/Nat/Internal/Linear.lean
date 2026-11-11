@@ -208,6 +208,7 @@ where
 def PolyCnstr.toExpr (c : PolyCnstr) : ExprCnstr :=
   { c with lhs := c.lhs.toExpr, rhs := c.rhs.toExpr }
 
+attribute [local simp] Bool.cond_eq_ite
 attribute [local simp] Nat.add_comm Nat.add_assoc Nat.add_left_comm Nat.right_distrib Nat.left_distrib Nat.mul_assoc Nat.mul_comm
 attribute [local simp] Poly.denote Expr.denote Poly.insert Poly.norm Poly.norm.go Poly.cancelAux
 
@@ -219,7 +220,8 @@ theorem Poly.denote_insert (ctx : Context) (k : Nat) (v : Var) (p : Poly) :
     by_cases h₁ : Nat.blt v v'
     · simp [h₁]
     · by_cases h₂ : Nat.beq v v'
-      · simp only [insert, h₁, h₂, Bool.cond_false, Bool.cond_true]
+      · simp only [insert, h₁, h₂, Bool.cond_false]
+        all_goals try simp only [Bool.cond_true]
         simp [Nat.eq_of_beq_eq_true h₂]
       · simp only [insert, h₁, h₂, Bool.cond_false]
         simp [denote_insert]

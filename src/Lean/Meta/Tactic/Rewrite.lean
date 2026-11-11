@@ -111,6 +111,11 @@ where
 /--
 Rewrite `e` using `heq` in the context of `mvarId`.
 Returns the result of the rewrite, the metavariable `mvarId` is not assigned.
+
+Occurrence abstraction uses `kabstract`, including its targeted preparation of computational
+decision projections. The resulting motive is checked before constructing the equality proof.
+Dependencies that survive preparation still require generalization or transport; an ill-typed
+motive is reported as a rewrite failure.
 -/
 def _root_.Lean.MVarId.rewrite (mvarId : MVarId) (e : Expr) (heq : Expr)
     (symm : Bool := false) (config := { : Rewrite.Config }) : MetaM RewriteResult :=

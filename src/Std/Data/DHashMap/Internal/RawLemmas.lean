@@ -4001,7 +4001,7 @@ theorem getD_alter {k k' : α} {fallback : β} (h : m.1.WF) {f : Option β → O
 
 theorem getD_alter_self {k : α} {fallback : β} (h : m.1.WF) {f : Option β → Option β} :
     Const.getD (Const.alter m k f) k fallback = (f (Const.get? m k)).getD fallback := by
-  simp only [h, getD_alter, BEq.refl, reduceIte]
+  simp only [h, getD_alter, BEq.refl] <;> rfl
 
 theorem getKey?_alter (h : m.1.WF) {k k' : α} {f : Option β → Option β} :
     (Const.alter m k f).getKey? k' =

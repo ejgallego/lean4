@@ -162,14 +162,14 @@ theorem ite_false_left [h : Decidable p] :
     ite p False q ↔ ¬p ∧ q := by cases h <;> (rename_i g; simp [g])
 
 @[deprecated ite_false_left (since := "2026-07-21")]
-theorem if_false_left {p : Prop} {q : Prop} [h : Decidable p] : (if p then False else q) ↔ ¬p ∧ q := ite_false_left
+theorem if_false_left {p : Prop} {q : Prop} [h : Decidable p] : (ite p False q) ↔ ¬p ∧ q := ite_false_left
 
 @[simp]
 theorem ite_false_right [h : Decidable p] :
     ite p q False ↔ p ∧ q := by cases h <;> (rename_i g; simp [g])
 
 @[deprecated ite_false_right (since := "2026-07-21")]
-theorem if_false_right {p : Prop} {q : Prop} [h : Decidable p] : (if p then q else False) ↔ p ∧ q := ite_false_right
+theorem if_false_right {p : Prop} {q : Prop} [h : Decidable p] : (ite p q False) ↔ p ∧ q := ite_false_right
 
 /-
 `ite_true_left` and `ite_true_right` are lower priority because
@@ -182,14 +182,14 @@ theorem ite_true_left [h : Decidable p] :
     ite p True q ↔ ¬p → q := by cases h <;> (rename_i g; simp [g])
 
 @[deprecated ite_true_left (since := "2026-07-21")]
-theorem if_true_left {p : Prop} {q : Prop} [h : Decidable p] : (if p then True else q) ↔ ¬p → q := ite_true_left
+theorem if_true_left {p : Prop} {q : Prop} [h : Decidable p] : (ite p True q) ↔ ¬p → q := ite_true_left
 
 @[simp low]
 theorem ite_true_right [h : Decidable p] :
     ite p q True ↔ p → q := by cases h <;> (rename_i g; simp [g])
 
 @[deprecated ite_true_right (since := "2026-07-21")]
-theorem if_true_right {p : Prop} {q : Prop} [h : Decidable p] : (if p then q else True) ↔ p → q := ite_true_right
+theorem if_true_right {p : Prop} {q : Prop} [h : Decidable p] : (ite p q True) ↔ p → q := ite_true_right
 
 /-- Negation of the condition `P : Prop` in a `dite` is the same as swapping the branches. -/
 @[simp] theorem dite_not [hn : Decidable (¬p)] [h : Decidable p]  (x : ¬p → α) (y : ¬¬p → α) :
@@ -197,8 +197,8 @@ theorem if_true_right {p : Prop} {q : Prop} [h : Decidable p] : (if p then q els
   cases h <;> (rename_i g; simp [g])
 
 /-- Negation of the condition `P : Prop` in a `ite` is the same as swapping the branches. -/
-@[simp] theorem ite_not (p : Prop) [Decidable p] (x y : α) : ite (¬p) x y = ite p y x :=
-  dite_not (fun _ => x) (fun _ => y)
+@[simp] theorem ite_not (p : Prop) [d : Decidable p] (x y : α) : ite (¬p) x y = ite p y x := by
+  cases d <;> rfl
 
 @[simp] theorem ite_self_left {p q : Prop} [h : Decidable p] : (if p then p else q) ↔ (¬p → q) := by
   cases h <;> (rename_i g; simp [g])

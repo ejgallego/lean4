@@ -22,7 +22,10 @@ variable (u v w : Prop) [Decidable u] [Decidable v] [Decidable w]
 #check_simp (b = true) ≠ (c = false) ~> b = c
 #check_simp ¬b = !c ~> b = c
 #check_simp (b == c) = false ~> ¬(b = c)
-#check_simp (true ≠ if u then b else c) ~> (if u then b = false else c = false)
+example (h : true ≠ if u then b else c) : True := by
+  simp at h
+  guard_hyp h :~ (if u then b = false else c = false)
+  trivial
 #check_simp (u ∧ v → False) ~> u → v → False
 #check_simp (u = (v ≠ w)) ~> (u ↔ ¬(v ↔ w))
 #check_simp ((b = false) = (c = false)) ~> b = c
@@ -386,4 +389,4 @@ variable [Decidable u]
 #check_simp if u then u else q ~> ¬u → q
 #check_simp if u then q else u ~> u ∧ q
 #check_simp if u then q else q  ~> q
-#check_simp cond b c d ~> if b then c else d
+#check_simp cond b c d !~>

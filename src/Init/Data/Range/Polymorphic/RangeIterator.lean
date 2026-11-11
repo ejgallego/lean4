@@ -183,8 +183,10 @@ theorem Iterator.Monadic.isPlausibleSuccessorOf_iff
       · cases h
   · rintro ⟨a, h, hP, h'⟩
     refine ⟨.yield it' a, rfl, ?_⟩
-    simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, step, h, hP, ↓reduceIte,
-      IterStep.yield.injEq, and_true, instIteratorIteratorIdOfUpwardEnumerableOfDecidableLE] -- TODO
+    simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, step, h, hP,
+      instIteratorIteratorIdOfUpwardEnumerableOfDecidableLE] -- TODO
+    try simp only [↓reduceIte]
+    simp only [IterStep.yield.injEq, and_true]
     simp [h'.1, ← h'.2]
 
 theorem Iterator.isPlausibleSuccessorOf_iff
@@ -345,8 +347,9 @@ instance Iterator.instIteratorAccess [UpwardEnumerable α] [LE α] [DecidableLE 
             simp only [heq] at ih
             by_cases heq'' : out ≤ it.internalState.upperBound
             · apply IterM.IsPlausibleNthOutputStep.yield
-              · simp only [Monadic.isPlausibleStep_iff, Monadic.step, heq', heq'', ↓reduceIte,
-                IterStep.yield.injEq]
+              · simp only [Monadic.isPlausibleStep_iff, Monadic.step, heq', heq'']
+                try simp only [↓reduceIte]
+                simp only [IterStep.yield.injEq]
                 exact ⟨rfl, rfl⟩
               · exact ih
             · apply IterM.IsPlausibleNthOutputStep.done
@@ -361,8 +364,9 @@ instance Iterator.instIteratorAccess [UpwardEnumerable α] [LE α] [DecidableLE 
           simp only [heq] at ih
           by_cases hout : out ≤ it.internalState.upperBound
           · apply IterM.IsPlausibleNthOutputStep.yield
-            · simp only [Monadic.isPlausibleStep_iff, Monadic.step, heq', hout, ↓reduceIte,
-              IterStep.yield.injEq]
+            · simp only [Monadic.isPlausibleStep_iff, Monadic.step, heq', hout]
+              try simp only [↓reduceIte]
+              simp only [IterStep.yield.injEq]
               exact ⟨rfl, rfl⟩
             · apply ih
           · rename_i next
@@ -370,8 +374,10 @@ instance Iterator.instIteratorAccess [UpwardEnumerable α] [LE α] [DecidableLE 
             have := hout.imp (fun h : next ≤ it.internalState.upperBound => by
               rw [← UpwardEnumerable.le_iff] at hle
               exact Trans.trans hle h)
-            simp only [this, ↓reduceIte]
-            simp only [this, ↓reduceIte] at ih
+            simp only [this]
+            try rw [ite_false]
+            simp only [this] at ih
+            try rw [ite_false] at ih
             apply IterM.IsPlausibleNthOutputStep.done
             simp [Monadic.isPlausibleStep_iff, Monadic.step, heq', hout])⟩
 
@@ -764,8 +770,10 @@ theorem Iterator.Monadic.isPlausibleSuccessorOf_iff
       · cases h
   · rintro ⟨a, h, hP, h'⟩
     refine ⟨.yield it' a, rfl, ?_⟩
-    simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, step, h, hP, ↓reduceIte,
-      IterStep.yield.injEq, and_true, instIteratorIteratorIdOfUpwardEnumerableOfDecidableLT] -- TODO
+    simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, step, h, hP,
+      instIteratorIteratorIdOfUpwardEnumerableOfDecidableLT] -- TODO
+    try simp only [↓reduceIte]
+    simp only [IterStep.yield.injEq, and_true]
     simp [h'.1, ← h'.2]
 
 theorem Iterator.isPlausibleSuccessorOf_iff
@@ -925,8 +933,9 @@ instance Iterator.instIteratorAccess [UpwardEnumerable α] [LT α] [DecidableLT 
             simp only [heq] at ih
             by_cases heq'' : out < it.internalState.upperBound
             · apply IterM.IsPlausibleNthOutputStep.yield
-              · simp only [Monadic.isPlausibleStep_iff, Monadic.step, heq', heq'', ↓reduceIte,
-                IterStep.yield.injEq]
+              · simp only [Monadic.isPlausibleStep_iff, Monadic.step, heq', heq'']
+                try simp only [↓reduceIte]
+                simp only [IterStep.yield.injEq]
                 exact ⟨rfl, rfl⟩
               · exact ih
             · apply IterM.IsPlausibleNthOutputStep.done
@@ -941,8 +950,9 @@ instance Iterator.instIteratorAccess [UpwardEnumerable α] [LT α] [DecidableLT 
           simp only [heq] at ih
           by_cases hout : out < it.internalState.upperBound
           · apply IterM.IsPlausibleNthOutputStep.yield
-            · simp only [Monadic.isPlausibleStep_iff, Monadic.step, heq', hout, ↓reduceIte,
-              IterStep.yield.injEq]
+            · simp only [Monadic.isPlausibleStep_iff, Monadic.step, heq', hout]
+              try simp only [↓reduceIte]
+              simp only [IterStep.yield.injEq]
               exact ⟨rfl, rfl⟩
             · apply ih
           · rename_i next
@@ -950,8 +960,10 @@ instance Iterator.instIteratorAccess [UpwardEnumerable α] [LT α] [DecidableLT 
             have := hout.imp (fun h : next < it.internalState.upperBound => by
               rw [← UpwardEnumerable.lt_iff] at hlt
               exact Trans.trans hlt h)
-            simp only [this, ↓reduceIte]
-            simp only [this, ↓reduceIte] at ih
+            simp only [this]
+            try rw [ite_false]
+            simp only [this] at ih
+            try rw [ite_false] at ih
             apply IterM.IsPlausibleNthOutputStep.done
             simp [Monadic.isPlausibleStep_iff, Monadic.step, heq', hout])⟩
 

@@ -159,8 +159,10 @@ attribute [local instance] decidable_of_decidable_not in
 
 attribute [local instance] decidable_of_decidable_not in
 /-- Negation of the condition `P : Prop` in a `ite` is the same as swapping the branches. -/
-@[simp low] protected theorem ite_not (p : Prop) [Decidable (¬ p)] (x y : α) : ite (¬p) x y = ite p y x :=
-  dite_not (fun _ => x) (fun _ => y)
+@[simp low] protected theorem ite_not (p : Prop) [hn : Decidable (¬ p)] (x y : α) : ite (¬p) x y = ite p y x := by
+  cases hn <;> rename_i h
+  · simp [not_not.mp h]
+  · simp [h]
 
 attribute [local instance] decidable_of_decidable_not in
 @[simp low] protected theorem decide_not (p : Prop) [Decidable (¬ p)] : decide (¬p) = !decide p :=

@@ -30,8 +30,6 @@ def mkNatVar (e : Expr) : GoalM (Expr × Expr) := do
   cutsatExt.markTerm e
   return r
 
-private def intIte : Expr := mkApp (mkConst ``ite [1]) Int.mkType
-
 /-- Internalizes the `Int` image `e'` of `e : Nat` built by `natToInt`. -/
 private def natImage (e e' : Expr) : GoalM Expr := do
   let e' ← shareCommon e'

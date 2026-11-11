@@ -555,7 +555,7 @@ theorem balance!_eq_balanceₘ {k v} {l r : Impl α β} (hlb : l.Balanced) (hrb 
   · simp only [size_leaf, size_inner]
     simp_all [Std.Internal.tree_tac]
     rw [ite_eq_right (by omega)]
-    rw [ite_eq_left (by omega), rotateL, ite_eq_left]
+    rw [Bool.cond_eq_left _ (decide_eq_true (by omega)), rotateL, ite_eq_left]
     all_goals
       simp only [Std.Internal.tree_tac] at *
       omega
@@ -580,7 +580,7 @@ theorem balance!_eq_balanceₘ {k v} {l r : Impl α β} (hlb : l.Balanced) (hrb 
     omega
   · simp_all only [Std.Internal.tree_tac]
     rw [ite_eq_right]
-    · repeat simp_all only [rotateL, dite_true, Std.Internal.tree_tac, ite_true]
+    · repeat' first | rw [ite_true] at * | simp_all only [rotateL, dite_true, Std.Internal.tree_tac]
       omega
     · simp only [Nat.not_le] at *
       omega
@@ -599,7 +599,7 @@ theorem balance!_eq_balanceₘ {k v} {l r : Impl α β} (hlb : l.Balanced) (hrb 
     simp only [delta] at ‹delta * _ < _›
     have := hlb.one_le
     omega
-  · repeat simp_all only [Std.Internal.tree_tac, rotateR, dite_true, ite_true, dite_false]
+  · repeat' first | rw [ite_true] at * | simp_all only [Std.Internal.tree_tac, rotateR, dite_true, dite_false]
     rw [ite_eq_right (by omega)]
     simp only [inner.injEq, heq_eq_eq, and_true, true_and]
     omega
@@ -676,7 +676,7 @@ theorem balanceL_eq_balanceLErase {k : α} {v : β k} {l r : Impl α β} {hlb hr
     balanceL k v l r hlb hrb hlr = balanceLErase k v l r hlb hrb hlr.erase := by
   fun_cases balanceL
   all_goals dsimp only [balanceLErase]
-  all_goals simp only [↓reduceDIte, ↓reduceIte, *]
+  all_goals simp [*]
 
 theorem balanceLErase_eq_balanceL! {k : α} {v : β k} {l r : Impl α β} {hlb hrb hlr} :
     balanceLErase k v l r hlb hrb hlr = balanceL! k v l r := by
@@ -698,8 +698,7 @@ theorem balanceL!_eq_balance! {k : α} {v : β k} {l r : Impl α β} (hlb : l.Ba
 
 theorem balanceR_eq_balanceRErase {k : α} {v : β k} {l r : Impl α β} {hlb hrb hlr} :
     balanceR k v l r hlb hrb hlr = balanceRErase k v l r hlb hrb hlr.erase := by
-  fun_cases balanceR <;>
-    simp only [balanceRErase, ↓reduceDIte, ↓reduceIte, *]
+  fun_cases balanceR <;> simp [balanceRErase, *]
 
 theorem balanceRErase_eq_balanceR! {k : α} {v : β k} {l r : Impl α β} {hlb hrb hlr} :
     balanceRErase k v l r hlb hrb hlr = balanceR! k v l r := by
@@ -721,7 +720,8 @@ theorem balance_eq_balance! {k : α} {v : β k} {l r : Impl α β} {hlb hrb hlr}
     balance k v l r hlb hrb hlr = balance! k v l r := by
   fun_cases balance!
   all_goals dsimp only [balance]
-  all_goals simp only [↓reduceDIte, ↓reduceIte, *]
+  all_goals simp only [↓reduceDIte, *]
+  all_goals try simp only [↓reduceIte]
   all_goals contradiction
 
 theorem balance_eq_inner [Ord α] {sz k v} {l r : Impl α β}

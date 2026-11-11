@@ -1666,7 +1666,7 @@ theorem mergeLazy_ne (resolve : Array (α × Nat) → Option (α × Nat)) (k : N
     mergeLazy resolve k g = .lazy k
       (res resolve <| g.filterMap fun (i, t) => t.val?.map ((·, i)))
       (Thunk.mk fun _ => mergeLazy.expandLazy resolve g) := by
-  rw [mergeLazy]; simp only [h, beq_iff_eq, ↓reduceIte]; rfl
+  rw [mergeLazy]; simp only [h, beq_iff_eq, ↓reduceIte] <;> rfl
 
 theorem key_mergeLazy (resolve : Array (α × Nat) → Option (α × Nat))
     (g : Array (Nat × ConstTrie α)) :
@@ -1934,8 +1934,7 @@ theorem findEntry?_mergeModuleTreesLazy (trees : Array (Nat × ConstTrie α))
   unfold findEntry? mergeModuleTreesLazy
   simp only [hsz]
   rw [← hroot, findEntryAux_mergeLazy n _ trees (by rw [hroot]; exact hwf) hs (Nat.le_refl _)]
-  simp only [es, ConstTrie.find?, hsz, res]
-  rfl
+  simp only [es, ConstTrie.find?, hsz, res] <;> rfl
 
 /--
 With the default `resolve`, the merged `ImportedConsts` finds the entry of the first module

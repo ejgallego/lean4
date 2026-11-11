@@ -366,7 +366,7 @@ partial def splitTarget? (mvarId : MVarId) (splitIte := true) (useNewSemantics :
   let target ← instantiateMVars (← mvarId.getType)
   let rec go (badCases : ExprSet) : MetaM (Option (List MVarId)) := do
     if let some e ← findSplit? target (if splitIte then .both else .match) badCases then
-      if e.isIte || e.isDIte then
+      if e.isIte || e.isDIte || e.isAppOf ``cond then
         return (← splitIfTarget? mvarId (useNewSemantics := useNewSemantics)).map fun (s₁, s₂) => [s₁.mvarId, s₂.mvarId]
       else
         try
@@ -385,7 +385,7 @@ partial def splitTarget? (mvarId : MVarId) (splitIte := true) (useNewSemantics :
 def splitLocalDecl? (mvarId : MVarId) (fvarId : FVarId) : MetaM (Option (List MVarId)) := commitWhenSome? do
   mvarId.withContext do
     if let some e ← findSplit? (← instantiateMVars (← inferType (mkFVar fvarId))) then
-      if e.isIte || e.isDIte then
+      if e.isIte || e.isDIte || e.isAppOf ``cond then
         return (← splitIfLocalDecl? mvarId fvarId).map fun (mvarId₁, mvarId₂) => [mvarId₁, mvarId₂]
       else
         let result? ← commitWhenSome? do try

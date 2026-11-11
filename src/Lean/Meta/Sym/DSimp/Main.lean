@@ -22,6 +22,12 @@ def dsimpStep : DSimproc := fun e => do
   | .mvar _ =>
     let some e' ← instantiateAssignedMVarHeadS? e | return .rfl
     return .step e'
+  | .proj ``Decidable 0 d =>
+    if d.isAppOfArity ``Decidable.intro 3 then
+      let value := d.getArg! 1
+      return .step (← shareCommon value)
+    else
+      return .rfl (done := true)
   | .proj .. =>
     throwError "unexpected kernel projection term during simplification{indentExpr e}\npre-process and fold them as projection applications"
   | .mdata _ b =>

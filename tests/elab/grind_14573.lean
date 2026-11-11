@@ -26,19 +26,19 @@ example (a b : Nat) (h : f a = f b) : a = b := by grind only [inj f_inj]
 
 /--
 info: Try these:
-  [apply] grind only [#61a5, inj f_inj]
+  [apply] grind only [#35d3, inj f_inj]
   [apply] grind only [inj f_inj]
-  [apply] grind [inj f_inj] => cases #61a5
+  [apply] grind [inj f_inj] => cases #35d3
 -/
 #guard_msgs in
 example (a b : Nat) (h : f a = f b) (c : Bool) (y : Nat) (h' : y = if c then a else b) : y = a := by
   grind? [inj f_inj]
 
 example (a b : Nat) (h : f a = f b) (c : Bool) (y : Nat) (h' : y = if c then a else b) : y = a := by
-  grind only [#61a5, inj f_inj]
+  grind only [#35d3, inj f_inj]
 
 example (a b : Nat) (h : f a = f b) (c : Bool) (y : Nat) (h' : y = if c then a else b) : y = a := by
-  grind [inj f_inj] => cases #61a5
+  grind [inj f_inj] => cases #35d3
 
 opaque q : Nat → Nat → Nat
 
@@ -52,17 +52,17 @@ example (a b : Nat) (g : Nat → Nat) (h : q a = g) : q a b = g b := by grind? [
 example (a b : Nat) (g : Nat → Nat) (h : q a = g) : q a b = g b := by grind only [funCC q]
 
 /-!
-`finish?` has the same problem. The script suggestion (`cases #61a5` here) cannot carry the
+`finish?` has the same problem. The script suggestion (`cases #35d3` here) cannot carry the
 parameter, so it must not be offered; the `finish only` suggestion must keep it.
 -/
 
 /--
 info: Try this:
-  [apply] finish only [#61a5, inj f_inj]
+  [apply] finish only [#35d3, inj f_inj]
 -/
 #guard_msgs in
 example (a b : Nat) (h : f a = f b) (c : Bool) (y : Nat) (h' : y = if c then a else b) : y = a := by
   grind => finish? [inj f_inj]
 
 example (a b : Nat) (h : f a = f b) (c : Bool) (y : Nat) (h' : y = if c then a else b) : y = a := by
-  grind => finish only [#61a5, inj f_inj]
+  grind => finish only [#35d3, inj f_inj]

@@ -2,7 +2,8 @@ module
 reset_grind_attrs%
 open List Nat
 
-attribute [grind] List.filter_nil List.filter_cons
+attribute [grind] List.filter_nil
+attribute [grind =] List.filter_cons
 attribute [grind] List.any_nil List.any_cons
 
 theorem any_filter {l : List α} {p q : α → Bool} :

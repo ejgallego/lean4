@@ -33,9 +33,9 @@ elab "simpMatch" t:term : command => do
 info:
   fun n f =>
     match ⟨↑f, ⋯⟩ with
-    | ⟨k, _hk⟩ => if (k == 0) = true then true else false
+    | ⟨k, _hk⟩ => bif k == 0 then true else false
 ==>
-  fun n f => if (↑f == 0) = true then true else false
+  fun n f => bif ↑f == 0 then true else false
 -/
 #guard_msgs in
 simpMatch
@@ -47,11 +47,11 @@ simpMatch
 info:
   fun n f =>
     match f with
-    | ⟨k, _hk⟩ => if (k == 0) = true then true else false
+    | ⟨k, _hk⟩ => bif k == 0 then true else false
 ==>
   fun n f =>
     match f with
-    | ⟨k, _hk⟩ => if (k == 0) = true then true else false
+    | ⟨k, _hk⟩ => bif k == 0 then true else false
 -/
 #guard_msgs in
 simpMatch

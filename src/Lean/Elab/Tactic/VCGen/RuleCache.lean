@@ -51,15 +51,18 @@ open Lean.Elab.Tactic.Do in
 /--
 Cached version of `mkBackwardRuleForSplit`.
 
-Cache key: `(splitter name, instWP, excessArgs.size)`.
+Cache key: `(splitter name, instWP, excessArgs.size)`, distinguishing raw Boolean guards
+from decision projections because their rules abstract different binders.
 -/
 public def mkBackwardRuleForSplitCached (splitInfo : SplitInfo) (info : WPApp) :
     VCGenM BackwardRule := do
-  let cacheKey := match splitInfo with
-    | .ite .. => ``ite
-    | .dite .. => ``dite
-    | .cond .. => ``cond
-    | .matcher matcherApp => matcherApp.matcherName
+  let cacheKey ← match splitInfo with
+    | .ite .. => pure ``ite
+    | .dite .. => pure ``dite
+    | .cond e => do
+      let decision? ← liftMetaM <| Simp.getBoolDecision? (e.getArg! 1)
+      pure <| if decision?.isSome then ``Decidable.decide else ``cond
+    | .matcher matcherApp => pure matcherApp.matcherName
   let key := (cacheKey, ExprPtr.mk info.instWP, info.excessArgs.size)
   let s := (← get).splitBackwardRuleCache
   if let some rule := s[key]? then return rule

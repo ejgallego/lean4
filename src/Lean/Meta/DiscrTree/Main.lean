@@ -420,7 +420,8 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key × Array Ex
   | .forallE _ d _ _ => return (.arrow, #[d])
   | _ => return (.other, #[])
 
-private abbrev getMatchKeyArgs (e : Expr) (root : Bool) : MetaM (Key × Array Expr) :=
+/-- Extract a matching key and its reverse-order arguments after discrimination-tree reduction. -/
+@[inline] def getMatchKeyArgs (e : Expr) (root : Bool) : MetaM (Key × Array Expr) :=
   getKeyArgs e (isMatch := true) (root := root)
 
 private abbrev getUnifyKeyArgs (e : Expr) (root : Bool) : MetaM (Key × Array Expr) :=
@@ -497,6 +498,100 @@ private def getMatchCore (d : DiscrTree α) (e : Expr) : MetaM (Key × Array α)
 -/
 def getMatch (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
   return (← getMatchCore d e).2
+
+private partial def getMatchLoopUsing
+    (getKeyArgs : Expr → Bool → MetaM (Key × Array Expr))
+    (todo : Array Expr) (c : Trie α) (result : Array α) : MetaM (Array α) := do
+  match c with
+  | .chain key child =>
+    if todo.isEmpty then
+      return result
+    else
+      let e     := todo.back!
+      let todo  := todo.pop
+      let (k, args) ← getKeyArgs e false
+      if key == .star then
+        getMatchLoopUsing getKeyArgs todo child result
+      else
+        if key == k then
+          getMatchLoopUsing getKeyArgs (todo ++ args) child result
+        else
+          return result
+
+  | .node vs cs =>
+    if todo.isEmpty then
+      return result ++ vs
+    else if cs.isEmpty then
+      return result
+    else
+      let e     := todo.back!
+      let todo  := todo.pop
+      let first := cs[0]! /- Recall that `Key.star` is the minimal key -/
+      let (k, args) ← getKeyArgs e false
+      /- We must always visit `Key.star` edges since they are wildcards.
+         Thus, `todo` is not used linearly when there is `Key.star` edge
+         and there is an edge for `k` and `k != Key.star`. -/
+      let visitStar (result : Array α) : MetaM (Array α) :=
+        if first.1 == .star then
+          getMatchLoopUsing getKeyArgs todo first.2 result
+        else
+          return result
+      let visitNonStar (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
+        match findKey cs k with
+        | none   => return result
+        | some c => getMatchLoopUsing getKeyArgs (todo ++ args) c.2 result
+      let result ← visitStar result
+      match k with
+      | .star  => return result
+      | _      => visitNonStar k args result
+
+
+private def getMatchCoreUsing (d : DiscrTree α) (e : Expr)
+    (getKeyArgs : Expr → Bool → MetaM (Key × Array Expr)) : MetaM (Key × Array α) := do
+  withReducible do
+    let result := getStarResult d
+    let (key, args) ← getKeyArgs e true
+    if key == .star then return (key, result)
+    match d.root.find? key with
+    | none => return (key, result)
+    | some child => return (key, ← getMatchLoopUsing getKeyArgs args child result)
+
+/-- Retrieve matching prefixes with a caller-supplied key and argument view at each visited node. -/
+partial def getMatchWithExtraUsing (d : DiscrTree α) (e : Expr)
+    (getKeyArgs : Expr → Bool → MetaM (Key × Array Expr)) : MetaM (Array (α × Nat)) := do
+  let (k, result) ← getMatchCoreUsing d e getKeyArgs
+  let result := result.map (·, 0)
+  if !e.isApp then
+    return result
+  else if !(← mayMatchPrefix k) then
+    let originalKey := match e.getAppFn with
+      | .const name _ => Key.const name e.getAppNumArgs
+      | .fvar id => Key.fvar id e.getAppNumArgs
+      | .proj name idx _ => Key.proj name idx e.getAppNumArgs
+      | _ => k
+    if originalKey == k || !(← mayMatchPrefix originalKey) then return result
+    go e.appFn! 1 result
+  else
+    go e.appFn! 1 result
+where
+  mayMatchPrefix (k : Key) : MetaM Bool :=
+    let cont (k : Key) : MetaM Bool :=
+      if d.root.find? k |>.isSome then
+        return true
+      else
+        mayMatchPrefix k
+    match k with
+    | .const f (n+1)  => cont (.const f n)
+    | .fvar f (n+1)   => cont (.fvar f n)
+    | .proj s i (n+1) => cont (.proj s i n)
+    | _               => return false
+
+  go (e : Expr) (numExtra : Nat) (result : Array (α × Nat)) : MetaM (Array (α × Nat)) := do
+    let result := result ++ (← getMatchCoreUsing d e getKeyArgs).2.map (., numExtra)
+    if e.isApp then
+      go e.appFn! (numExtra + 1) result
+    else
+      return result
 
 /--
   Similar to `getMatch`, but returns solutions that are prefixes of `e`.
@@ -579,6 +674,16 @@ def getMatchLiberal (d : DiscrTree α) (e : Expr) : MetaM (Array α × Nat) := d
     match k with
     | .star  => return (result, numArgs)
     | _      => return (getAllValuesForKey d k result, numArgs)
+
+/-- Retrieve root-symbol candidates using a custom key view, retaining the original argument count. -/
+def getMatchLiberalUsing (d : DiscrTree α) (e : Expr)
+    (getKeyArgs : Expr → Bool → MetaM (Key × Array Expr)) : MetaM (Array α × Nat) := do
+  withReducible do
+    let result := getStarResult d
+    let (key, _) ← getKeyArgs e true
+    let (_, numArgs) ← getMatchKeyRootFor e
+    if key == .star then return (result, numArgs)
+    return (getAllValuesForKey d key result, numArgs)
 
 partial def getUnify (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
   withReducible do

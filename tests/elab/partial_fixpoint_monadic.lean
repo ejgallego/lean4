@@ -22,7 +22,7 @@ theorem parseAll1.eq_1 : ∀ {α : Type} (x : M1 α),
   parseAll1 x = do
     let __do_lift ← read
     let __do_lift_1 ← get
-    if String.Pos.Raw.atEnd __do_lift __do_lift_1 = true then pure []
+    bif String.Pos.Raw.atEnd __do_lift __do_lift_1 then pure []
       else do
         let val ← x
         let list ← parseAll1 x
@@ -50,7 +50,7 @@ theorem parseAll2.eq_1 : ∀ {α : Type} (x : M2 α),
   parseAll2 x = do
     let __do_lift ← read
     let __do_lift_1 ← get
-    if String.Pos.Raw.atEnd __do_lift __do_lift_1 = true then pure []
+    bif String.Pos.Raw.atEnd __do_lift __do_lift_1 then pure []
       else do
         let val ← x
         let list ← parseAll2 x

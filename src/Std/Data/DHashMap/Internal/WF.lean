@@ -289,7 +289,7 @@ theorem all_eq_all_toListModel {p : (a: α) → β a → Bool} {m : Raw α β} :
     by_cases h : p hd.fst hd.snd = false
     · simp [h]
     · simp only [forIn'_eq_forIn] at ih
-      simp [h, ih]
+      simpa [h] using ih
 
 end Raw
 

@@ -128,7 +128,7 @@ variable
 
 
 /--
-info: if true = true then
+info: bif true then
   match (1, 2) with
   | (x, y) => Φ x y
 else ⌜False⌝ : SPred [Nat, Char, Bool]

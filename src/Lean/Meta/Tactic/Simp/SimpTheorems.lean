@@ -401,12 +401,12 @@ private def mkSimpTheoremKeys (type : Expr) (noIndexAtArgs : Bool) (checkLhs : B
     | some (_, lhs, rhs) =>
       let keys ← DiscrTree.mkPath lhs noIndexAtArgs
       if checkLhs then
-        if warning.simp.varHead.get (← getOptions) && keys[0]? == some .star then
+        if warning.simp.varHead.get (← getOptions) && keys[0]? == some DiscrTree.Key.star then
           logWarning m!"Left-hand side of simp theorem has a variable as head symbol. \
             This means the theorem will be tried on every simp step, which can be expensive. \
             This may be acceptable for `local` or `scoped` simp lemmas.\n\
             Use `set_option warning.simp.varHead false` to disable this warning."
-        if warning.simp.otherHead.get (← getOptions) && keys[0]? == some .other then
+        if warning.simp.otherHead.get (← getOptions) && keys[0]? == some DiscrTree.Key.other then
           logWarning m!"Left-hand side of simp theorem is headed by a `.other` key in the \
             discrimination tree (e.g. because it is a lambda expression). \
             This theorem will be tried against all expressions that also have a `.other` key as head, \
@@ -640,13 +640,61 @@ private def eraseFwdIfBwd (d : SimpTheorems) (e : SimpTheorem) : SimpTheorems :=
 def SimpTheorems.unerase (d : SimpTheorems) (thmId : Origin) : SimpTheorems :=
   { d with erased := d.erased.erase thmId }
 
+private def conditionalKey? : SimpTheoremKey → Option (Nat × Nat)
+  | .const ``ite arity => if arity >= 5 then some (3, arity - 1) else none
+  | .const ``cond arity => if arity >= 4 then some (2, arity) else none
+  | _ => none
+
+private partial def canonicalConditionalKeys? (keys : Array SimpTheoremKey) : Option (Array SimpTheoremKey) := do
+  unless keys.any (conditionalKey? · |>.isSome) do failure
+  let (pos, result) ← visit 0 #[]
+  unless pos == keys.size do failure
+  if result == keys then none else some result
+where
+  visit (pos : Nat) (result : Array SimpTheoremKey) : Option (Nat × Array SimpTheoremKey) := do
+    let key ← keys[pos]?
+    let mut pos := pos + 1
+    let mut result := result
+    let mut remaining := key.arity
+    if let some (skip, arity) := conditionalKey? key then
+      result := result ++ #[.const ``cond arity, .star, .star]
+      for _ in [:skip] do
+        let mut nested := 1
+        while nested > 0 do
+          let child ← keys[pos]?
+          pos := pos + 1
+          nested := nested - 1 + child.arity
+      remaining := remaining - skip
+    else
+      result := result.push key
+    for _ in [:remaining] do
+      let (next, updated) ← visit pos result
+      pos := next
+      result := updated
+    return (pos, result)
+
+/-- Match conditionals through the same Boolean representation without rebuilding query expressions. -/
+def getConditionalSimpKeyArgs (e : Expr) (root : Bool) : MetaM (DiscrTree.Key × Array Expr) := do
+  let (key, args) ← DiscrTree.getMatchKeyArgs e root
+  if let .const ``ite arity := key then
+    if arity >= 5 then
+      let decision := args[arity - 3]!
+      let kept := args.extract 0 (arity - 3)
+      return (.const ``cond (arity - 1), kept ++ #[.proj ``Decidable 0 decision, args[arity - 1]!])
+  return (key, args)
+
 def SimpTheorems.addSimpTheorem (d : SimpTheorems) (e : SimpTheorem) : SimpTheorems :=
   -- Erase the converse, if it exists
   let d := eraseFwdIfBwd d e
+  let insert (tree : SimpTheoremTree) := Id.run do
+    let mut tree := tree.insertKeyValue e.keys e
+    if let some keys := canonicalConditionalKeys? e.keys then
+      tree := tree.insertKeyValue keys e
+    return tree
   if e.post then
-    { d with post := d.post.insertKeyValue e.keys e, lemmaNames := updateLemmaNames d.lemmaNames }
+    { d with post := insert d.post, lemmaNames := updateLemmaNames d.lemmaNames }
   else
-    { d with pre := d.pre.insertKeyValue e.keys e, lemmaNames := updateLemmaNames d.lemmaNames }
+    { d with pre := insert d.pre, lemmaNames := updateLemmaNames d.lemmaNames }
 where
   updateLemmaNames (s : PHashSet Origin) : PHashSet Origin :=
     s.insert e.origin

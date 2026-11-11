@@ -12,6 +12,7 @@ import Lean.Meta.Sym.Util
 public import Init.Grind.Config
 import Init.Grind.Util
 import Lean.Structure
+import Lean.Meta.Tactic.Simp.Main
 public section
 namespace Lean.Meta.Grind
 /--
@@ -186,6 +187,15 @@ def replacePreMatchCond (e : Expr) : MetaM Simp.Result := do
       return .continue (markAsMatchCond p)
     let e' ← Core.transform e (pre := pre)
     return { expr := e', proof? := mkExpectedPropHint (← mkEqRefl e') (← mkEq e e') }
+
+def isCond (e : Expr) :=
+  e.isAppOf ``cond && e.getAppNumArgs >= 4
+
+/-- The proposition governing a conditional, without reducing its decision instance. -/
+def condCondition (e : Expr) : MetaM Expr := do
+  let c := e.getAppArgs[1]!
+  if let some (p, _) ← Simp.getBoolDecision? c then return p
+  mkEq c (mkConst ``Bool.true)
 
 def isIte (e : Expr) :=
   e.isAppOf ``ite && e.getAppNumArgs >= 5

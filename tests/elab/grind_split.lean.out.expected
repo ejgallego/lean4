@@ -12,10 +12,11 @@
 [grind.eqc] (¬p) = False
 [grind.eqc] (¬p ∨ q) = q
 [grind.eqc] (if p then a else b) = c
+[grind.eqc] (Lean.Grind.nestedDecidable inst).1 = decide p
 [grind.eqc] R a = True
 [grind.eqc] R b = True
 [grind.eqc] R c = False
-grind_split.lean:32:0-32:7: warning: declaration uses `sorry`
+grind_split.lean:33:0-33:7: warning: declaration uses `sorry`
 [grind] working on goal `grind`
 [grind.eqc] HasType e t₁ = True
 [grind.eqc] HasType e t₂ = True
@@ -248,4 +249,4 @@ grind_split.lean:32:0-32:7: warning: declaration uses `sorry`
 [grind.eqc] HasType e t₁ = True
 [grind.eqc] HasType e t₂ = True
 [grind.eqc] (t₁ = t₂) = False
-grind_split.lean:63:0-63:7: warning: declaration uses `sorry`
+grind_split.lean:64:0-64:7: warning: declaration uses `sorry`

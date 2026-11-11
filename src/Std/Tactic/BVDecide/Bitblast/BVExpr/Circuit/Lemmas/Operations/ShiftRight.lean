@@ -289,7 +289,9 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
         denote_blastShiftRightConst]
       rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftRightConst) (h := Ref.hgate _)]
       rw [hright]
-      simp only [hif1, ↓reduceIte]
+      simp only [hif1]
+      try simp only [Bool.cond_true]
+      try simp only [↓reduceIte]
       have hmod : 2 ^ pow % 2 ^ n = 2 ^ pow := by
         apply Nat.mod_eq_of_lt
         apply Nat.pow_lt_pow_of_lt <;> omega
@@ -307,7 +309,8 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
         denote_blastShiftRightConst]
       rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftRightConst) (h := Ref.hgate _)]
       rw [hright]
-      simp only [hif1, Bool.false_eq_true, ↓reduceIte]
+      simp only [hif1, Bool.cond_false]
+      try simp only [↓reduceIte]
       rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftRightConst) (h := Ref.hgate _)]
       rw [hleft]
       simp
@@ -315,7 +318,8 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
       apply BitVec.getLsbD_of_ge
       dsimp only
       omega
-    simp only [this, Bool.false_eq_true, ↓reduceIte]
+    simp only [this, Bool.false_eq_true]
+    try simp only [↓reduceIte]
     rw [← hg]
     rw [hleft]
     simp
@@ -422,7 +426,9 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
         denote_blastArithShiftRightConst]
       rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastArithShiftRightConst) (h := Ref.hgate _)]
       rw [hright]
-      simp only [hif1, ↓reduceIte]
+      simp only [hif1]
+      try simp only [Bool.cond_true]
+      try simp only [↓reduceIte]
       have hmod : 2 ^ pow % 2 ^ n = 2 ^ pow := by
         apply Nat.mod_eq_of_lt
         apply Nat.pow_lt_pow_of_lt <;> omega
@@ -440,7 +446,8 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
         denote_blastArithShiftRightConst]
       rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastArithShiftRightConst) (h := Ref.hgate _)]
       rw [hright]
-      simp only [hif1, Bool.false_eq_true, ↓reduceIte]
+      simp only [hif1, Bool.cond_false]
+      try simp only [↓reduceIte]
       rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastArithShiftRightConst) (h := Ref.hgate _)]
       rw [hleft]
       simp
@@ -448,7 +455,8 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
       apply BitVec.getLsbD_of_ge
       dsimp only
       omega
-    simp only [this, Bool.false_eq_true, ↓reduceIte]
+    simp only [this, Bool.false_eq_true]
+    try simp only [↓reduceIte]
     rw [← hg]
     rw [hleft]
     simp

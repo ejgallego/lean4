@@ -2,6 +2,11 @@ import Lean.Elab.Tactic.Location
 import Lean.Meta.Tactic.SplitIf
 import Lean.Elab.Tactic.Simp
 
+/-!
+Test a Mathlib-style `split_ifs` implementation on nested conditionals before
+and after deriving a lattice instance from a linear order.
+-/
+
 section Mathlib.Tactic.Core
 
 open Lean Elab Tactic
@@ -67,20 +72,29 @@ match loc with
    else return candidates.toList
 
 /-- Return the condition and decidable instance of an `if` expression to case split. -/
-private partial def findIfToSplit? (e : Expr) : Option (Expr × Expr) :=
-  match e.find? fun e => (e.isIte || e.isDIte) && !(e.getArg! 1 5).hasLooseBVars with
-  | some iteApp =>
-    let cond := iteApp.getArg! 1 5
-    let dec := iteApp.getArg! 2 5
-    -- Try to find a nested `if` in `cond`
-    findIfToSplit? cond |>.getD (cond, dec)
-  | none => none
+private partial def findIfToSplit? (e : Expr) : MetaM (Option (Expr × Expr)) := do
+  let candidate? := e.find? fun e =>
+    if e.isIte || e.isDIte then
+      !(e.getArg! 1 5).hasLooseBVars
+    else
+      e.isAppOfArity ``cond 4 && !(e.getArg! 1 4).hasLooseBVars
+  let some iteApp := candidate? | return none
+  let (condition, decision) ← if iteApp.isAppOf ``cond then
+    let c := iteApp.getArg! 1 4
+    match ← Simp.getBoolDecision? c with
+    | some result => pure result
+    | none =>
+      let condition ← mkEq c (mkConst ``Bool.true)
+      pure (condition, ← synthInstance (mkApp (mkConst ``Decidable) condition))
+  else
+    pure (iteApp.getArg! 1 5, iteApp.getArg! 2 5)
+  return (← findIfToSplit? condition).getD (condition, decision)
 
 /-- Finds an if condition to split. If successful, returns the position and the condition.
 -/
 private def findIfCondAt (loc : Location) : TacticM (Option (SplitPosition × Expr)) := do
   for (pos, e) in (← getSplitCandidates loc) do
-    if let some (cond, _) := findIfToSplit? e
+    if let some (cond, _) ← findIfToSplit? e
     then return some (pos, cond)
   return none
 

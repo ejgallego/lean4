@@ -4,10 +4,13 @@ the instance is synthesized for the new class instead of being reused when it is
 an instance of it: `decide (x ≤ 2 + 3)` becomes `@decide (x ≤ 5) (x.decLe 5)`, not
 `@decide (x ≤ 5) (x.decLe (2 + 3))`. The definitional check also unified the old and new
 arguments, which for `Int32.minValue + c` with a non-reducible `c` unfolds `Int32` addition
-down to `Nat.add` and hits the recursion limit.
+down to `Nat.add` and hits the recursion limit. An opaque Boolean consumer keeps the
+normalized decision and its instance visible in the trace.
 -/
 
 set_option warn.sorry false
+
+opaque keepDecision (b : Bool) : Bool := b
 
 def c : Int32 := 5
 
@@ -15,16 +18,28 @@ set_option pp.explicit true in
 /--
 trace: x : Nat
 ⊢ @Eq Bool
-    (@decide (@LE.le Nat instLENat x (@OfNat.ofNat Nat (nat_lit 5) (instOfNatNat (nat_lit 5))))
-      (x.decLe (@OfNat.ofNat Nat (nat_lit 5) (instOfNatNat (nat_lit 5)))))
+    (keepDecision
+      (@decide (@LE.le Nat instLENat x (@OfNat.ofNat Nat (nat_lit 5) (instOfNatNat (nat_lit 5))))
+        (x.decLe (@OfNat.ofNat Nat (nat_lit 5) (instOfNatNat (nat_lit 5))))))
     false
 -/
 #guard_msgs in
-example (x : Nat) : decide (x ≤ 2 + 3) = false := by grind_norm sym; trace_state; sorry
+example (x : Nat) : keepDecision (decide (x ≤ 2 + 3)) = false := by grind_norm sym; trace_state; sorry
 
 -- The example from `rc_model.lean`, reduced: the proposition is reordered under `decide`.
+example (x : Int32) : keepDecision (decide (x ≤ Int32.minValue + c)) = false := by
+  grind_norm sym; guard_target =ₛ keepDecision (decide (x ≤ -2147483648 + c)) = false; sorry
+
+-- Direct decision comparisons still reflect to their propositions.
+example (x : Nat) : decide (x ≤ 2 + 3) = false := by
+  grind_norm sym
+  guard_target =ₛ 6 ≤ x
+  sorry
+
 example (x : Int32) : decide (x ≤ Int32.minValue + c) = false := by
-  grind_norm sym; guard_target =ₛ decide (x ≤ -2147483648 + c) = false; sorry
+  grind_norm sym
+  guard_target =ₛ ¬x ≤ -2147483648 + c
+  sorry
 
 section sym
 set_option backward.grind.normalizer false

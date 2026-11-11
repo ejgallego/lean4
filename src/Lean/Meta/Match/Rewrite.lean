@@ -10,6 +10,7 @@ public import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Tactic.Assumption
 import Lean.Meta.Tactic.Refl
 import Lean.Meta.Tactic.Simp.Rewrite
+import Lean.Meta.Tactic.Simp.Main
 
 public section
 
@@ -47,15 +48,26 @@ def rwIfWith (hc : Expr) (e : Expr) : MetaM Simp.Result := do
       }
   | cond@cond α c t f =>
     let us := cond.constLevels!
+    if let some (p, d) ← Simp.getBoolDecision? c then
+      if ← isDefEq (← inferType hc) p then
+        let h := mkApp3 (mkConst ``decide_eq_true) p d hc
+        return { expr := t, proof? := mkApp5 (mkConst ``Bool.cond_eq_left us) α c h t f }
+      if ← isDefEq (← inferType hc) (mkNot p) then
+        let h := mkApp3 (mkConst ``decide_eq_false) p d hc
+        let h := mkApp2 (mkConst ``Bool.ne_true_of_eq_false) c h
+        return { expr := f, proof? := mkApp5 (mkConst ``Bool.cond_eq_right us) α c h t f }
     if (← isDefEq (← inferType hc) (← mkEq c (mkConst ``Bool.true))) then
       return {
         expr := t
-        proof? := (mkAppN (mkConst ``Bool.cond_pos us) #[α, c, t, f, hc])
+        proof? := mkApp5 (mkConst ``Bool.cond_eq_left us) α c hc t f
       }
+    if (← isDefEq (← inferType hc) (mkNot (← mkEq c (mkConst ``Bool.true)))) then
+      return { expr := f, proof? := mkApp5 (mkConst ``Bool.cond_eq_right us) α c hc t f }
     if (← isDefEq (← inferType hc) (← mkEq c (mkConst ``Bool.false))) then
+      let h := mkApp2 (mkConst ``Bool.ne_true_of_eq_false) c hc
       return {
         expr := f
-        proof? := (mkAppN (mkConst ``Bool.cond_neg us) #[α, c, t, f, hc])
+        proof? := mkApp5 (mkConst ``Bool.cond_eq_right us) α c h t f
       }
   | _ => pure ()
   return { expr := e }

@@ -704,7 +704,7 @@ theorem replace_toArray [BEq α] [LawfulBEq α] (l : List α) (a b : α) :
         simp only [length_set] at h₁ h₃
         simpa using h.2 ⟨j, by omega⟩ h₃
       · by_cases h₃ : j = i
-        · rw [ite_eq_left (by omega), ite_eq_left, ite_eq_right]
+        · rw [ite_eq_left (by omega), ite_eq_left, ite_eq_right (c := a ∈ take j l)]
           · simp only [mem_take_iff_getElem, not_exists]
             intro k hk
             simpa using h.2 ⟨k, by omega⟩ (by change k < i.1; omega)
@@ -712,7 +712,7 @@ theorem replace_toArray [BEq α] [LawfulBEq α] (l : List α) (a b : α) :
             simpa using h.1
         · rw [ite_eq_right (by omega)]
           split
-          · rw [ite_eq_left]
+          · rw [ite_eq_left (c := a ∈ take j l)]
             · simp_all
             · simp only [mem_take_iff_getElem]
               simp only [length_set] at h₁

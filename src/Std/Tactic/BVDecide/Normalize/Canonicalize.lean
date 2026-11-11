@@ -11,6 +11,8 @@ public import Init.Data.BitVec.Package
 public import Std.Tactic.BVDecide.Syntax
 public import Init.Data.BitVec.Bootstrap
 import Init.PropLemmas
+public import Init.ByCases
+public import Init.Data.Bool
 
 @[expose] public section
 
@@ -18,6 +20,9 @@ import Init.PropLemmas
 This contains theorems responsible for turning both `Bool` and `BitVec` goals into the
 `x = true` normal form (where `x` consists of only `Bool` and `BitVec`) expected by `bv_decide`.
 -/
+
+attribute [bv_normalize] dite_eq_cond
+attribute [bv_normalize] Bool.decide_eq_true Bool.decide_eq_false Bool.decide_true_eq Bool.decide_false_eq
 
 namespace Std.Tactic.BVDecide
 namespace Normalize

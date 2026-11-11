@@ -7,6 +7,7 @@ module
 prelude
 import Init.Grind
 import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.Ext
 import Lean.Meta.Tactic.Grind.Diseq
 public import Lean.Meta.Tactic.Grind.PropagatorAttr
@@ -293,14 +294,14 @@ builtin_grind_propagator propagateHEqUp ↑HEq := fun e => do
     pushEqTrue e <| mkEqTrueCore e (← mkHEqProof a b)
 
 /--
-Pushes `e = rhs` (justified by `h`) for an `ite`/`dite`-application `e`, after the
+Pushes `e = rhs` (justified by `h`) for a `cond`/`ite`/`dite` application `e`, after the
 condition has become `True` or `False`. `args` are the arguments of `e`, and `h`
 proves that the `prefixSize`-prefix of `e` equals `rhs`; if `e` is over-applied,
 `rhs` is extended by the trailing arguments via `mkCongrFun`.
 
 Set `ite := true` iff `rhs` is a structural argument of `e` (the `then`/`else`
-branch of a non-over-applied `ite`). In that case we call `registerParent e rhs`
-because `Internalize.lean`'s `ite` special case skips the branches: `rhs` is being
+branch of a non-over-applied `cond` or `ite`). In that case we call `registerParent e rhs`
+because the conditional internalizer skips the branches: `rhs` is being
 internalized here for the first time, and the explicit `registerParent` is the
 same one the standard `for arg in args` loop in `Internalize.lean` performs for
 ordinary application arguments. (`internalize` itself only forwards `parent?` to
@@ -331,11 +332,35 @@ where
       let h' ← mkCongrFun h arg
       go rhs' h' (i+1)
     else
-      let rhs ← preprocessLight rhs
+      let rhs ← preprocessLight rhs.headBeta
       internalize rhs (← getGeneration e) e
-      if ite then
-        registerParent e rhs
       pushEq e rhs h
+
+/-- Reduces a native Boolean conditional once its represented proposition is decided. -/
+builtin_grind_propagator propagateCond ↑cond := fun e => do
+  let args := e.getAppArgs
+  if args.size < 4 then return ()
+  let c := args[1]!
+  let condition ← shareCommon (← condCondition e)
+  let trueBranch ← isEqTrue condition
+  let falseBranch ← isEqFalse condition
+  unless trueBranch || falseBranch do return ()
+  let hp ← if trueBranch then mkEqTrueProof condition else mkEqFalseProof condition
+  let us := e.getAppFn.constLevels!
+  let proof ← if let some (p, d) ← Simp.getBoolDecision? c then do
+    let name := if trueBranch then ``Grind.decide_eq_true else ``Grind.decide_eq_false
+    let value ← if trueBranch then getBoolTrueExpr else getBoolFalseExpr
+    let hb := mkExpectedPropHint (mkApp3 (mkConst name) p d hp) (← mkEq c value)
+    if trueBranch then
+      pure <| mkApp5 (mkConst ``Bool.cond_eq_left us) args[0]! c hb args[2]! args[3]!
+    else
+      pure <| mkApp5 (mkConst ``Grind.cond_eq_of_bool_false us) args[0]! c args[2]! args[3]! hb
+  else if trueBranch then
+    pure <| mkApp5 (mkConst ``Bool.cond_eq_left us) args[0]! c (mkOfEqTrueCore condition hp) args[2]! args[3]!
+  else
+    pure <| mkApp5 (mkConst ``Bool.cond_eq_right us) args[0]! c (mkOfEqFalseCore condition hp) args[2]! args[3]!
+  let rhs := if trueBranch then args[2]! else args[3]!
+  applyCongrFun e rhs proof 4 args (ite := true)
 
 /-- Propagates `ite` upwards -/
 builtin_grind_propagator propagateIte ↑ite := fun e => do

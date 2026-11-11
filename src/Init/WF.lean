@@ -616,7 +616,7 @@ variable (F : (x : α) → ((y : α) → InvImage (· < ·) h y x → motive y) 
 def Nat.eager (n : Nat) : Nat :=
   if Nat.beq n n = true then n else n
 
-theorem Nat.eager_eq (n : Nat) : Nat.eager n = n := ite_self n
+theorem Nat.eager_eq (n : Nat) : Nat.eager n = n := ite_self (c := Nat.beq n n = true) n
 
 /--
 A well-founded fixpoint operator specialized for `Nat`-valued measures. Given a measure `h`, it expects
@@ -666,5 +666,16 @@ of `List.attach` (or similar) is plausible.
 Reverse direction of `dite_eq_ite`. Used by the well-founded definition preprocessor to extend the
 context of a termination proof inside `if-then-else` with the condition.
 -/
-@[wf_preprocess] theorem ite_eq_dite [Decidable P] :
-    ite P a b = (dite P (fun h => binderNameHint h () a) (fun h => binderNameHint h () b)) := rfl
+@[wf_preprocess] theorem ite_eq_dite [d : Decidable P] :
+    ite P a b = (dite P (fun h => binderNameHint h () a) (fun h => binderNameHint h () b)) := by
+  cases d <;> rfl
+
+/-- Extend termination proofs through a Boolean conditional with its branch condition. -/
+@[wf_preprocess] theorem cond_eq_dite (c : Bool) {α : Sort u} (a b : α) :
+    cond c a b = dite (c = true) (fun h => binderNameHint h () a) (fun h => binderNameHint h () b) := by
+  cases c <;> rfl
+
+/-- Retain the proposition underlying an undecided Boolean condition in termination proofs. -/
+theorem cond_decide_eq_dite [d : Decidable P] {α : Sort u} (a b : α) :
+    cond (decide P) a b = dite P (fun h => binderNameHint h () a) (fun h => binderNameHint h () b) := by
+  cases d <;> rfl

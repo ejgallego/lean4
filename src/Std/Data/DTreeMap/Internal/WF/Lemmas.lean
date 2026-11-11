@@ -1413,7 +1413,8 @@ theorem toListModel_alterₘ [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {
     cases f none <;> rfl
   · simp only [Cell.Const.alter, Cell.ofOption, Const.alterKey, Option.toList_some]
     have := OrientedCmp.eq_symm <| hl l rfl
-    simp only [getValue?, compare_eq_iff_beq.mp this, reduceIte]
+    simp only [getValue?, compare_eq_iff_beq.mp this]
+    try simp only [reduceIte]
     cases f _
     · simp [eraseKey, compare_eq_iff_beq.mp this]
     · simp [insertEntry, containsKey, replaceEntry, compare_eq_iff_beq.mp this]
@@ -2361,7 +2362,8 @@ theorem entryAtIdx?_eq_getElem? {t : Impl α β} (htb : t.Balanced) {i : Nat} :
     simp only [toListModel_inner, *, htb.right]
     simp_all only [Nat.compare_eq_gt, List.getElem?_append_right, Nat.le_of_lt,
       ← size_eq_length, htb.left, List.getElem?_cons, Nat.sub_eq_zero_iff_le,
-      ← Nat.not_lt, not_true, ↓reduceIte]
+      ← Nat.not_lt, not_true]
+    try simp only [↓reduceIte]
 
 theorem entryAtIdx_eq_getElem {t : Impl α β} (htb : t.Balanced) {i : Nat} {h} :
     t.entryAtIdx htb i h = t.toListModel[i]'(size_eq_length t htb ▸ h) := by

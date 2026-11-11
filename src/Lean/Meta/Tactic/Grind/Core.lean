@@ -242,12 +242,15 @@ where
     propagateBeta lams₁ fns₁
     propagateBeta lams₂ fns₂
     let toPropagateSolvers ← Solvers.mergeTerms rhsRoot lhsRoot heqProofs
+    let condParents ← mergeCondParents lhsRoot.self rhsNode.root
     resetParentsOf lhsRoot.self
     copyParentsTo parents rhsNode.root
     unless (← isInconsistent) do
       updateMT rhsRoot.self
     unless (← isInconsistent) do
       for parent in parents.elems do
+        propagateUp parent
+      for parent in condParents.elems do
         propagateUp parent
       for e in toPropagateDown do
         propagateDown e

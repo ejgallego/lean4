@@ -321,7 +321,8 @@ theorem eraseP_eq_eraseIdx {xs : List α} {p : α → Bool} :
     · simp [h]
     · simp only [h]
       rw [ih]
-      simp only [Bool.false_eq_true, ↓reduceIte]
+      simp only [Bool.false_eq_true]
+      try rw [ite_false]
       split <;> simp [*]
 
 /-! ### erase -/
@@ -341,7 +342,7 @@ theorem erase_of_not_mem [LawfulBEq α] {a : α} : ∀ {l : List α}, a ∉ l �
   | [], _ => rfl
   | b :: l, h => by
     rw [mem_cons, not_or] at h
-    simp only [erase_cons, ite_eq_right, erase_of_not_mem h.2, beq_iff_eq, Ne.symm h.1, not_false_eq_true]
+    rw [erase_cons_tail (fun heq => h.1 (eq_of_beq heq).symm), erase_of_not_mem h.2]
 
 -- The arguments are intentionally explicit.
 theorem erase_eq_eraseP' (a : α) (l : List α) : l.erase a = l.eraseP (· == a) := by
@@ -424,7 +425,9 @@ theorem erase_filter [LawfulBEq α] {f : α → Bool} {l : List α} :
   | cons x xs ih =>
     by_cases h : a = x
     · rw [erase_cons]
-      simp only [h, beq_self_eq_true, ↓reduceIte]
+      simp only [h]
+      try simp only [beq_self_eq_true]
+      try rw [ite_true]
       rw [filter_cons]
       split
       · rw [erase_cons_head]

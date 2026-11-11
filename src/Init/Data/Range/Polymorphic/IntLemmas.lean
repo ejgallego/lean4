@@ -187,7 +187,10 @@ theorem toList_rco_succ_right_eq_append {m n : Int} (h : m ≤ n) :
     (m...(n + 1)).toList = (m...n).toList ++ [n] := by
   apply List.ext_getElem
   · simp; omega
-  · simp [Rco.getElem_toList_eq, List.getElem_append]; omega
+  · intro i hi hi'
+    simp only [List.length_append, List.length_singleton, length_toList_rco] at hi hi'
+    by_cases hlt : i < (n - m).toNat <;>
+      simp_all [Rco.getElem_toList_eq, List.getElem_append] <;> omega
 
 theorem toList_rco_eq_append {m n : Int} (h : m < n) :
     (m...n).toList = (m...(n - 1)).toList ++ [n - 1] := by
@@ -207,13 +210,17 @@ theorem toList_rco_add_add_eq_append {m : Int} {n k : Nat} :
     (m...(m + n + k)).toList = (m...(m + n)).toList ++ ((m + n)...(m + n + k)).toList := by
   apply List.ext_getElem
   · simp; omega
-  · simp [Rco.getElem_toList_eq, List.getElem_append]; omega
+  · intro i hi hi'
+    by_cases hlt : i < (m + n - m).toNat <;>
+      simp_all [Rco.getElem_toList_eq, List.getElem_append] <;> omega
 
 theorem toList_rco_append_toList_rco {l m n : Int} (h : l ≤ m) (h' : m ≤ n) :
     (l...m).toList ++ (m...n).toList = (l...n).toList := by
   apply List.ext_getElem
   · simp; omega
-  · simp [Rco.getElem_toList_eq, List.getElem_append]; omega
+  · intro i hi hi'
+    by_cases hlt : i < (m - l).toNat <;>
+      simp_all [Rco.getElem_toList_eq, List.getElem_append] <;> omega
 
 @[simp]
 theorem getElem_toList_rco {m n : Int} {i : Nat} (_h : i < (m...n).toList.length) :

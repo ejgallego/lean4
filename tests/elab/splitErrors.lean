@@ -82,7 +82,7 @@ error: Tactic `split` failed: Could not split the goal or any of the following h
 Note: `split at *` does not attempt to split at non-propositional hypotheses or those on which other hypotheses depend. It may still be possible to manually split a hypothesis using `split at`
 
 t : True
-dep : if 1 ≥ 0 then True else False
+dep : if 0 ≤ 1 then True else False
 use_dep : dep = dep
 ⊢ False
 -/
@@ -97,7 +97,7 @@ example : False := by
 /--
 error: Tactic `split` failed: Could not split an `if` or `match` expression in the type `Nat` of `x`
 
-x : Nat := if true = true then 3 else 4
+x : Nat := bif true then 3 else 4
 ⊢ False
 -/
 #guard_msgs in

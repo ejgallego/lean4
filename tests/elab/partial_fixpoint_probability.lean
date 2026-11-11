@@ -121,7 +121,7 @@ partial_fixpoint
 info: geom.eq_1 :
   geom = do
     let head ← coin
-    if head = true then pure 0
+    bif head then pure 0
       else do
         let n ← geom
         pure (n + 1)

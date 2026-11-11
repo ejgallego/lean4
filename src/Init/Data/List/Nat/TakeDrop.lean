@@ -550,7 +550,8 @@ theorem takeWhile_eq_take_findIdx_not {xs : List α} {p : α → Bool} :
   induction xs with
   | nil => simp
   | cons x xs ih =>
-    simp only [takeWhile_cons, ih, findIdx_cons, Bool.not_eq_eq_eq_not, Bool.not_true]
+    simp only [takeWhile_cons, ih, findIdx_cons]
+    try simp only [Bool.not_eq_eq_eq_not, Bool.not_true]
     split <;> simp_all
 
 theorem dropWhile_eq_drop_findIdx_not {xs : List α} {p : α → Bool} :
@@ -558,7 +559,8 @@ theorem dropWhile_eq_drop_findIdx_not {xs : List α} {p : α → Bool} :
   induction xs with
   | nil => simp
   | cons x xs ih =>
-    simp only [dropWhile_cons, ih, findIdx_cons, Bool.not_eq_eq_eq_not, Bool.not_true]
+    simp only [dropWhile_cons, ih, findIdx_cons]
+    try simp only [Bool.not_eq_eq_eq_not, Bool.not_true]
     split <;> simp_all
 
 /-! ### rotateLeft -/

@@ -48,7 +48,7 @@ theorem range'_eq_mk_range' {start size step} :
 
 @[simp, grind =] theorem getElem?_range' {start size step i} :
    (range' start size step)[i]? = if i < size then some (start + step * i) else none := by
-  simp [getElem?_def, range']
+  simp [getElem?_def, range'] <;> rfl
 
 theorem range'_succ {s n step} :
     range' s (n + 1) step = (#v[s] ++ range' (s + step) n step).cast (by omega) := by

@@ -2,7 +2,7 @@
     do
     let e ←
       tryCatch
-          (if true = true then
+          (bif true then
             let x := 10;
             match h : x with
             | 2 => EarlyReturnT.return ⟨x, ⋯⟩
@@ -21,7 +21,7 @@ let x := 0;
 have __do_jp := fun __r x => do
   let r ← pure x
   pure r;
-if true = true then
+bif true then
   let x := x + 1;
   __do_jp PUnit.unit x
 else do

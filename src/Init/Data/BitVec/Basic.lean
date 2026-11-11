@@ -949,10 +949,10 @@ def clzFast (x : BitVec w) : BitVec w :=
 @[csimp] theorem clz_eq_clzFast : @clz = @clzFast := by
   funext w x
   by_cases h : x.toNat = 0
-  · simp only [clz, clzFast, h, ↓reduceIte]
+  · simp only [clz, clzFast, h] <;> rfl
   · have heq := clz.log2Aux_eq (fuel := w) (lo := 0) (hi := w) h
       (Nat.zero_le _) ((Nat.log2_lt h).mpr x.isLt) (by omega)
-    simp only [clz, clzFast, h, ↓reduceIte, heq]
+    simp only [clz, clzFast, h, heq] <;> rfl
 
 /--
 Count the number of trailing zeros, returning `w` on zero.

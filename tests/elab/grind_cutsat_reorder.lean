@@ -43,17 +43,11 @@ example (g u : Int → Int) (hg : ∀ y, g y = Int.bmod y 65536) (hu : ∀ y, u 
     (x : Int) (hx : 0 ≤ x) (hx' : x < 65536) : u x = Int.bmod (2 * g x) 65536 := by grind
 
 -- Chained unfoldings: each E-matching round introduces a new quotient, so a single branch goes
--- through epochs 1 to 4. With reordering restricted to once, these goals exhaust `liaSteps`.
+-- through several reordering epochs. With reordering restricted to once, these goals exhaust `liaSteps`.
 /--
 trace: [grind.lia.reorder] reordering variables, epoch: 1
 [grind.lia.reorder] reordering variables, epoch: 2
 [grind.lia.reorder] reordering variables, epoch: 3
-[grind.lia.reorder] reordering variables, epoch: 4
-[grind.lia.reorder] reordering variables, epoch: 3
-[grind.lia.reorder] reordering variables, epoch: 3
-[grind.lia.reorder] reordering variables, epoch: 3
-[grind.lia.reorder] reordering variables, epoch: 4
-[grind.lia.reorder] reordering variables, epoch: 4
 [grind.lia.reorder] reordering variables, epoch: 3
 [grind.lia.reorder] reordering variables, epoch: 3
 [grind.lia.reorder] reordering variables, epoch: 3
@@ -71,28 +65,9 @@ trace: [grind.lia.reorder] reordering variables, epoch: 1
 [grind.lia.reorder] reordering variables, epoch: 2
 [grind.lia.reorder] reordering variables, epoch: 3
 [grind.lia.reorder] reordering variables, epoch: 4
-[grind.lia.reorder] reordering variables, epoch: 4
-[grind.lia.reorder] reordering variables, epoch: 3
-[grind.lia.reorder] reordering variables, epoch: 4
-[grind.lia.reorder] reordering variables, epoch: 4
-[grind.lia.reorder] reordering variables, epoch: 4
-[grind.lia.reorder] reordering variables, epoch: 4
 [grind.lia.reorder] reordering variables, epoch: 3
 [grind.lia.reorder] reordering variables, epoch: 3
 [grind.lia.reorder] reordering variables, epoch: 3
-[grind.lia.reorder] reordering variables, epoch: 3
-[grind.lia.reorder] reordering variables, epoch: 3
-[grind.lia.reorder] reordering variables, epoch: 4
-[grind.lia.reorder] reordering variables, epoch: 4
-[grind.lia.reorder] reordering variables, epoch: 4
-[grind.lia.reorder] reordering variables, epoch: 4
-[grind.lia.reorder] reordering variables, epoch: 4
-[grind.lia.reorder] reordering variables, epoch: 4
-[grind.lia.reorder] reordering variables, epoch: 4
-[grind.lia.reorder] reordering variables, epoch: 4
-[grind.lia.reorder] reordering variables, epoch: 3
-[grind.lia.reorder] reordering variables, epoch: 4
-[grind.lia.reorder] reordering variables, epoch: 4
 [grind.lia.reorder] reordering variables, epoch: 3
 [grind.lia.reorder] reordering variables, epoch: 3
 [grind.lia.reorder] reordering variables, epoch: 3

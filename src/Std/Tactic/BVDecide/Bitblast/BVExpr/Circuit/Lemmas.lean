@@ -200,9 +200,8 @@ theorem go_eval_eq_eval (expr : BVLogicalExpr) (aig : AIG BVBit) (assign : BVExp
     rw [← hres]
     simp [goCache_eval_eq_eval expr _ _ _ hinv]
   · rw [← hres]
-    simp only [Ref.cast_eq, denote_mkIfCached, denote_projected_entry, eval_ite,
-      Bool.ite_eq_cond_iff]
-    apply ite_congr
+    simp only [Ref.cast_eq, denote_mkIfCached, denote_projected_entry, eval_ite]
+    congr 1
     · rw [goCache_denote_mem_prefix (hstart := ?h)]
       case h =>
         apply goCache_lt_size_of_lt_aig_size
@@ -210,13 +209,11 @@ theorem go_eval_eq_eval (expr : BVLogicalExpr) (aig : AIG BVBit) (assign : BVExp
       rw [goCache_denote_mem_prefix (hstart := Ref.hgate _)]
       rw [goCache_eval_eq_eval]
       exact hinv
-    · intro h
-      rw [goCache_denote_mem_prefix (hstart := Ref.hgate _)]
+    · rw [goCache_denote_mem_prefix (hstart := Ref.hgate _)]
       apply goCache_eval_eq_eval
       apply goCache_Inv_of_Inv
       exact hinv
-    · intro h
-      apply goCache_eval_eq_eval
+    · apply goCache_eval_eq_eval
       apply goCache_Inv_of_Inv
       apply goCache_Inv_of_Inv
       exact hinv

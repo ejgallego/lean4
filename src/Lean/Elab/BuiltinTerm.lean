@@ -115,12 +115,58 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
     If this '⋯' was copied from the Infoview, the hover there for the original '⋯' explains which of these options led to the omission."
   elabHole stx expectedType?
 
+/--
+Recognize the ordinary conditional macro's `let_mvar%`/`wait_if_type_mvar%` interface and
+elaborate it as `cond`. Boolean conditions are retained; proposition conditions synthesize a
+`Decidable` instance. At this boundary a named decision projection is exposed as a primitive
+projection without evaluating its instance, retaining the predicate in the instance type even
+while synthesis is pending. Later inspection, computation, and abstraction have separate
+contracts; see `doc/dev/conditional_interface.md`. Proof-dependent conditionals use `dite`.
+-/
+private def elabBoolIf? (n c b : Syntax) (expectedType? : Option Expr) : TermElabM (Option Expr) := do
+  let `(wait_if_type_mvar% ? $waitName; ite $condition $t $e) := b | return none
+  let `(? $conditionName) := condition | return none
+  unless n.getId == waitName.getId && n.getId == conditionName.getId do
+    return none
+  let ifRef ← getRef
+  let conditionRef := c
+  let c ← elabTerm c none
+  tryPostponeIfMVar (← inferType c)
+  let coerce : TermElabM Expr := do
+    let decide (p : Expr) : TermElabM Expr := do
+      let d ← withRef ifRef <| mkInstMVar (mkApp (Lean.mkConst ``Decidable) p)
+      pure (mkApp2 (Lean.mkConst ``Decidable.decide) p d)
+    if ← isProp c then return ← decide c
+    let boolResult ← Lean.Elab.Term.observing (ensureHasType (some (Lean.mkConst ``Bool)) c)
+    match boolResult with
+    | .ok _ _ => Lean.Elab.Term.applyResult boolResult
+    | .error ex _ =>
+      let propResult ← Lean.Elab.Term.observing (ensureHasType (some (mkSort .zero)) c)
+      match propResult with
+      | .ok _ _ => decide (← Lean.Elab.Term.applyResult propResult)
+      | .error .. => throw ex
+  let c ← withRef conditionRef do
+    try coerce catch ex =>
+      if (← read).errToSorry && ex matches .error .. then
+        exceptionToSorry ex (some (Lean.mkConst ``Bool))
+      else
+        throw ex
+  elabToSyntax (fun _ => do
+    let c ← instantiateMVars c
+    if c.isAppOfArity ``Decidable.decide 2 then
+      return mkProj ``Decidable 0 c.getAppArgs[1]!
+    return c) fun conditionStx => do
+    let result ← elabTerm (← `(cond $conditionStx $t $e)) expectedType?
+    return some (mkSaveInfoAnnotation result)
+
 @[builtin_term_elab «letMVar»] def elabLetMVar : TermElab := fun stx expectedType? => do
   match stx with
   | `(let_mvar% ? $n := $e; $b) =>
      match (← getMCtx).findUserName? n.getId with
      | some _ => throwError "invalid `let_mvar%`, metavariable `?{n.getId}` has already been used"
      | none =>
+       if let some result ← elabBoolIf? n e b expectedType? then
+         return result
        let e ← elabTerm e none
        let mvar ← mkFreshExprMVar (← inferType e) MetavarKind.syntheticOpaque n.getId
        mvar.mvarId!.assign e

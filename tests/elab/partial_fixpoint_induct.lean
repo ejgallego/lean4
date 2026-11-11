@@ -21,7 +21,7 @@ partial_fixpoint
 
 /--
 info: find.fixpoint_induct (P : Nat → Bool) (motive : (Nat → Option Nat) → Prop) (adm : Lean.Order.admissible motive)
-  (h : ∀ (find : Nat → Option Nat), motive find → motive fun x => if P x = true then some x else find (x + 1)) :
+  (h : ∀ (find : Nat → Option Nat), motive find → motive fun x => bif P x then some x else find (x + 1)) :
   motive (find P)
 -/
 #guard_msgs in #check find.fixpoint_induct
@@ -31,7 +31,7 @@ info: find.partial_correctness (P : Nat → Bool) (motive : Nat → Nat → Prop
   (h :
     ∀ (find : Nat → Option Nat),
       (∀ (x r : Nat), find x = some r → motive x r) →
-        ∀ (x r : Nat), (if P x = true then some x else find (x + 1)) = some r → motive x r)
+        ∀ (x r : Nat), (bif P x then some x else find (x + 1)) = some r → motive x r)
   (x r✝ : Nat) : find P x = some r✝ → motive x r✝
 -/
 #guard_msgs in #check find.partial_correctness
@@ -72,27 +72,25 @@ partial_fixpoint
 end
 
 /--
-info: dependent2''a.mutual_fixpoint_induct (m : Nat) (b : Bool) (motive_1 : (Nat → if b = true then Nat else Bool) → Prop)
-  (motive_2 : (Nat → Nat → if b = true then Nat else Bool) → Prop)
-  (motive_3 : (Fin (m + 1) → Nat → if b = true then Nat else Bool) → Prop) (adm_1 : Lean.Order.admissible motive_1)
+info: dependent2''a.mutual_fixpoint_induct (m : Nat) (b : Bool) (motive_1 : (Nat → bif b then Nat else Bool) → Prop)
+  (motive_2 : (Nat → Nat → bif b then Nat else Bool) → Prop)
+  (motive_3 : (Fin (m + 1) → Nat → bif b then Nat else Bool) → Prop) (adm_1 : Lean.Order.admissible motive_1)
   (adm_2 : Lean.Order.admissible motive_2) (adm_3 : Lean.Order.admissible motive_3)
   (h_1 :
-    ∀ (dependent2''a : Nat → if b = true then Nat else Bool)
-      (dependent2''b : Nat → Nat → if b = true then Nat else Bool),
+    ∀ (dependent2''a : Nat → bif b then Nat else Bool) (dependent2''b : Nat → Nat → bif b then Nat else Bool),
       motive_1 dependent2''a →
         motive_2 dependent2''b →
           motive_1 fun n => if x : b = true then dependent2''a (n + 1) else dependent2''b m (n + m))
   (h_2 :
-    ∀ (dependent2''b : Nat → Nat → if b = true then Nat else Bool)
-      (dependent2''c : Fin (m + 1) → Nat → if b = true then Nat else Bool),
+    ∀ (dependent2''b : Nat → Nat → bif b then Nat else Bool)
+      (dependent2''c : Fin (m + 1) → Nat → bif b then Nat else Bool),
       motive_2 dependent2''b →
         motive_3 dependent2''c →
-          motive_2 fun k n => if b = true then dependent2''b k n else dependent2''c (Fin.last m) (n + m))
+          motive_2 fun k n => bif b then dependent2''b k n else dependent2''c (Fin.last m) (n + m))
   (h_3 :
-    ∀ (dependent2''a : Nat → if b = true then Nat else Bool)
-      (dependent2''c : Fin (m + 1) → Nat → if b = true then Nat else Bool),
+    ∀ (dependent2''a : Nat → bif b then Nat else Bool) (dependent2''c : Fin (m + 1) → Nat → bif b then Nat else Bool),
       motive_1 dependent2''a →
-        motive_3 dependent2''c → motive_3 fun i n => if b = true then dependent2''c i n else dependent2''a ↑i) :
+        motive_3 dependent2''c → motive_3 fun i n => bif b then dependent2''c i n else dependent2''a ↑i) :
   (motive_1 fun n => dependent2''a m n b) ∧
     (motive_2 fun k n => dependent2''b m k n b) ∧ motive_3 fun i n => dependent2''c m i n b
 -/
@@ -111,36 +109,33 @@ partial_fixpoint
 end
 
 /--
-info: dependent3''a.mutual_partial_correctness (m : Nat) (b : Bool) (motive_1 : Nat → (if b = true then Nat else Bool) → Prop)
-  (motive_2 : Nat → Nat → (if b = true then Nat else Bool) → Prop)
-  (motive_3 : Fin (m + 1) → Nat → (if b = true then Nat else Bool) → Prop)
+info: dependent3''a.mutual_partial_correctness (m : Nat) (b : Bool) (motive_1 : Nat → (bif b then Nat else Bool) → Prop)
+  (motive_2 : Nat → Nat → (bif b then Nat else Bool) → Prop)
+  (motive_3 : Fin (m + 1) → Nat → (bif b then Nat else Bool) → Prop)
   (h_1 :
-    ∀ (dependent3''a : Nat → Option (if b = true then Nat else Bool))
-      (dependent3''b : Nat → Nat → Option (if b = true then Nat else Bool)),
-      (∀ (n : Nat) (r : if b = true then Nat else Bool), dependent3''a n = some r → motive_1 n r) →
-        (∀ (k n : Nat) (r : if b = true then Nat else Bool), dependent3''b k n = some r → motive_2 k n r) →
-          ∀ (n : Nat) (r : if b = true then Nat else Bool),
+    ∀ (dependent3''a : Nat → Option (bif b then Nat else Bool))
+      (dependent3''b : Nat → Nat → Option (bif b then Nat else Bool)),
+      (∀ (n : Nat) (r : bif b then Nat else Bool), dependent3''a n = some r → motive_1 n r) →
+        (∀ (k n : Nat) (r : bif b then Nat else Bool), dependent3''b k n = some r → motive_2 k n r) →
+          ∀ (n : Nat) (r : bif b then Nat else Bool),
             (if x : b = true then dependent3''a (n + 1) else dependent3''b m (n + m)) = some r → motive_1 n r)
   (h_2 :
-    ∀ (dependent3''b : Nat → Nat → Option (if b = true then Nat else Bool))
-      (dependent3''c : Fin (m + 1) → Nat → Option (if b = true then Nat else Bool)),
-      (∀ (k n : Nat) (r : if b = true then Nat else Bool), dependent3''b k n = some r → motive_2 k n r) →
-        (∀ (i : Fin (m + 1)) (n : Nat) (r : if b = true then Nat else Bool),
-            dependent3''c i n = some r → motive_3 i n r) →
-          ∀ (k n : Nat) (r : if b = true then Nat else Bool),
-            (if b = true then dependent3''b k n else dependent3''c (Fin.last m) (n + m)) = some r → motive_2 k n r)
+    ∀ (dependent3''b : Nat → Nat → Option (bif b then Nat else Bool))
+      (dependent3''c : Fin (m + 1) → Nat → Option (bif b then Nat else Bool)),
+      (∀ (k n : Nat) (r : bif b then Nat else Bool), dependent3''b k n = some r → motive_2 k n r) →
+        (∀ (i : Fin (m + 1)) (n : Nat) (r : bif b then Nat else Bool), dependent3''c i n = some r → motive_3 i n r) →
+          ∀ (k n : Nat) (r : bif b then Nat else Bool),
+            (bif b then dependent3''b k n else dependent3''c (Fin.last m) (n + m)) = some r → motive_2 k n r)
   (h_3 :
-    ∀ (dependent3''a : Nat → Option (if b = true then Nat else Bool))
-      (dependent3''c : Fin (m + 1) → Nat → Option (if b = true then Nat else Bool)),
-      (∀ (n : Nat) (r : if b = true then Nat else Bool), dependent3''a n = some r → motive_1 n r) →
-        (∀ (i : Fin (m + 1)) (n : Nat) (r : if b = true then Nat else Bool),
-            dependent3''c i n = some r → motive_3 i n r) →
-          ∀ (i : Fin (m + 1)) (n : Nat) (r : if b = true then Nat else Bool),
-            (if b = true then dependent3''c i n else dependent3''a ↑i) = some r → motive_3 i n r) :
-  (∀ (n : Nat) (r : if b = true then Nat else Bool), dependent3''a m n b = some r → motive_1 n r) ∧
-    (∀ (k n : Nat) (r : if b = true then Nat else Bool), dependent3''b m k n b = some r → motive_2 k n r) ∧
-      ∀ (i : Fin (m + 1)) (n : Nat) (r : if b = true then Nat else Bool),
-        dependent3''c m i n b = some r → motive_3 i n r
+    ∀ (dependent3''a : Nat → Option (bif b then Nat else Bool))
+      (dependent3''c : Fin (m + 1) → Nat → Option (bif b then Nat else Bool)),
+      (∀ (n : Nat) (r : bif b then Nat else Bool), dependent3''a n = some r → motive_1 n r) →
+        (∀ (i : Fin (m + 1)) (n : Nat) (r : bif b then Nat else Bool), dependent3''c i n = some r → motive_3 i n r) →
+          ∀ (i : Fin (m + 1)) (n : Nat) (r : bif b then Nat else Bool),
+            (bif b then dependent3''c i n else dependent3''a ↑i) = some r → motive_3 i n r) :
+  (∀ (n : Nat) (r : bif b then Nat else Bool), dependent3''a m n b = some r → motive_1 n r) ∧
+    (∀ (k n : Nat) (r : bif b then Nat else Bool), dependent3''b m k n b = some r → motive_2 k n r) ∧
+      ∀ (i : Fin (m + 1)) (n : Nat) (r : bif b then Nat else Bool), dependent3''c m i n b = some r → motive_3 i n r
 -/
 #guard_msgs in #check dependent3''a.mutual_partial_correctness
 
@@ -163,7 +158,7 @@ info: List.findIndex.partial_correctness.{u_1} {α : Type u_1} (p : α → Bool)
         ∀ (xs : List α) (r : Nat),
           (match xs with
               | [] => none
-              | x :: ys => if p x = true then some 0 else (fun x => x + 1) <$> findIndex ys) =
+              | x :: ys => bif p x then some 0 else (fun x => x + 1) <$> findIndex ys) =
               some r →
             motive xs r)
   (xs : List α) (r✝ : Nat) : xs.findIndex p = some r✝ → motive xs r✝

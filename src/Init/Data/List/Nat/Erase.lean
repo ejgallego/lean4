@@ -176,7 +176,8 @@ theorem set_eraseIdx {xs : List α} {i : Nat} {j : Nat} {a : α} :
     {l : List α} {i : Nat} (h : i + 1 < l.length) :
     (l.eraseIdx (i + 1)).set i l[i + 1] = l.eraseIdx i := by
   apply ext_getElem
-  · simp only [length_set, length_eraseIdx, h, ↓reduceIte]
+  · simp only [length_set, length_eraseIdx, h]
+    try simp only [↓reduceIte]
     rw [ite_eq_left]
     omega
   · intro n h₁ h₂

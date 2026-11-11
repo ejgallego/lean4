@@ -1236,6 +1236,8 @@ structure GoalState where
   enodeMap     : ENodeMap := default
   exprs        : PArray Expr := {}
   parents      : ParentMap := {}
+  /-- Propagation-only dependencies of conditionals on their represented propositions. -/
+  condParents  : ParentMap := {}
   congrTable   : CongrTable enodeMap := {}
   /--
   A mapping from each function application index (`HeadIndex`) to a list of applications with that index.
@@ -1908,6 +1910,22 @@ def registerParent (parent : Expr) (child : Expr) : GoalM Unit := do
   let childRoot := (← getRoot? child).getD child
   let parents := if let some parents := (← get).parents.find? { expr := childRoot } then parents else {}
   modify fun s => { s with parents := s.parents.insert { expr := childRoot } (parents.insert parent) }
+
+/-- Watch the truth value of a conditional's proposition without adding a congruence edge. -/
+def registerCondParent (parent condition : Expr) : GoalM Unit := do
+  let root ← getRoot condition
+  let ps := ((← get).condParents.find? { expr := root }).getD {}
+  modify fun s => { s with condParents := s.condParents.insert { expr := root } (ps.insert parent) }
+
+/-- Transfer conditional watchers when roots merge; only transferred watchers need waking. -/
+def mergeCondParents (source target : Expr) : GoalM ParentSet := do
+  let ps := ((← get).condParents.find? { expr := source }).getD {}
+  unless ps.isEmpty do
+    let previous := ((← get).condParents.find? { expr := target }).getD {}
+    let merged := ps.elems.foldl (fun acc e => acc.insert e) previous
+    modify fun s => { s with condParents :=
+      (s.condParents.erase { expr := source }).insert { expr := target } merged }
+  return ps
 
 /--
 Returns the set of expressions `e` is a child of, or an expression in

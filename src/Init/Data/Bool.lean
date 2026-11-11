@@ -422,25 +422,25 @@ Converts `true` to `1` and `false` to `0`.
     (ite p true f) = (p || f) := by cases h with | _ p => simp [p]
 
 @[deprecated Bool.ite_true_left (since := "2026-07-21")]
-theorem if_true_left (p : Prop) [h : Decidable p] (f : Bool) : (if p then Bool.true else f) = (Decidable.decide p || f) := Bool.ite_true_left p f
+theorem if_true_left (p : Prop) [h : Decidable p] (f : Bool) : (ite p Bool.true f) = (Decidable.decide p || f) := Bool.ite_true_left p f
 
 @[simp] theorem ite_false_left  (p : Prop) [h : Decidable p] (f : Bool) :
     (ite p false f) = (!p && f) := by cases h with | _ p => simp [p]
 
 @[deprecated Bool.ite_false_left (since := "2026-07-21")]
-theorem if_false_left (p : Prop) [h : Decidable p] (f : Bool) : (if p then Bool.false else f) = (!Decidable.decide p && f) := Bool.ite_false_left p f
+theorem if_false_left (p : Prop) [h : Decidable p] (f : Bool) : (ite p Bool.false f) = (!Decidable.decide p && f) := Bool.ite_false_left p f
 
 @[simp] theorem ite_true_right  (p : Prop) [h : Decidable p] (t : Bool) :
     (ite p t true) = (!(p : Bool) || t) := by cases h with | _ p => simp [p]
 
 @[deprecated Bool.ite_true_right (since := "2026-07-21")]
-theorem if_true_right (p : Prop) [h : Decidable p] (t : Bool) : (if p then t else Bool.true) = (!Decidable.decide p || t) := Bool.ite_true_right p t
+theorem if_true_right (p : Prop) [h : Decidable p] (t : Bool) : (ite p t Bool.true) = (!Decidable.decide p || t) := Bool.ite_true_right p t
 
 @[simp] theorem ite_false_right  (p : Prop) [h : Decidable p] (t : Bool) :
     (ite p t false) = (p && t) := by cases h with | _ p => simp [p]
 
 @[deprecated Bool.ite_false_right (since := "2026-07-21")]
-theorem if_false_right (p : Prop) [h : Decidable p] (t : Bool) : (if p then t else Bool.false) = (Decidable.decide p && t) := Bool.ite_false_right p t
+theorem if_false_right (p : Prop) [h : Decidable p] (t : Bool) : (ite p t Bool.false) = (Decidable.decide p && t) := Bool.ite_false_right p t
 
 @[simp] theorem ite_eq_true_distrib (p : Prop) [h : Decidable p] (t f : Bool) :
     (ite p t f = true) = ite p (t = true) (f = true) := by
@@ -528,24 +528,31 @@ theorem exists_bool {p : Bool → Prop} : (∃ b, p b) ↔ p false ∨ p true :=
 
 /-! ### cond -/
 
-theorem cond_true  {α : Sort u} {a b : α} : cond true  a b = a := rfl
-theorem cond_false {α : Sort u} {a b : α} : cond false a b = b := rfl
+@[simp] theorem cond_true  {α : Sort u} {a b : α} : cond true  a b = a := rfl
+@[simp] theorem cond_false {α : Sort u} {a b : α} : cond false a b = b := rfl
 
-@[simp]
-theorem cond_eq_ite {α} (b : Bool) (t e : α) : cond b t e = if b then t else e := by
-  cases b <;> simp [Bool.cond_true, Bool.cond_false]
+theorem cond_eq_ite {α} (b : Bool) (t e : α) : cond b t e = ite b t e := by
+  cases b <;> rfl
+
+theorem ite_eq_cond {α : Sort u} (b : Bool) [d : Decidable (b = true)] (t e : α) :
+    @ite α (b = true) d t e = cond b t e := by
+  cases b <;> simp
 
 @[deprecated cond_eq_ite +typeChanged (since := "2025-10-29")]
-theorem cond_eq_if : (bif b then x else y) = (if b then x else y) := cond_eq_ite b x y
+theorem cond_eq_if : (bif b then x else y) = ite b x y := cond_eq_ite b x y
 
 theorem cond_not (b : Bool) (t e : α) : cond (!b) t e = cond b e t := by
   cases b <;> rfl
 
-theorem cond_self (c : Bool) (t : α) : cond c t t = t := by simp
+@[simp] theorem cond_decide_eq_false {α : Sort u} (b : Bool) [d : Decidable (b = false)]
+    (t e : α) : cond (@decide (b = false) d) t e = cond b e t := by
+  cases b <;> simp
+
+@[simp] theorem cond_self (c : Bool) (t : α) : cond c t t = t := by cases c <;> rfl
 
 theorem cond_prop {b : Bool} {p q : Prop} :
-    (bif b then p else q) ↔ if b then p else q := by
-  simp
+    (bif b then p else q) ↔ ite b p q := by
+  rfl
 
 /-
 This is a simp rule in Mathlib, but results in non-confluence that is difficult
@@ -561,16 +568,16 @@ that has not been taken since it could surprise users to migrate pure `Bool`
 operations like `cond` to a mix of `Prop` and `Bool`.
 -/
 theorem cond_decide {α} (p : Prop) [Decidable p] (t e : α) :
-    cond (decide p) t e = if p then t else e := by
-  simp
+    cond (decide p) t e = ite p t e := by
+  rfl
 
 theorem cond_eq_ite_iff {a : Bool} {p : Prop} [h : Decidable p] {x y u v : α} :
     (cond a x y = ite p u v) ↔ ite a x y = ite p u v := by
-  simp
+  rfl
 
 theorem ite_eq_cond_iff {p : Prop} {a : Bool} [h : Decidable p] {x y u v : α} :
     (ite p x y = cond a u v) ↔ ite p x y = ite a u v := by
-  simp
+  rfl
 
 theorem cond_eq_true_distrib : ∀(c t f : Bool),
     (cond c t f = true) = ite (c = true) (t = true) (f = true) := by

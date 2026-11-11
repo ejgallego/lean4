@@ -84,7 +84,7 @@ Try this: simp only [h, Nat.sub_add_cancel]
       x + 2 = x + 2
     ==>
       True
-Try this: simp (config := { contextual := true }) only [Nat.sub_add_cancel, dite_eq_ite]
+Try this: simp (config := { contextual := true }) only [Nat.sub_add_cancel, dite_eq_cond]
 [Meta.Tactic.simp.rewrite] h:1000:
       1 ≤ x
     ==>
@@ -93,11 +93,15 @@ Try this: simp (config := { contextual := true }) only [Nat.sub_add_cancel, dite
       x - 1 + 1
     ==>
       x
-[Meta.Tactic.simp.rewrite] dite_eq_ite:1000:
+[Meta.Tactic.simp.rewrite] dite_eq_cond:1000:
       if h : 1 ≤ x then x else 0
     ==>
       if 1 ≤ x then x else 0
-[Meta.Tactic.simp.rewrite] dite_eq_ite:1000:
+[Meta.Tactic.simp.rewrite] Nat.succ_le_iff:1000:
+      1 ≤ x
+    ==>
+      0 < x
+[Meta.Tactic.simp.rewrite] dite_eq_cond:1000:
       if _h : 1 ≤ x then x else 0
     ==>
       if 1 ≤ x then x else 0

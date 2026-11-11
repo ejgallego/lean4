@@ -1,7 +1,7 @@
 
 /--
 trace: b : Bool
-⊢ if b = true then
+⊢ bif b then
     have unused := ();
     True
   else False
@@ -41,7 +41,7 @@ example (b : Bool) : if b then have unused := (); True else False := by
 
 /--
 trace: b : Bool
-⊢ if b = true then True else False
+⊢ bif b then True else False
 ---
 warning: declaration uses `sorry`
 -/
@@ -52,7 +52,7 @@ example (b : Bool) : if b then have unused := (); True else False := by
 
 /--
 trace: b : Bool
-⊢ if b = true then True else False
+⊢ bif b then True else False
 ---
 warning: declaration uses `sorry`
 -/

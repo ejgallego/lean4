@@ -41,10 +41,10 @@ theorem Inv1.lt_of_get?_eq_some [EquivBEq α] {n m : Nat} (map : HashMap α Nat)
     match hx : x == y with
     | true =>
       simp only [beq_iff_eq] at hx
-      simp only [hx, beq_self_eq_true, ↓reduceIte, Option.some.injEq]
+      simp [hx, Option.some.injEq]
       omega
     | false =>
-      simp only [BEq.symm_false hx, Bool.false_eq_true, ↓reduceIte]
+      simp [BEq.symm_false hx, Bool.false_eq_true]
       intro h
       specialize ih3 h
       omega
@@ -63,23 +63,23 @@ theorem Inv1.property [EquivBEq α] {n m : Nat} (x y : α) (map : HashMap α Nat
     match hx : z == x with
     | false =>
       simp only [beq_eq_false_iff_ne, ne_eq] at hx
-      simp only [beq_iff_eq, hx, ↓reduceIte] at hfound1
+      simp [beq_iff_eq, hx] at hfound1
       match hy : z == y with
       | false =>
         simp only [beq_eq_false_iff_ne, ne_eq] at hy
-        simp only [beq_iff_eq, hy, ↓reduceIte] at hfound2
+        simp [beq_iff_eq, hy] at hfound2
         exact ih3 hfound1 hfound2
       | true =>
-        simp only [hy, ↓reduceIte, Option.some.injEq] at hfound2
+        simp [hy, Option.some.injEq] at hfound2
         have := Inv1.lt_of_get?_eq_some _ _ ih1 hfound1
         omega
     | true =>
-      simp only [hx, ↓reduceIte, Option.some.injEq] at hfound1
+      simp [hx, Option.some.injEq] at hfound1
       rcases hfound1 with ⟨rfl⟩
       match hy : z == y with
       | false =>
         simp only [beq_eq_false_iff_ne, ne_eq] at hy
-        simp only [beq_iff_eq, hy, ↓reduceIte] at hfound2
+        simp [beq_iff_eq, hy] at hfound2
         have := Inv1.lt_of_get?_eq_some _ _ ih1 hfound2
         omega
       | true =>
@@ -120,7 +120,7 @@ theorem Inv2.property (decls : Array (Decl α)) (idx upper : Nat) (map : HashMap
     rw [HashMap.getElem?_insert]
     match heq2 : a' == a with
     | .false =>
-      simp only [Bool.false_eq_true, ↓reduceIte]
+      simp [Bool.false_eq_true]
       cases Nat.eq_or_lt_of_le hidx with
       | inl hidxeq =>
         subst hidxeq

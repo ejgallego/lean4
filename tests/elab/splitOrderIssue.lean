@@ -1,11 +1,11 @@
 example (b : Bool) : (if (if b then true else true) then 1 else 2) = 1 := by
   split
   next h =>
-    guard_target =ₛ (if true = true then 1 else 2) = 1
+    guard_target =ₛ cond true 1 2 = 1
     guard_hyp h : b = true
     simp
   next h =>
-    guard_target =ₛ (if true = true then 1 else 2) = 1
+    guard_target =ₛ cond true 1 2 = 1
     guard_hyp h : ¬b = true
     simp
 
@@ -36,11 +36,11 @@ set_option backward.split false
 example (b : Bool) : (if (if b then true else true) then 1 else 2) = 1 := by
   split
   next h =>
-    guard_target =ₛ (if true = true then 1 else 2) = 1
+    guard_target =ₛ cond true 1 2 = 1
     guard_hyp h : b = true
     simp
   next h =>
-    guard_target =ₛ (if true = true then 1 else 2) = 1
+    guard_target =ₛ cond true 1 2 = 1
     guard_hyp h : ¬b = true
     simp
 

@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Extension
 import Lean.Meta.Tactic.Grind.Util
+import Lean.Meta.Decidable
 import Lean.Meta.Tactic.TryThis
 import Lean.Meta.Sym.Util
 import Lean.Meta.Sym.Eta
@@ -278,6 +279,13 @@ private def normConfig : Grind.Config := {}
 private theorem normConfig_zeta : normConfig.zeta = true := rfl
 private theorem normConfig_zetaDelta : normConfig.zetaDelta = true := rfl
 
+/-- Exposes the predicate in a native decision guard for pattern inference. -/
+private def decisionPatternView (e : Expr) : MetaM Expr :=
+  Meta.transform e (pre := fun e => do
+    unless e matches .proj ``Decidable 0 _ do return .continue
+    let some (p, d) ← getBoolDecision? e | return .continue
+    return .continue (mkApp2 (mkConst ``Decidable.decide) p d))
+
 def preprocessPattern (pat : Expr) (normalizePattern := true) : MetaM Expr := do
   let pat ← instantiateMVars pat
   let pat ← Sym.unfoldReducible pat
@@ -287,7 +295,7 @@ def preprocessPattern (pat : Expr) (normalizePattern := true) : MetaM Expr := do
     pure pat
   let pat ← detectOffsets pat
   let pat ← foldProjs pat
-  return pat
+  decisionPatternView pat
 
 def EMatchTheoremKind.isEqLhs : EMatchTheoremKind → Bool
   | .eqLhs _ => true
@@ -438,7 +446,7 @@ mark them as found either (see `activateTheoremsForConstsIn`).
 def isOpaqueForIndexing (declName : Name) : Bool :=
   declName == ``OfNat.ofNat || declName == ``Grind.nestedProof
     || declName == ``Grind.eqBwdPattern
-    || declName == ``Grind.nestedDecidable || declName == ``ite
+    || declName == ``Grind.nestedDecidable || declName == ``ite || declName == ``cond
 
 namespace NormalizePattern
 
@@ -854,6 +862,10 @@ Pattern variables are represented using de Bruijn indices.
 -/
 def mkEMatchTheoremCore (origin : Origin) (levelParams : Array Name) (numParams : Nat) (proof : Expr)
     (patterns : List Expr) (kind : EMatchTheoremKind) (cnstrs : List EMatchTheoremConstraint := []) (showInfo := false) (minIndexable : Bool := false) : MetaM EMatchTheorem := do
+  let patterns ← forallBoundedTelescope (← inferType proof) numParams fun xs _ =>
+    patterns.mapM fun pattern => do
+      let pattern ← decisionPatternView (pattern.instantiateRev xs)
+      return pattern.abstract xs
   -- the patterns have already been selected, there is no point in using priorities here
   let (patterns, symbols, bvarFound) ← NormalizePattern.main patterns (← getGlobalSymbolPriorities) (minPrio := 1)
   if symbols.isEmpty then

@@ -123,9 +123,9 @@ theorem succ_div_of_dvd {a b : Nat} (h : b ∣ a + 1) :
   | zero => simp at h
   | succ b =>
     by_cases h' : b ≤ a
-    · rw [Nat.div_eq_ite]
-      simp only [zero_lt_succ, Nat.add_le_add_iff_right, h', and_self, ↓reduceIte,
-        Nat.reduceSubDiff, Nat.add_right_cancel_iff]
+    · rw [Nat.div_eq_ite, ite_eq_left (c := 0 < b + 1 ∧ b + 1 ≤ a + 1)
+        ⟨zero_lt_succ _, Nat.succ_le_succ h'⟩]
+      simp only [Nat.reduceSubDiff, Nat.add_right_cancel_iff]
       obtain ⟨_|k, h⟩ := Nat.dvd_of_mod_eq_zero h
       · simp at h
       · simp only [Nat.mul_add, Nat.add_mul, Nat.one_mul, Nat.mul_one, ← Nat.add_assoc,

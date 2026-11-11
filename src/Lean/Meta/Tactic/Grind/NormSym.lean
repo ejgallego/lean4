@@ -24,6 +24,7 @@ public import Lean.Meta.Sym.DSimp
 import Lean.Meta.Sym.Simp.ControlFlow
 import Lean.Meta.Sym.Util
 import Lean.Meta.DiscrTree
+import Init.Grind.Norm
 public section
 namespace Lean.Meta.Grind
 open Sym.Simp (Simproc Discharger)
@@ -44,14 +45,28 @@ They will be deleted once `grind` runs on `Sym.simp`.
 def getNormSymTheorems : CoreM NormSymTheorems :=
   return normSymExt.getState (← getEnv)
 
+private def simpIteToCondSym : Simproc := fun e => do
+  let_expr f@ite α p d a b := e | return .rfl
+  let expr ← Sym.shareCommonWithoutChecks <| mkApp4 (mkConst ``cond f.constLevels!) α (.proj ``Decidable 0 d) a b
+  let proof := mkApp5 (mkConst ``Grind.ite_eq_cond f.constLevels!) α p d a b
+  return .step expr (mkExpectedPropHint proof (← mkEq e expr))
+
+private def simpDecisionEq : Simproc := fun e => do
+  let_expr Eq α c value := e | return .rfl
+  unless α.isConstOf ``Bool &&
+      (value.isConstOf ``Bool.true || value.isConstOf ``Bool.false) do return .rfl
+  let some _ ← Simp.getBoolDecision? c | return .rfl
+  let r ← Simp.normalizeBoolCondition e
+  return .step (← Sym.shareCommon r.expr) (← r.getProof)
+
 /-- `Sym.simp` methods approximating the legacy `grind` normalizer. -/
 def mkNormSymMethods (config : Grind.Config) (thms : NormSymTheorems) : Sym.Simp.Methods := Id.run do
   let d : Discharger := Sym.Simp.dischargeSimpSelf
   let mut pre : Simproc := NormSym.eraseMData >> NormSym.preMatchCond >> NormSym.simpMatchDiscrsOnly
-    >> Sym.Simp.beta >> NormSym.etaReduce >> Sym.Simp.reduceProj >> Sym.Simp.reduceControl >> Sym.Simp.simpExistsPropDomain
+    >> simpIteToCondSym >> Sym.Simp.beta >> NormSym.etaReduce >> Sym.Simp.reduceProj >> Sym.Simp.reduceControl >> Sym.Simp.simpExistsPropDomain
   if config.zeta then pre := pre >> Sym.Simp.zeta
   if config.zetaDelta then pre := pre >> Sym.Simp.zetaDeltaAll
-  pre := pre >> NormSym.pushNot >> Sym.Simp.simpArith d (lhsOnly := true) (distrib := config.distrib) (maxChar? := some config.maxChar) >> thms.pre.rewrite d
+  pre := pre >> simpDecisionEq >> NormSym.pushNot >> Sym.Simp.simpArith d (lhsOnly := true) (distrib := config.distrib) (maxChar? := some config.maxChar) >> thms.pre.rewrite d
   -- `grind` keeps bit-vector literals in `OfNat.ofNat` form.
   let post : Simproc := thms.post.rewrite d >> Sym.Simp.evalGround { bitVecOfNat := false } >> Sym.Simp.simpNatRel
     >> Sym.Simp.simpNatSub (distrib := config.distrib) >> NormSym.simpEq >> NormSym.simpOr
@@ -74,11 +89,11 @@ def normLegacy (e : Expr) : GrindM Simp.Result := do
   let r ← simpCore (← instantiateMVars e)
   return { r with expr := (← eraseIrrelevantMData r.expr) }
 
-/-- Applies the `Sym.simp`-based normalization step (`symNorm`) to `e`. -/
+/-- Applies the `Sym.simp`-based normalization step and erases metadata introduced by rewriting. -/
 def normSym (e : Expr) : GrindM Simp.Result := do
   let thms ← getNormSymTheorems
   let config ← getConfig
   let (r, _, _) ← symNorm e (mkNormSymMethods config thms) (mkNormSymDSimpMethods config thms) {} {}
-  return r
+  return { r with expr := (← eraseIrrelevantMData r.expr) }
 
 end Lean.Meta.Grind

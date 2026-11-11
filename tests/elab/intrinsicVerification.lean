@@ -699,7 +699,7 @@ h✝ : b = true
 case vc2
 b : Bool
 n : Nat
-h✝ : ¬b = true
+h✝ : b = false
 ⊢ Opq (n + 1)
 -/
 #guard_msgs in

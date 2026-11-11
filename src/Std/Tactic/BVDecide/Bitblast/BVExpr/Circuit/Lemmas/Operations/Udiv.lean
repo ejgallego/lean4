@@ -104,7 +104,7 @@ theorem denote_blastDivSubtractShift_q (aig : AIG α) (assign : α → Bool) (lh
       rhs
       rw [apply_ite (f := BitVec.DivModState.q)]
       rw [apply_ite (f := (BitVec.getLsbD · idx))]
-    apply ite_congr
+    apply Bool.cond_congr
     · rw [BVPred.mkUlt_denote_eq (assign := assign) (lhs := rbv.shiftConcat (lhs.getLsbD (wn - 1))) (rhs := rhs)]
       · simp [Std.Tactic.BVDecide.Normalize.BitVec.lt_ult]
       · intro idx hidx
@@ -194,8 +194,12 @@ theorem denote_blastDivSubtractShift_r (aig : AIG α) (assign : α → Bool) (lh
   rw [BVPred.mkUlt_denote_eq (lhs := rbv.shiftConcat (lhs.getLsbD (wn - 1))) (rhs := rhs)]
   · split
     next hdiscr =>
-      rw [← Normalize.BitVec.lt_ult] at hdiscr
-      simp only [Ref.cast_eq, hdiscr, ↓reduceIte]
+      have hdiscr : (rbv.shiftConcat (lhs.getLsbD (wn - 1))).ult rhs = true := by
+        first | exact hdiscr | exact Eq.mp (Normalize.BitVec.lt_ult _ _) hdiscr
+      rw [Bool.cond_eq_left _ hdiscr]
+      try rw [ite_eq_left (Eq.mpr (Normalize.BitVec.lt_ult _ _) hdiscr)]
+      simp only [Ref.cast_eq]
+      try simp only [↓reduceIte]
       rw [AIG.LawfulVecOperator.denote_mem_prefix (f := AIG.RefVec.ite) (h := ?h)]
       case h =>
         apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := BVPred.mkUlt)
@@ -226,8 +230,12 @@ theorem denote_blastDivSubtractShift_r (aig : AIG α) (assign : α → Bool) (lh
         · exact hleft
         · simp
     next hdiscr =>
-      rw [← Normalize.BitVec.lt_ult] at hdiscr
-      simp only [Ref.cast_eq, hdiscr, ↓reduceIte]
+      have hdiscr : ¬(rbv.shiftConcat (lhs.getLsbD (wn - 1))).ult rhs = true := by
+        first | exact hdiscr | exact fun h => hdiscr (Eq.mpr (Normalize.BitVec.lt_ult _ _) h)
+      rw [Bool.cond_eq_right _ hdiscr]
+      try rw [ite_eq_right (fun h => hdiscr (Eq.mp (Normalize.BitVec.lt_ult _ _) h))]
+      simp only [Ref.cast_eq]
+      try simp only [↓reduceIte]
       rw [AIG.LawfulVecOperator.denote_mem_prefix (f := AIG.RefVec.ite) (h := ?h2)]
       case h2 =>
         apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := BVPred.mkUlt)
@@ -453,9 +461,11 @@ theorem denote_blastUdiv (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Bo
   unfold blastUdiv
   simp only [Ref.cast_eq, RefVec.denote_ite,
     RefVec.get_cast]
-  split
-  next hdiscr =>
-    rw [blastUdiv.go_denote_mem_prefix (hstart := Ref.hgate _)] at hdiscr
+  rw [blastUdiv.go_denote_mem_prefix (hstart := Ref.hgate _)]
+  by_cases hdiscr :
+      ⟦(BVPred.mkEq aig ⟨input.rhs, blastConst aig 0#w⟩).aig,
+        (BVPred.mkEq aig ⟨input.rhs, blastConst aig 0#w⟩).ref, assign⟧ = true
+  · rw [Bool.cond_eq_left _ hdiscr]
     rw [BVPred.mkEq_denote_eq (lhs := rhs) (rhs := 0#w)] at hdiscr
     · simp only [beq_iff_eq] at hdiscr
       rw [hdiscr]
@@ -470,8 +480,7 @@ theorem denote_blastUdiv (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Bo
       simp [hright]
     · intro idx hidx
       simp
-  next hdiscr =>
-    rw [blastUdiv.go_denote_mem_prefix (hstart := Ref.hgate _)] at hdiscr
+  · rw [Bool.cond_eq_right _ hdiscr]
     rw [BVPred.mkEq_denote_eq (lhs := rhs) (rhs := 0#w)] at hdiscr
     · have hzero : 0#w < rhs := by
         rw [Normalize.BitVec.zero_lt_iff_zero_neq]

@@ -204,7 +204,9 @@ theorem merge_stable : ∀ (xs ys) (_ : ∀ x y, x ∈ xs → y ∈ ys → x.2 �
       simp only [map_cons, cons.injEq, true_and]
       rw [merge_stable, map_cons]
       exact fun x' y' mx my => h x' y' (mem_cons_of_mem (i, x) mx) my
-    · simp only [↓reduceIte, map_cons, cons.injEq, true_and, reduceCtorEq]
+    · try simp only [reduceCtorEq]
+      repeat' rw [ite_false]
+      simp only [map_cons, cons.injEq, true_and]
       rw [merge_stable, map_cons]
       exact fun x' y' mx my => h x' y' mx (mem_cons_of_mem (j, y) my)
 

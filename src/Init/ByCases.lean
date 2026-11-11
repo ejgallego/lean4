@@ -42,14 +42,19 @@ theorem apply_dite (f : α → β) (P : Prop) [Decidable P] (x : P → α) (y : 
 
 /-- A function applied to a `ite` is a `ite` of that function applied to each of the branches. -/
 theorem apply_ite (f : α → β) (P : Prop) [Decidable P] (x y : α) :
-    f (ite P x y) = ite P (f x) (f y) :=
-  apply_dite f P (fun _ => x) (fun _ => y)
+    f (ite P x y) = ite P (f x) (f y) := by
+  by_cases h : P <;> simp [h]
 
 /-- A `dite` whose results do not actually depend on the condition may be reduced to an `ite`. -/
-@[simp] theorem dite_eq_ite {_ : Decidable P} :
-  (dite P (fun _ => a) (fun _ => b)) = ite P a b := rfl
+theorem dite_eq_ite {d : Decidable P} :
+  (dite P (fun _ => a) (fun _ => b)) = ite P a b := by
+  cases d <;> rfl
 
--- Remark: dite and ite are "defally equal" when we ignore the proofs.
+/-- A `dite` with constant branches is a Boolean conditional on its decision. -/
+@[simp] theorem dite_eq_cond (P : Prop) (α : Sort u) (a b : α) [d : Decidable P] :
+    dite P (fun _ => a) (fun _ => b) = cond d.decide a b := by
+  cases d <;> rfl
+
 @[deprecated dite_eq_ite +typeChanged (since := "2025-10-29")]
 theorem dif_eq_if (c : Prop) {h : Decidable c} {α : Sort u} (t : α) (e : α) : dite c (fun _ => t) (fun _ => e) = ite c t e :=
   match h with

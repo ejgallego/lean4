@@ -202,7 +202,7 @@ theorem add_zsmul (a b : Int) (c : Q α) : zsmul (a + b) c = add (zsmul a c) (zs
 
 theorem zsmul_natCast_eq_nsmul (n : Nat) (a : Q α) : zsmul (n : Int) a = nsmul n a := by
   induction a using Q.ind with | _ a
-  rcases a with ⟨a₁, a₂⟩; simp; omega
+  rcases a with ⟨a₁, a₂⟩; simp <;> omega
 
 @[instance_reducible]
 def ofNatModule : IntModule (Q α) := {

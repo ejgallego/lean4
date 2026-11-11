@@ -266,7 +266,7 @@ info: def fnDo : {α : Type} → Lean.MetaM Bool → (Nat → Lean.MetaM α) →
 fun {α} x y => do
   let __do_lift ← x
   have a : Bool := __do_lift
-  if a = true then
+  bif a then
       have arr : Array α := #[];
       do
       let __s ←

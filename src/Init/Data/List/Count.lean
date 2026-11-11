@@ -227,10 +227,14 @@ theorem countP_mono_left (h : ∀ x ∈ l, p x → q x) : countP p l ≤ countP 
     have ⟨ha, hl⟩ := h
     simp [countP_cons]
     cases h : p a
-    · simp only [Bool.false_eq_true, ↓reduceIte, Nat.add_zero]
+    · simp only [Bool.false_eq_true]
+      try (first | rw [ite_true] | rw [ite_false])
+      try simp only [Nat.add_zero]
       apply Nat.le_trans ?_ (Nat.le_add_right _ _)
       apply ihl hl
-    · simp only [↓reduceIte, ha h, succ_le_succ_iff]
+    · simp only [ha h]
+      try (first | rw [ite_true] | rw [ite_false])
+      simp only [succ_le_succ_iff]
       apply ihl hl
 
 theorem countP_congr (h : ∀ x ∈ l, p x ↔ q x) : countP p l = countP q l :=
@@ -364,7 +368,7 @@ theorem count_eq_length {l : List α} : count a l = l.length ↔ ∀ b ∈ l, a 
   (count_eq_length.2 <| fun _ h => (eq_of_mem_replicate h).symm).trans (length_replicate ..)
 
 @[grind =] theorem count_replicate {a b : α} {n : Nat} : count a (replicate n b) = if b == a then n else 0 := by
-  split <;> (rename_i h; simp only [beq_iff_eq] at h)
+  split <;> (rename_i h; try simp only [beq_iff_eq] at h)
   · exact ‹b = a› ▸ count_replicate_self ..
   · exact count_eq_zero.2 <| mt eq_of_mem_replicate (Ne.symm h)
 
@@ -416,7 +420,10 @@ theorem count_erase {a b : α} :
       rw [ite_eq_left hc_beq, hc, count_cons, Nat.add_sub_cancel]
     else
       have hc_beq := beq_false_of_ne hc
-      simp only [hc_beq, ite_false, count_cons, count_cons, count_erase, reduceCtorEq]
+      simp only [hc_beq]
+      try simp only [reduceCtorEq]
+      try simp only [ite_false]
+      simp only [count_cons, count_erase]
       if ha : b = a then
         rw [ha, eq_comm] at hc
         rw [ite_eq_left (beq_iff_eq.2 ha), ite_eq_right (by simpa using Ne.symm hc), Nat.add_zero, Nat.add_zero]

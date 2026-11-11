@@ -11,7 +11,10 @@ variable (j_lt : j < (a.set! i v).size)
 
 #check_simp (a.set! i v)[i] ~> v
 #check_simp (a.set! i v)[i]! ~> (a.setIfInBounds i v)[i]!
-#check_simp (a.set! i v).getD i d ~> if i < a.size then v else d
+example (z : α) (h : (a.set! i v).getD i d = z) : True := by
+  simp at h
+  guard_hyp h :~ (if i < a.size then v else d) = z
+  trivial
 #check_simp (a.set! i v)[i] ~> v
 
 -- Checks with different index values.

@@ -167,18 +167,28 @@ theorem succMany?_eq {α : Type u} [UpwardEnumerable α] [LE α] [LT α]
       none := by
   by_cases hn : n > 0; rotate_left
   · cases show n = 0 by omega
-    simp [succMany?, BitVec.eq_nil (BitVec.Signed.rotate _), BitVec.eq_nil (.ofInt _ _),
-      BitVec.eq_nil (encode _), BitVec.eq_nil (BitVec.Signed.intMaxSealed _)]
+    by_cases hk : k = 0 <;>
+      simp [succMany?, BitVec.eq_nil (BitVec.Signed.rotate _),
+        BitVec.eq_nil (encode _), BitVec.eq_nil (BitVec.Signed.intMaxSealed _), hk]
   have h : ∀ a b c d : Int, a - b + c ≤ d - b ↔ a + c ≤ d := by omega
   simp [UpwardEnumerable.succMany?, BitVec.ofNatLT_eq_ofNat]
   simp [toInt_eq_ofNat_toNat_rotate_sub hn, rotate_intMaxSealed, h]
   simp only [← Int.natCast_add]
-  congr
-  · rw [Nat.lt_iff_add_one_le, Int.ofNat_le, Nat.le_sub_iff_add_le]
+  have hbound : (rotate (encode x)).toNat + k < 2 ^ n ↔
+      (↑((rotate (encode x)).toNat + k) : Int) ≤ ↑(2 ^ n - 1 : Nat) := by
+    rw [Nat.lt_iff_add_one_le, Int.ofNat_le, Nat.le_sub_iff_add_le]
     exact Nat.pow_pos (Nat.zero_lt_succ _)
-  · generalize rotate (HasModel.encode x) = x
+  by_cases hb : (rotate (encode x)).toNat + k < 2 ^ n
+  · simp only [hb, hbound.mp hb]
+    try rw [decide_true, Bool.cond_true, Option.map_some]
+    try rw [ite_true]
+    generalize rotate (HasModel.encode x) = x
+    try dsimp only [Function.comp_def]
     simp only [ofNat_eq_rotate_ofInt_sub, rotate_rotate]
     congr; omega
+  · have hb' : ¬(↑((rotate (encode x)).toNat + k) : Int) ≤ ↑(2 ^ n - 1 : Nat) :=
+      fun h => hb (hbound.mpr h)
+    simp only [hb, hb'] <;> rfl
 
 theorem toNat_toInt_add_one_sub_toInt {lo hi : BitVec n} (h : n > 0) :
     (hi.toInt + 1 - lo.toInt).toNat = (rotate hi).toNat + 1 - (rotate lo).toNat := by

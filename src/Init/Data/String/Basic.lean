@@ -2891,7 +2891,7 @@ theorem Pos.Raw.utf8PrevAux_lt_of_pos : ∀ (cs : List Char) (i p : Pos.Raw), i 
   | [], _, _, _, h => Nat.sub_one_lt (mt (congrArg Pos.Raw.mk) h)
   | c::cs, i, p, h, h' => by
     simp [utf8PrevAux]
-    apply iteInduction (motive := (Pos.Raw.byteIdx · < _)) <;> intro h''
+    apply iteInduction (c := p ≤ i + c) (motive := (Pos.Raw.byteIdx · < _)) <;> intro h''
     next => exact h
     next => exact utf8PrevAux_lt_of_pos _ _ _ (Nat.lt_of_not_le h'') h'
 

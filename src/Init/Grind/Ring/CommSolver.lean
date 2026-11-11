@@ -346,19 +346,33 @@ theorem Mon.revlex_k_eq_revlexWF (m₁ m₂ : Mon) : m₁.revlex_k m₂ = m₁.r
     change Bool.rec (motive := fun _ => Ordering) _ _ (Nat.beq pw₁.x pw₂.x) = _
     rw [h]; dsimp only; rw [← ih, Ordering.then'_eq_then, powerRevlex_k_eq_powerRevlex]; rfl
   case case5 pw₁ m₁ pw₂ m₂ h₁ h₂ ih =>
+    have h₂ : Nat.blt pw₁.x pw₂.x = true := by simpa only [Nat.blt_eq] using h₂
+    have hbeq : (pw₁.x == pw₂.x) = false := by
+      simpa only [← Bool.not_eq_true, beq_iff_eq] using h₁
     have h₁ : Nat.beq pw₁.x pw₂.x = false := by rw [← Bool.not_eq_true, Nat.beq_eq]; simpa using h₁
     change Bool.rec (motive := fun _ => Ordering) _ _ (Nat.beq pw₁.x pw₂.x) = _
-    rw [h₁]; dsimp only; rw [h₂]; dsimp only; rw [← ih, Ordering.then'_eq_then]; rfl
+    rw [h₁]; dsimp only; rw [h₂]; dsimp only
+    try rw [hbeq]
+    try dsimp only
+    rw [← ih, Ordering.then'_eq_then]; rfl
   case case6 pw₁ m₁ pw₂ m₂ h₁ h₂ ih =>
+    have hbeq : (pw₁.x == pw₂.x) = false := by
+      simpa only [← Bool.not_eq_true, beq_iff_eq] using h₁
     have h₁ : Nat.beq pw₁.x pw₂.x = false := by rw [← Bool.not_eq_true, Nat.beq_eq]; simpa using h₁
-    have h₂ : Nat.blt pw₁.x pw₂.x = false := by simpa using h₂
+    have h₂ : Nat.blt pw₁.x pw₂.x = false := by
+      simpa only [← Bool.not_eq_true, Nat.blt_eq] using h₂
     change Bool.rec (motive := fun _ => Ordering) _ _ (Nat.beq pw₁.x pw₂.x) = _
-    rw [h₁]; dsimp only; rw [h₂]; dsimp only; rw [← ih, Ordering.then'_eq_then]; rfl
+    rw [h₁]; dsimp only; rw [h₂]; dsimp only
+    try rw [hbeq]
+    try dsimp only
+    rw [← ih, Ordering.then'_eq_then]; rfl
 
 theorem Mon.revlexFuel_eq_revlexWF (fuel : Nat) (m₁ m₂ : Mon) : revlexFuel fuel m₁ m₂ = revlexWF m₁ m₂ := by
   fun_induction revlexFuel
   case case1 => rfl
   all_goals simp_all [revlexWF]
+  all_goals try simp only [Bool.cond_eq_ite] at *
+  all_goals simp_all
 
 @[simp] theorem Mon.revlex_k_eq_revlex (m₁ m₂ : Mon) : m₁.revlex_k m₂ = m₁.revlex m₂ := by
   rw [revlex_k_eq_revlexWF, revlex, revlexFuel_eq_revlexWF]
@@ -1150,7 +1164,12 @@ noncomputable def Poly.combineC_k (p₁ : Poly) (c : Nat) : Poly → Poly :=
     rw [Int.beqZero_k_eq, Int.emod_k_eq, Int.add_k_eq]
     simp only [k] at h'
     have h'' : ((Int.add k₁ k₂) % (Int.ofNat c) == 0) = false := by simpa using h'
-    rw [h'']; exact congrArg _ ih
+    have hk : (k == 0) = false := by
+      simpa only [k, ← Bool.not_eq_true, beq_iff_eq] using h'
+    rw [h'']
+    try rw [hk]
+    dsimp only
+    exact congrArg _ ih
   case case6 k₁ m₁ p₁ k₂ m₂ p₂ h ih =>
     change Ordering.rec (motive := fun _ => Poly) _ _ _ (m₁.grevlex_k m₂) = _
     rw [Mon.grevlex_k_eq_grevlex, h]; exact congrArg _ ih
@@ -1597,7 +1616,11 @@ theorem Mon.denote_mul_nc {α} [Semiring α] (ctx : Context α) (m₁ m₂ : Mon
 
 theorem eq_of_powerRevlex {k₁ k₂ : Nat} : powerRevlex k₁ k₂ = .eq → k₁ = k₂ := by
   simp [powerRevlex, cond_eq_ite] <;> split <;> simp
-  next h₁ => intro h₂; exact Nat.le_antisymm h₂ (Nat.ge_of_not_lt h₁)
+  next h₁ =>
+    intro h₂
+    have h₂ : k₁ ≤ k₂ := by
+      first | exact h₂ | exact Nat.ge_of_not_lt (of_decide_eq_false h₂)
+    exact Nat.le_antisymm h₂ (Nat.ge_of_not_lt h₁)
 
 theorem Mon.eq_of_revlexWF {m₁ m₂ : Mon} : m₁.revlexWF m₂ = .eq → m₁ = m₂ := by
   fun_induction revlexWF <;> simp [*]
@@ -1623,7 +1646,11 @@ theorem Mon.eq_of_grevlex {m₁ m₂ : Mon} : grevlex m₁ m₂ = .eq → m₁ =
   simp [grevlex]; intro; apply eq_of_revlex
 
 theorem Poly.denoteTerm_eq  {α} [Ring α] (ctx : Context α) (k : Int) (m : Mon) : denoteTerm ctx k m = k * m.denote ctx := by
-  simp [denoteTerm, Mon.denote'_eq_denote, cond_eq_ite, zsmul_eq_intCast_mul]; intro; subst k; rw [Ring.intCast_one, Semiring.one_mul]
+  simp [denoteTerm, Mon.denote'_eq_denote, cond_eq_ite, zsmul_eq_intCast_mul]
+  intro h
+  have hk : k = 1 := by first | exact h | exact of_decide_eq_true h
+  subst k
+  rw [Ring.intCast_one, Semiring.one_mul]
 
 theorem Poly.denote'_eq_denote {α} [Ring α] (ctx : Context α) (p : Poly) : p.denote' ctx = p.denote ctx := by
   cases p <;> simp [denote', denote, denoteTerm_eq, zsmul_eq_intCast_mul]
@@ -1655,13 +1682,14 @@ theorem Poly.denote_insert {α} [Ring α] (ctx : Context α) (k : Int) (m : Mon)
   next =>
     split
     next h =>
-      simp at h <;> simp [*, Mon.denote, denote_addConst, mul_one, add_comm]
+      have hm : m = .unit := by first | exact h | simpa using h
+      simp [hm, Mon.denote, denote_addConst, mul_one, add_comm]
     next =>
       fun_induction insert.go <;> simp_all +zetaDelta [denote, zsmul_eq_intCast_mul]
-      next h₁ h₂ =>
-        rw [← add_assoc, Mon.eq_of_grevlex h₁, ← right_distrib, ← intCast_add, h₂, intCast_zero, zero_mul, zero_add]
-      next h₁ _ =>
-        rw [intCast_add, right_distrib, add_assoc, Mon.eq_of_grevlex h₁]
+      next h₂ =>
+        rw [← add_assoc, Mon.eq_of_grevlex (m₁ := m) (by assumption), ← right_distrib, ← intCast_add, h₂, intCast_zero, zero_mul, zero_add]
+      next =>
+        rw [intCast_add, right_distrib, add_assoc, Mon.eq_of_grevlex (m₁ := m) (by assumption)]
       next =>
         rw [add_left_comm]
 
@@ -1688,7 +1716,8 @@ theorem Poly.denote_mulMon {α} [CommRing α] (ctx : Context α) (k : Int) (m : 
   next =>
     split
     next h =>
-      simp at h; simp [*, Mon.denote, mul_one, denote_mulConst]
+      have hm : m = .unit := by first | exact h | simpa using h
+      simp [hm, Mon.denote, mul_one, denote_mulConst]
     next =>
       fun_induction mulMon.go <;> simp [denote, zsmul_eq_intCast_mul, *]
       next h => simp +zetaDelta at h; simp [*, intCast_zero, mul_zero]
@@ -1712,7 +1741,8 @@ theorem Poly.denote_mulMon_nc {α} [Ring α] (ctx : Context α) (k : Int) (m : M
   next =>
     split
     next h =>
-      simp at h; simp [*, Mon.denote, mul_one, denote_mulConst]
+      have hm : m = .unit := by first | exact h | simpa using h
+      simp [hm, Mon.denote, mul_one, denote_mulConst]
     next =>
       rw [denote_mulMon_nc_go]; simp [denote, Ring.intCast_zero, add_zero]
 
@@ -1850,8 +1880,7 @@ noncomputable def Mon.cancelVar_k (m : Mon) (x : Var) : Mon :=
   | mult pw m ih =>
     change Bool.rec (motive := fun _ => Nat) (Mon.degreeOf_k m x) pw.k (Nat.beq pw.x x) = _
     rw [ih]
-    simp only [Mon.degreeOf, Bool.rec_eq, cond_eq_ite]
-    rfl
+    simp only [Mon.degreeOf, Bool.rec_eq, cond_eq_ite] <;> rfl
 
 @[simp] theorem Mon.cancelVar_k_eq_cancelVar (m : Mon) (x : Var) : Mon.cancelVar_k m x = m.cancelVar x := by
   induction m with
@@ -1859,8 +1888,7 @@ noncomputable def Mon.cancelVar_k (m : Mon) (x : Var) : Mon :=
   | mult pw m ih =>
     change Bool.rec (motive := fun _ => Mon) (.mult pw (Mon.cancelVar_k m x)) m (Nat.beq pw.x x) = _
     rw [ih]
-    simp only [Mon.cancelVar, Bool.rec_eq, cond_eq_ite]
-    rfl
+    simp only [Mon.cancelVar, Bool.rec_eq, cond_eq_ite] <;> rfl
 
 noncomputable def Poly.cancelVar_k (c : Int) (x : Var) (p : Poly) : Poly :=
   Poly.rec (motive := fun _ => Poly → Poly) (fun k acc => acc.addConst_k k)
@@ -1962,7 +1990,8 @@ theorem Poly.denote_mulMonC {α c} [CommRing α] [IsCharP α c] (ctx : Context �
   next =>
     split
     next h =>
-      simp at h; simp [*, Mon.denote, mul_one, denote_mulConstC, IsCharP.intCast_emod]
+      have hm : m = .unit := by first | exact h | simpa using h
+      simp [hm, Mon.denote, mul_one, denote_mulConstC, IsCharP.intCast_emod]
     next =>
       fun_induction mulMonC.go <;> simp [denote]
       next h =>
@@ -2000,7 +2029,9 @@ theorem Poly.denote_mulMonC_nc {α c} [Ring α] [IsCharP α c] (ctx : Context α
     simp [denote, *, intCast_zero, zero_mul]
   next =>
     split
-    next h => simp at h; simp [*, Mon.denote, mul_one, denote_mulConstC, IsCharP.intCast_emod]
+    next h =>
+      have hm : m = .unit := by first | exact h | simpa using h
+      simp [hm, Mon.denote, mul_one, denote_mulConstC, IsCharP.intCast_emod]
     next => rw [Poly.denote_mulMonC_nc_go, denote, Ring.intCast_zero, add_zero]
 
 theorem Poly.denote_combineC {α c} [Ring α] [IsCharP α c] (ctx : Context α) (p₁ p₂ : Poly)
@@ -2185,7 +2216,12 @@ theorem Poly.toExpr_k_go_eq (p : Poly) (acc : Expr) : Poly.toExpr_k.go p acc = P
 
 theorem Power.denote_toExpr {α} [Ring α] (ctx : Context α) (pw : Power) : pw.toExpr.denote ctx = pw.denote ctx := by
   unfold toExpr; split
-  · next h => simp at h; cases pw; simp at h; subst h; rfl
+  · next h =>
+    cases pw with
+    | mk x k =>
+      have hk : k = 1 := by simpa using h
+      subst k
+      rfl
   · next h => cases pw with
     | mk x k => show (x.denote ctx) ^ k = _; simp [Power.denote_eq]
 
@@ -2206,7 +2242,10 @@ theorem Mon.denote_toExpr {α} [Ring α] (ctx : Context α) (m : Mon) : m.toExpr
 theorem Poly.denote_toExpr_goTerm {α} [Ring α] (ctx : Context α) (k : Int) (m : Mon) :
     (Poly.toExpr.goTerm k m).denote ctx = k • m.denote ctx := by
   unfold toExpr.goTerm; split
-  · next h => simp at h; subst h; rw [Mon.denote_toExpr, zsmul_eq_intCast_mul, Ring.intCast_one, Semiring.one_mul]
+  · next h =>
+    have hk : k = 1 := by simpa using h
+    subst k
+    rw [Mon.denote_toExpr, zsmul_eq_intCast_mul, Ring.intCast_one, Semiring.one_mul]
   · show denoteInt k * m.toExpr.denote ctx = _
     rw [Mon.denote_toExpr, denoteInt_eq, zsmul_eq_intCast_mul]
 

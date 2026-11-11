@@ -1233,7 +1233,7 @@ theorem ceil_eq_neg_floor_neg (a : Rat) : a.ceil = -((-a).floor) := by
   simp only [neg_den, neg_num]
   split
   · simp
-  · rw [Int.neg_ediv, ite_eq_right, Int.sign_eq_one_of_pos, Int.neg_sub, Int.sub_neg, Int.add_comm]
+  · rw [Int.neg_ediv, ite_eq_right (c := (a.den : Int) ∣ a.num), Int.sign_eq_one_of_pos, Int.neg_sub, Int.sub_neg, Int.add_comm]
     · have := a.den_nz; omega
     · intro h
       rw [Int.ofNat_dvd_left] at h

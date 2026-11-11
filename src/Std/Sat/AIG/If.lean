@@ -86,19 +86,23 @@ instance : LawfulOperator α TernaryInput mkIfCached where
       apply LawfulOperator.lt_size_of_lt_aig_size (f := mkAndCached)
       omega
 
-theorem ite_as_bool (d l r : Bool) : (if d then l else r) = ((d && l) || (!d && r))  := by
+theorem cond_as_bool (d l r : Bool) : (bif d then l else r) = ((d && l) || (!d && r)) := by
+  revert d l r
+  decide
+
+theorem ite_as_bool (d l r : Bool) : ite (d = true) l r = ((d && l) || (!d && r))  := by
   revert d l r
   decide
 
 @[deprecated Std.Sat.AIG.ite_as_bool (since := "2026-07-21")]
-theorem if_as_bool (d : Bool) (l : Bool) (r : Bool) : (if d = Bool.true then l else r) = (d && l || !d && r) := Std.Sat.AIG.ite_as_bool d l r
+theorem if_as_bool (d : Bool) (l : Bool) (r : Bool) : ite (d = Bool.true) l r = (d && l || !d && r) := Std.Sat.AIG.ite_as_bool d l r
 
 @[simp]
 theorem denote_mkIfCached {aig : AIG α} {input : TernaryInput aig} :
     ⟦aig.mkIfCached input, assign⟧
       =
-    if ⟦aig, input.discr, assign⟧ then ⟦aig, input.lhs, assign⟧ else ⟦aig, input.rhs, assign⟧ := by
-  rw [ite_as_bool]
+    bif ⟦aig, input.discr, assign⟧ then ⟦aig, input.lhs, assign⟧ else ⟦aig, input.rhs, assign⟧ := by
+  rw [cond_as_bool]
   simp only [mkIfCached]
   simp only [TernaryInput.cast, Ref.cast_eq, Ref.cast, denote_mkOrCached, denote_projected_entry,
     denote_mkAndCached, denote_mkNotCached]
@@ -250,7 +254,7 @@ theorem denote_go {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (di
         assign
       ⟧
         =
-      if ⟦aig, discr, assign⟧ then
+      bif ⟦aig, discr, assign⟧ then
         ⟦aig, lhs.get idx hidx1, assign⟧
       else
         ⟦aig, rhs.get idx hidx1, assign⟧ := by
@@ -290,7 +294,7 @@ theorem denote_ite {aig : AIG α} {input : IfInput aig w} :
   ∀ (idx : Nat) (hidx : idx < w),
     ⟦(ite aig input).aig, (ite aig input).vec.get idx hidx, assign⟧
       =
-    if ⟦aig, input.discr, assign⟧ then
+    bif ⟦aig, input.discr, assign⟧ then
       ⟦aig, input.lhs.get idx hidx, assign⟧
     else
       ⟦aig, input.rhs.get idx hidx, assign⟧ := by

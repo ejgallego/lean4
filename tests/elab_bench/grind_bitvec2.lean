@@ -1766,7 +1766,7 @@ theorem toNat_sshiftRight' {x y : BitVec w} :
         2 ^ w - 1 - (2 ^ w - 1 - x.toNat) >>> y.toNat
       else
         x.toNat >>> y.toNat := by
-  rw [sshiftRight_eq', toNat_sshiftRight]
+  rw [sshiftRight_eq', toNat_sshiftRight] <;> cases x.msb <;> rfl
 
 theorem toFin_sshiftRight'_of_msb_true {x y : BitVec w} (h : x.msb = true) :
     (x.sshiftRight' y).toFin = Fin.ofNat (2^w) (2 ^ w - 1 - (2 ^ w - 1 - x.toNat) >>> y.toNat) := by
@@ -1953,7 +1953,7 @@ theorem toFin_signExtend (x : BitVec w) :
     rw [toNat_signExtend_of_le _ (by omega)]
     have : 2 ^ w < 2 ^ v := by apply Nat.pow_lt_pow_of_lt <;> omega
     rw [Nat.mod_eq_of_lt]
-    grind
+    all_goals grind
 
 theorem signExtend_and {x y : BitVec w} :
     (x &&& y).signExtend v = (x.signExtend v) &&& (y.signExtend v) := by

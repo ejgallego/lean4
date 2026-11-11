@@ -234,7 +234,7 @@ info: fun a =>
   let x : Nat := 1 * x;
   let b' : Bool := !b';
   let x : Nat := 1 * x;
-  if b' = true then x else 0 : Nat → Nat
+  bif b' then x else 0 : Nat → Nat
 -/
 #guard_msgs in #check fun a => deepLets% 5 true (0 + a)
 /--
@@ -249,7 +249,7 @@ info: fun a =>
   have x : Nat := 1 * x;
   have b' : Bool := !b';
   have x : Nat := 1 * x;
-  if b' = true then x else 0
+  bif b' then x else 0
 -/
 #guard_msgs in #let_to_have fun a => deepLets% 5 true (0 + a)
 

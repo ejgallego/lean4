@@ -29,11 +29,13 @@ theorem ex2 (p : Nat → Bool) (x : Nat) (h : p x = true) : (if p x then 1 else 
   simp [h]
 
 /--
-info: theorem ex2 : ∀ (p : Nat → Bool) (x : Nat), p x = true → (if p x = true then 1 else 2) = 1 :=
+info: theorem ex2 : ∀ (p : Nat → Bool) (x : Nat), p x = true → (bif p x then 1 else 2) = 1 :=
 fun p x h =>
   of_eq_true
     (Eq.trans
-      (congrFun' (congrArg Eq (ite_eq_left_of_eq_true 1 2 (Eq.trans (congrFun' (congrArg Eq h) true) (eq_self true))))
+      (congrFun'
+        (congrArg Eq
+          (Bool.cond_eq_left (p x) (Eq.mpr (Eq.trans (congrFun' (congrArg Eq h) true) (eq_self true)) True.intro) 1 2))
         1)
       (eq_self 1))
 -/

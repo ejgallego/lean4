@@ -630,6 +630,16 @@ end fun_order
 section monotone_lemmas
 
 @[partial_fixpoint_monotone]
+theorem monotone_cond
+    {α : Sort u} {β : Sort v} [PartialOrder α] [PartialOrder β]
+    (c : Bool) (k₁ k₂ : α → β)
+    (hmono₁ : monotone k₁) (hmono₂ : monotone k₂) :
+    monotone fun x => cond c (k₁ x) (k₂ x) := by
+  cases c
+  · exact hmono₂
+  · exact hmono₁
+
+@[partial_fixpoint_monotone]
 theorem monotone_ite
     {α : Sort u} {β : Sort v} [PartialOrder α] [PartialOrder β]
     (c : Prop) [Decidable c]

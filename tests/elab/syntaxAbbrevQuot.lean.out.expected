@@ -9,9 +9,9 @@ do
             (Lean.Syntax.node1 info `token.a (Lean.Syntax.atom info "a")) } : ?m (Lean.TSyntax `foo)
 fun x =>
   have __discr := x;
-  if __discr.isOfKind `foo = true then
+  bif __discr.isOfKind `foo then
     have __discr_1 := __discr.getArg 0;
-    if __discr_1.isOfKind `token.a = true then
+    bif __discr_1.isOfKind `token.a then
       have __discr := __discr_1.getArg 0;
       true
     else
