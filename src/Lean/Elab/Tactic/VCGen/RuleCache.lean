@@ -31,11 +31,14 @@ Cached version of spec rule construction.
 Both `Triple`/`⊑ wp` and equality entries go through `tryMkBackwardRuleFromSpec`, which normalizes
 an equality spec to `⊑ wp` form using the supplied `wp` metadata before building the rule.
 
-Cache key: `(proof key, instWP, excessArgs.size)`.
+Cache key: `(proof key, instWP, excessArgs.size, projectionProg?)`.
 -/
 public def mkBackwardRuleFromSpecCached (specThm : SpecTheorem) (info : WPApp) :
     OptionT VCGenM BackwardRule := do
-  let key := (specThm.proof.key, ExprPtr.mk info.instWP, info.excessArgs.size)
+  let projectionProg? ← if ← liftMetaM <| isProjectionEquationSpec specThm then
+    pure (some (ExprPtr.mk info.prog))
+  else pure none
+  let key := (specThm.proof.key, ExprPtr.mk info.instWP, info.excessArgs.size, projectionProg?)
   let s := (← get).specBackwardRuleCache
   if let some rule := s[key]? then return rule
   let some rule ← withNewMCtxDepth <| tryMkBackwardRuleFromSpec specThm info |>.run
