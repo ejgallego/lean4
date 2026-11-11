@@ -10,6 +10,7 @@ import Lean.Meta.Sym.IsClass
 import Lean.Meta.Sym.Util
 import Lean.Meta.Sym.Eta
 import Lean.Meta.LetToHave
+import Lean.Meta.AppBuilder
 namespace Lean.Meta.Sym
 
 /--
@@ -50,7 +51,11 @@ public def preprocessType (type : Expr) (zetaReduceLHSOnly := false) (zetaDelta 
       | _ => zetaReduce type (zetaDelta := zetaDelta)
   else
     zetaReduceExceptDomainHaves type num? zetaDelta
-  etaReduceAll type
+  let type ← etaReduceAll type
+  if zetaReduceLHSOnly then
+    pure type
+  else
+    Sym.foldProjs type
 
 /--
 Analyzes whether the given free variables (aka arguments) are proofs or instances.
