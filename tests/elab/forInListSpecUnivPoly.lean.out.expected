@@ -5,7 +5,7 @@
               forIn' (List.range (n✝ - i - 1)) __s fun j hj __s =>
                   have a := __s;
                   have this := ⋯;
-                  if a[j] > a[j + 1] then pure (ForInStep.yield (a.swap j (j + 1) ⋯ ⋯)) else pure (ForInStep.yield a)
+                  if a[j + 1] < a[j] then pure (ForInStep.yield (a.swap j (j + 1) ⋯ ⋯)) else pure (ForInStep.yield a)
             pure (ForInStep.yield __s)
       pure __s.toArray: [SpecProof.global Std.Do.Spec.bind]
 [Elab.Tactic.Do.spec] SpecProof.global Std.Do.Spec.bind instantiates to ⦃wp⟦?x⟧ (fun a => wp⟦?f a⟧ ?Q, Prod.snd ?Q)⦄
@@ -17,7 +17,7 @@
               forIn' (List.range (n✝ - i - 1)) __s fun j hj __s =>
                   have a := __s;
                   have this := ⋯;
-                  if a[j] > a[j + 1] then pure (ForInStep.yield (a.swap j (j + 1) ⋯ ⋯)) else pure (ForInStep.yield a)
+                  if a[j + 1] < a[j] then pure (ForInStep.yield (a.swap j (j + 1) ⋯ ⋯)) else pure (ForInStep.yield a)
             pure (ForInStep.yield __s)
       pure __s.toArray: [SpecProof.global Std.Do.Spec.bind]
 [Elab.Tactic.Do.spec] dischargeMGoal: wp⟦forIn (List.range (n✝ - 1)) a✝ fun i __s => do
@@ -25,7 +25,7 @@
             forIn' (List.range (n✝ - i - 1)) __s fun j hj __s =>
                 have a := __s;
                 have this := ⋯;
-                if a[j] > a[j + 1] then pure (ForInStep.yield (a.swap j (j + 1) ⋯ ⋯)) else pure (ForInStep.yield a)
+                if a[j + 1] < a[j] then pure (ForInStep.yield (a.swap j (j + 1) ⋯ ⋯)) else pure (ForInStep.yield a)
           pure (ForInStep.yield __s)⟧
       (fun a => wp⟦pure a.toArray⟧ (PostCond.noThrow fun a => { down := A.toList.Perm a.toList }),
         (PostCond.noThrow fun a => { down := A.toList.Perm a.toList }).snd)
@@ -34,7 +34,7 @@
             forIn' (List.range (n✝ - i - 1)) __s fun j hj __s =>
                 have a := __s;
                 have this := ⋯;
-                if a[j] > a[j + 1] then pure (ForInStep.yield (a.swap j (j + 1) ⋯ ⋯)) else pure (ForInStep.yield a)
+                if a[j + 1] < a[j] then pure (ForInStep.yield (a.swap j (j + 1) ⋯ ⋯)) else pure (ForInStep.yield a)
           pure (ForInStep.yield __s)⟧
       (fun a => wp⟦pure a.toArray⟧ (PostCond.noThrow fun a => { down := A.toList.Perm a.toList }),
         (PostCond.noThrow fun a => { down := A.toList.Perm a.toList }).snd)
@@ -43,7 +43,7 @@
               forIn' (List.range (n✝ - i - 1)) __s fun j hj __s =>
                   have a := __s;
                   have this := ⋯;
-                  if a[j] > a[j + 1] then pure (ForInStep.yield (a.swap j (j + 1) ⋯ ⋯)) else pure (ForInStep.yield a)
+                  if a[j + 1] < a[j] then pure (ForInStep.yield (a.swap j (j + 1) ⋯ ⋯)) else pure (ForInStep.yield a)
             pure (ForInStep.yield __s)⟧
         (fun a => wp⟦pure a.toArray⟧ (PostCond.noThrow fun a => { down := A.toList.Perm a.toList }),
           (PostCond.noThrow fun a => { down := A.toList.Perm a.toList }).snd)).down
@@ -52,7 +52,7 @@
               forIn' (List.range (n✝ - i - 1)) __s fun j hj __s =>
                   have a := __s;
                   have this := ⋯;
-                  if a[j] > a[j + 1] then pure (ForInStep.yield (a.swap j (j + 1) ⋯ ⋯)) else pure (ForInStep.yield a)
+                  if a[j + 1] < a[j] then pure (ForInStep.yield (a.swap j (j + 1) ⋯ ⋯)) else pure (ForInStep.yield a)
             pure (ForInStep.yield __s)⟧
         (fun a => wp⟦pure a.toArray⟧ (PostCond.noThrow fun a => { down := A.toList.Perm a.toList }),
           (PostCond.noThrow fun a => { down := A.toList.Perm a.toList }).snd)).down
@@ -61,7 +61,7 @@
         forIn' (List.range (n✝ - i - 1)) __s fun j hj __s =>
             have a := __s;
             have this := ⋯;
-            if a[j] > a[j + 1] then pure (ForInStep.yield (a.swap j (j + 1) ⋯ ⋯)) else pure (ForInStep.yield a)
+            if a[j + 1] < a[j] then pure (ForInStep.yield (a.swap j (j + 1) ⋯ ⋯)) else pure (ForInStep.yield a)
       pure (ForInStep.yield __s): [SpecProof.global Std.Do.Spec.forIn_list]
 [Elab.Tactic.Do.spec] SpecProof.global Std.Do.Spec.forIn_list instantiates to ⦃Prod.fst ?inv
         ({ «prefix» := [], suffix := ?xs, property := ⋯ }, ?init)⦄
@@ -71,7 +71,7 @@
         forIn' (List.range (n✝ - i - 1)) __s fun j hj __s =>
             have a := __s;
             have this := ⋯;
-            if a[j] > a[j + 1] then pure (ForInStep.yield (a.swap j (j + 1) ⋯ ⋯)) else pure (ForInStep.yield a)
+            if a[j + 1] < a[j] then pure (ForInStep.yield (a.swap j (j + 1) ⋯ ⋯)) else pure (ForInStep.yield a)
       pure (ForInStep.yield __s): [SpecProof.global Std.Do.Spec.forIn_list]
 [Elab.Tactic.Do.spec] dischargeMGoal: Prod.fst ?inv
       ({ «prefix» := [], suffix := List.range (n✝ - 1), property := ⋯ }, a✝)
@@ -86,7 +86,7 @@
         forIn' (List.range (n✝ - cur - 1)) b fun j hj __s =>
             have a := __s;
             have this := ⋯;
-            if a[j] > a[j + 1] then pure (ForInStep.yield (a.swap j (j + 1) ⋯ ⋯)) else pure (ForInStep.yield a)
+            if a[j + 1] < a[j] then pure (ForInStep.yield (a.swap j (j + 1) ⋯ ⋯)) else pure (ForInStep.yield a)
       pure (ForInStep.yield __s): [SpecProof.global Std.Do.Spec.bind]
 [Elab.Tactic.Do.spec] SpecProof.global Std.Do.Spec.bind instantiates to ⦃wp⟦?x⟧ (fun a => wp⟦?f a⟧ ?Q, Prod.snd ?Q)⦄
       (?x >>= ?f) ⦃?Q⦄
@@ -95,12 +95,12 @@
         forIn' (List.range (n✝ - cur - 1)) b fun j hj __s =>
             have a := __s;
             have this := ⋯;
-            if a[j] > a[j + 1] then pure (ForInStep.yield (a.swap j (j + 1) ⋯ ⋯)) else pure (ForInStep.yield a)
+            if a[j + 1] < a[j] then pure (ForInStep.yield (a.swap j (j + 1) ⋯ ⋯)) else pure (ForInStep.yield a)
       pure (ForInStep.yield __s): [SpecProof.global Std.Do.Spec.bind]
 [Elab.Tactic.Do.spec] dischargeMGoal: wp⟦forIn' (List.range (n✝ - cur - 1)) b fun j hj __s =>
           have a := __s;
           have this := ⋯;
-          if a[j] > a[j + 1] then pure (ForInStep.yield (a.swap j (j + 1) ⋯ ⋯)) else pure (ForInStep.yield a)⟧
+          if a[j + 1] < a[j] then pure (ForInStep.yield (a.swap j (j + 1) ⋯ ⋯)) else pure (ForInStep.yield a)⟧
       (fun a =>
         wp⟦pure (ForInStep.yield a)⟧
           (fun r =>
@@ -116,7 +116,7 @@
 [Elab.Tactic.Do.spec] pureRflAndAndIntro: wp⟦forIn' (List.range (n✝ - cur - 1)) b fun j hj __s =>
           have a := __s;
           have this := ⋯;
-          if a[j] > a[j + 1] then pure (ForInStep.yield (a.swap j (j + 1) ⋯ ⋯)) else pure (ForInStep.yield a)⟧
+          if a[j + 1] < a[j] then pure (ForInStep.yield (a.swap j (j + 1) ⋯ ⋯)) else pure (ForInStep.yield a)⟧
       (fun a =>
         wp⟦pure (ForInStep.yield a)⟧
           (fun r =>
@@ -132,7 +132,7 @@
 [Elab.Tactic.Do.spec] discharge? (wp⟦forIn' (List.range (n✝ - cur - 1)) b fun j hj __s =>
             have a := __s;
             have this := ⋯;
-            if a[j] > a[j + 1] then pure (ForInStep.yield (a.swap j (j + 1) ⋯ ⋯)) else pure (ForInStep.yield a)⟧
+            if a[j + 1] < a[j] then pure (ForInStep.yield (a.swap j (j + 1) ⋯ ⋯)) else pure (ForInStep.yield a)⟧
         (fun a =>
           wp⟦pure (ForInStep.yield a)⟧
             (fun r =>
@@ -150,7 +150,7 @@
 [Elab.Tactic.Do.spec] pure Prop: (wp⟦forIn' (List.range (n✝ - cur - 1)) b fun j hj __s =>
             have a := __s;
             have this := ⋯;
-            if a[j] > a[j + 1] then pure (ForInStep.yield (a.swap j (j + 1) ⋯ ⋯)) else pure (ForInStep.yield a)⟧
+            if a[j + 1] < a[j] then pure (ForInStep.yield (a.swap j (j + 1) ⋯ ⋯)) else pure (ForInStep.yield a)⟧
         (fun a =>
           wp⟦pure (ForInStep.yield a)⟧
             (fun r =>
@@ -168,7 +168,7 @@
 [Elab.Tactic.Do.spec] Candidates for forIn' (List.range (n✝ - cur - 1)) b fun j hj __s =>
       have a := __s;
       have this := ⋯;
-      if a[j] > a[j + 1] then pure (ForInStep.yield (a.swap j (j + 1) ⋯ ⋯))
+      if a[j + 1] < a[j] then pure (ForInStep.yield (a.swap j (j + 1) ⋯ ⋯))
       else pure (ForInStep.yield a): [SpecProof.global Std.Do.Spec.forIn'_list]
 [Elab.Tactic.Do.spec] SpecProof.global Std.Do.Spec.forIn'_list instantiates to ⦃Prod.fst ?inv
         ({ «prefix» := [], suffix := ?xs, property := ⋯ }, ?init)⦄
@@ -177,7 +177,7 @@
 [Elab.Tactic.Do.spec] Specs for forIn' (List.range (n✝ - cur - 1)) b fun j hj __s =>
       have a := __s;
       have this := ⋯;
-      if a[j] > a[j + 1] then pure (ForInStep.yield (a.swap j (j + 1) ⋯ ⋯))
+      if a[j + 1] < a[j] then pure (ForInStep.yield (a.swap j (j + 1) ⋯ ⋯))
       else pure (ForInStep.yield a): [SpecProof.global Std.Do.Spec.forIn'_list]
 [Elab.Tactic.Do.spec] dischargeMGoal: Prod.fst ?inv
       ({ «prefix» := [], suffix := List.range (n✝ - cur - 1), property := ⋯ }, b)

@@ -33,7 +33,7 @@ public inductive PubInd where
 deriving DecidableEq
 
 /--
-info: (instDecidableEqPubInd.decEq PubInd.b PubInd.b).1
+info: decide (PubInd.b = PubInd.b)
 -/
 #guard_msgs in
 #with_exporting

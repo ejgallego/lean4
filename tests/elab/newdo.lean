@@ -194,9 +194,9 @@ trace: [Elab.do] let x := 42;
     let __s ←
       forIn [1, 2, 3] (none, x) fun i __s =>
           let x := __s.snd;
-          if x = 3 then pure (ForInStep.done (some x, x))
+          if __s.snd = 3 then pure (ForInStep.done (some x, x))
           else
-            if x > 10 then
+            if __s.snd > 10 then
               let x := x + 3;
               pure (ForInStep.yield (none, x))
             else
@@ -206,8 +206,8 @@ trace: [Elab.do] let x := 42;
               else
                 let x := x + i;
                 pure (ForInStep.yield (none, x))
-    let __r : Option ?m.166 := __s.fst
-    let x : ?m.166 := __s.snd
+    let __r : Option ?m.163 := __s.fst
+    let x : ?m.163 := __s.snd
     match __r with
       | some r => pure r
       | none =>
@@ -244,18 +244,18 @@ info: (let w := 23;
         let __s_1 := __s.snd;
         let y := __s_1.fst;
         let z := __s_1.snd;
-        if x < 20 then
+        if __s.fst < 20 then
           let y := y - 2;
           pure (ForInStep.done (x, y, z))
         else
           have __do_jp := fun __r z =>
-            if x > 10 then
+            if 10 < __s.fst then
               let x := x + 3;
               pure (ForInStep.yield (x, y, z))
             else
               let x := x + i;
               pure (ForInStep.yield (x, y, z));
-          if x = 3 then
+          if __s.fst = 3 then
             let z := z + i;
             __do_jp PUnit.unit z
           else __do_jp PUnit.unit z

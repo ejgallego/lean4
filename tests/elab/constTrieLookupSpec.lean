@@ -1935,7 +1935,6 @@ theorem findEntry?_mergeModuleTreesLazy (trees : Array (Nat × ConstTrie α))
   simp only [hsz]
   rw [← hroot, findEntryAux_mergeLazy n _ trees (by rw [hroot]; exact hwf) hs (Nat.le_refl _)]
   simp only [es, ConstTrie.find?, hsz, res]
-  rfl
 
 /--
 With the default `resolve`, the merged `ImportedConsts` finds the entry of the first module

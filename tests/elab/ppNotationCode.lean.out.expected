@@ -29,7 +29,7 @@
       have __discr := x;
       if __discr.isOfKind `Lean.Parser.Term.app = true then
         have __discr_1 := __discr.getArg 0;
-        bif false || __discr_1.isOfKind `ident then
+        if (false || __discr_1.isOfKind `ident) = true then
           have __discr_2 := __discr.getArg 1;
           if __discr_2.matchesNull 2 = true then
             have __discr := __discr_2.getArg 0;

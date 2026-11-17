@@ -16,11 +16,19 @@ fun x h =>
           (id
             (id
               (have_congr' (Nat.zero_add (x * x)) fun y =>
-                ite_congr (Eq.trans (congrFun' (congrArg Eq h) x) (eq_self x)) (fun a => Eq.refl 1) fun a =>
-                  Eq.refl (y + 1)))))
+                Bool.cond_cond_congr (decide (f (f x) = x)) (decide True)
+                  (id (@Decidable.decide_congr) (Eq.trans (congrFun' (congrArg Eq h) x) (eq_self x))
+                    (instDecidableEqNat (f (f x)) x) instDecidableTrue)
+                  1 (y + 1)))))
         1))
     (of_eq_true
-      (Eq.trans (congrFun' (congrArg Eq (ite_eq_left_of_eq_true 1 (x * x + 1) (Eq.refl True))) 1) (eq_self 1)))
+      (Eq.trans
+        (congrFun'
+          (congrArg Eq
+            (Bool.cond_eq_left_of_eq_true (decide True) 1 (x * x + 1)
+              (propext { mp := id @of_decide_eq_true, mpr := id @decide_eq_true })))
+          1)
+        (eq_self 1)))
 x : Nat
 h : f (f x) = x
 ⊢ (have y := x * x;
@@ -39,11 +47,19 @@ fun x h =>
           (id
             (id
               (have_body_congr' (x * x) fun y =>
-                ite_congr (Eq.trans (congrFun' (congrArg Eq h) x) (eq_self x)) (fun a => Eq.refl 1) fun a =>
-                  Eq.refl (y + 1)))))
+                Bool.cond_cond_congr (decide (f (f x) = x)) (decide True)
+                  (id (@Decidable.decide_congr) (Eq.trans (congrFun' (congrArg Eq h) x) (eq_self x))
+                    (instDecidableEqNat (f (f x)) x) instDecidableTrue)
+                  1 (y + 1)))))
         1))
     (of_eq_true
-      (Eq.trans (congrFun' (congrArg Eq (ite_eq_left_of_eq_true 1 (x * x + 1) (Eq.refl True))) 1) (eq_self 1)))
+      (Eq.trans
+        (congrFun'
+          (congrArg Eq
+            (Bool.cond_eq_left_of_eq_true (decide True) 1 (x * x + 1)
+              (propext { mp := id @of_decide_eq_true, mpr := id @decide_eq_true })))
+          1)
+        (eq_self 1)))
 x z : Nat
 h : f (f x) = x
 h' : z = x

@@ -1,3 +1,5 @@
+/-! Test Boolean and proposition simplification and coercion normalization. -/
+
 variable (p q : Prop)
 variable (b c d : Bool)
 variable (u v w : Prop) [Decidable u] [Decidable v] [Decidable w]
@@ -386,4 +388,4 @@ variable [Decidable u]
 #check_simp if u then u else q ~> ¬u → q
 #check_simp if u then q else u ~> u ∧ q
 #check_simp if u then q else q  ~> q
-#check_simp cond b c d ~> if b then c else d
+#check_simp cond b c d !~>

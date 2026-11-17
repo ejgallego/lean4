@@ -19,8 +19,12 @@ deriving DecidableEq
 
 /--
 error: Dependent elimination failed: Failed to solve equation
-  Bool.rec (motive := fun x => x.Reflects (b✝ = true) → Nat) (fun x => 1) (fun x => 0) (decide (b✝ = true)) ⋯ =
-    Bool.rec (motive := fun x => x.Reflects (b = true) → Nat) (fun x => 1) (fun x => 0) (decide (b = true)) ⋯
+  (match b✝ with
+    | true => 0
+    | false => 1) =
+    match b with
+    | true => 0
+    | false => 1
 -/
 #guard_msgs in
 inductive DependentStruct2 : Nat → Type where

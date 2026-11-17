@@ -5,6 +5,9 @@ After that, read on below to find out how to set up your editor for changing the
 followed by further sections of the development manual where applicable
 such as on the [test suite](../../tests/README.md) and [commit convention](commit_convention.md).
 
+The [conditional interface](conditional_interface.md) specifies the contract between ordinary
+`if` elaboration, typed decision inspection, computational projection reduction, and tactic abstraction.
+
 If you are planning to make any changes that may affect the compilation of Lean itself, e.g. changes to the parser, elaborator, or compiler, you should first read about the [bootstrapping pipeline](bootstrap.md).
 You should not edit the `stage0` directory except using the commands described in that section when necessary.
 

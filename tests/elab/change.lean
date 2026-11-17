@@ -184,7 +184,7 @@ example (m n : Nat) : m + 2 = n := by
 conv `change` unsolved metavariables
 -/
 /--
-error: don't know how to synthesize placeholder for argument `e`
+error: don't know how to synthesize placeholder for argument `y`
 context:
 case a
 m n : Nat
