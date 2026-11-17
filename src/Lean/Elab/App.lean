@@ -322,16 +322,20 @@ private def findNamedArgDependsOn? (fType : Expr) (namedArgs : List NamedArg) : 
     return none
   else
     forallTelescopeReducing fType fun xs _ => do
-      let curr := xs[0]!
+      -- `xs[0]` and the instances whose types it determines: unifying with an instance fixes its type.
+      let mut deps := #[xs[0]!.fvarId!]
       let mut namedArgs := namedArgs
       for h : i in 1...xs.size do
         let xDecl ← xs[i].fvarId!.getDecl
+        let type := xDecl.type.cleanupAnnotations
         if let some arg := namedArgs.find? fun arg => arg.name == xDecl.userName then
           /- Remark: a default value at `optParam` does not count as a dependency -/
-          if (← exprDependsOn xDecl.type.cleanupAnnotations curr.fvarId!) then
+          if (← deps.anyM (exprDependsOn type ·)) then
             return arg
           -- Erase, since `xDecl.userName` can be repeated, and we can otherwise get false dependencies
           namedArgs := Term.eraseNamedArg namedArgs xDecl.userName
+        else if xDecl.binderInfo.isInstImplicit && (← deps.anyM (exprDependsOn type ·)) then
+          deps := deps.push xDecl.fvarId
       return none
 
 /--
