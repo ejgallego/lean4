@@ -1082,7 +1082,7 @@ theorem mem_ite_none_right {x : α} {_ : Decidable p} {l : Option α} :
 
 @[simp] theorem get_ite {p : Prop} {_ : Decidable p} (h) :
     (if p then some b else none).get h = b := by
-  simpa using! get_dite (p := p) (fun _ => b) (by simpa using h)
+  split <;> simp_all
 
 @[simp] theorem get_dite' {p : Prop} {_ : Decidable p} (b : ¬ p → β) (w) :
     (if h : p then none else some (b h)).get w = b (by simpa using w) := by
@@ -1094,7 +1094,7 @@ theorem mem_ite_none_right {x : α} {_ : Decidable p} {l : Option α} :
 
 @[simp] theorem get_ite' {p : Prop} {_ : Decidable p} (h) :
     (if p then none else some b).get h = b := by
-  simpa using! get_dite' (p := p) (fun _ => b) (by simpa using h)
+  split <;> simp_all
 
 end ite
 

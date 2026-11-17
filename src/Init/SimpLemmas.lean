@@ -204,10 +204,11 @@ theorem have_body_congr' {α : Sort u} {β : Sort v} (a : α) {f f' : α → β}
 
 @[congr]
 theorem ite_congr {x y u v : α} {s : Decidable b} [Decidable c]
-    (h₁ : b = c) (h₂ : c → x = u) (h₃ : ¬ c → y = v) : ite b x y = ite c u v := by
-  cases Decidable.em c with
-  | inl h => rw [ite_eq_left h]; subst b; rw [ite_eq_left h]; exact h₂ h
-  | inr h => rw [ite_eq_right h]; subst b; rw [ite_eq_right h]; exact h₃ h
+    (h₁ : b = c) (h₂ : c → x = u) (h₃ : ¬ c → y = v) : @ite _ b s x y = @ite _ c _ u v := by
+  subst h₁
+  cases Decidable.em b with
+  | inl h => exact (ite_eq_left h).trans ((h₂ h).trans (ite_eq_left h).symm)
+  | inr h => exact (ite_eq_right h).trans ((h₃ h).trans (ite_eq_right h).symm)
 
 theorem ite_cond_congr {α} {b c : Prop} {s : Decidable b} [Decidable c] {x y : α}
     (h₁ : b = c) : ite b x y = ite c x y := by

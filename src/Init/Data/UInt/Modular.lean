@@ -156,11 +156,12 @@ private theorem invMod?_go_spec (modulus : UInt64) (hm : modulus ≠ 0) (a oldR 
   | case2 oldR r oldS s hr quotient product nextS ih =>
     have hnext : nextS < modulus.toNat := by simp only [nextS]; split <;> omega
     have hkey : nextS * a % modulus.toNat = oldR % r % modulus.toNat := by
+      simp only [nextS, dite_eq_ite]
       refine nextS_mul_mod (Nat.mod_lt _ hm0) ?_
       rw [h1, ← Nat.add_mod_mod, Nat.mod_mul_mod, Nat.mul_assoc, ← Nat.mul_mod_mod, h2,
         Nat.mul_mod_mod, Nat.add_mod_mod, Nat.mod_add_div']
     rw [invMod?.go, dite_eq_right hr, Nat.gcd_comm oldR, Nat.gcd_rec r, Nat.gcd_comm]
-    exact ih hs hnext h2 hkey
+    simpa only [nextS, dite_eq_ite] using ih hs hnext h2 hkey
 
 @[simp] theorem invMod?_zero (a : UInt64) : invMod? a 0 = none := by
   simp [invMod?]

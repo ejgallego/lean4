@@ -7,7 +7,7 @@ module
 
 prelude
 public import Lean.HeadIndex
-public import Lean.Meta.Basic
+public import Lean.Meta.Decidable
 
 public section
 

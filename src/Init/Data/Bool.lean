@@ -532,8 +532,12 @@ theorem cond_true  {α : Sort u} {a b : α} : cond true  a b = a := rfl
 theorem cond_false {α : Sort u} {a b : α} : cond false a b = b := rfl
 
 @[simp]
-theorem cond_eq_ite {α} (b : Bool) (t e : α) : cond b t e = if b then t else e := by
-  cases b <;> simp [Bool.cond_true, Bool.cond_false]
+theorem cond_eq_ite {α} (b : Bool) (t e : α) : cond b t e = @ite _ (b = true) _ t e := by
+  cases b <;> rfl
+
+theorem ite_eq_cond {α : Sort u} (b : Bool) [d : Decidable (b = true)] (t e : α) :
+    @ite α (b = true) d t e = cond b t e := by
+  cases b <;> simp
 
 @[deprecated cond_eq_ite +typeChanged (since := "2025-10-29")]
 theorem cond_eq_if : (bif b then x else y) = (if b then x else y) := cond_eq_ite b x y

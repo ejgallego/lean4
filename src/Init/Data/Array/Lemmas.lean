@@ -4088,7 +4088,8 @@ theorem swap_comm {xs : Array α} {i j : Nat} (hi hj) : xs.swap i j hi hj = xs.s
   split <;> rename_i hi
   · split <;> rename_i hj
     · simp only [hi, hj, and_true]
-      exact getElem_swap _ _ _
+      rw [getElem_swap]
+      split <;> (try split) <;> rfl
     · simp only [hi, hj, and_true, and_false, dite_false]
       split <;> simp_all
   · simp only [hi, and_false, dite_false]

@@ -197,8 +197,8 @@ theorem if_true_right {p : Prop} {q : Prop} [h : Decidable p] : (if p then q els
   cases h <;> (rename_i g; simp [g])
 
 /-- Negation of the condition `P : Prop` in a `ite` is the same as swapping the branches. -/
-@[simp] theorem ite_not (p : Prop) [Decidable p] (x y : α) : ite (¬p) x y = ite p y x :=
-  dite_not (fun _ => x) (fun _ => y)
+@[simp] theorem ite_not (p : Prop) [d : Decidable p] (x y : α) : ite (¬p) x y = ite p y x := by
+  cases d <;> rfl
 
 @[simp] theorem ite_self_left {p q : Prop} [h : Decidable p] : (if p then p else q) ↔ (¬p → q) := by
   cases h <;> (rename_i g; simp [g])

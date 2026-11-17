@@ -1345,13 +1345,12 @@ calling the `ite` function, which would cause both sides of the `if` to be evalu
 Even if the result is discarded, this would be a big performance problem,
 and is undesirable for users in any case. To resolve this, `ite` is marked as
 `@[macro_inline]`, which means that it is unfolded during code generation, and
-the definition of the function uses `fun _ => t` and `fun _ => e` so this recovers
-the expected "lazy" behavior of `if`: the `t` and `e` arguments delay evaluation
-until `c` is known.
+the definition uses `cond`, which is also marked `@[macro_inline]` and compiles to a
+Boolean case distinction. This delays evaluation of `t` and `e` until the condition is known.
 -/
 @[macro_inline, implicit_reducible]
 def ite {α : Sort u} (c : Prop) [h : Decidable c] (t e : α) : α :=
-  dite c (fun _ => t) (fun _ => e)
+  cond (decide c) t e
 
 set_option genCtorIdx false in
 /--

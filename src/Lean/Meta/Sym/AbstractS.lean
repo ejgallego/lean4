@@ -94,7 +94,7 @@ public def abstractFVarsPrefix (e : Expr) (n : Nat) (xs : Array Expr) : SymM Exp
       let rec go (bidx : Nat) (i : Nat) (h : i < n) : Option Nat :=
         if xs[i].fvarId! == fvarId then
           some bidx
-        else if i > 0 then
+        else if _hpos : i > 0 then
           go (bidx + 1) (i - 1) (by omega)
         else
           none

@@ -1718,7 +1718,7 @@ theorem getEntry_insertEntry [BEq α] [PartialEquivBEq α] {l : List ((a : α) �
     getEntry a (insertEntry k v l) h = if h' : k == a then ⟨k, v⟩ else getEntry a l (containsKey_of_containsKey_insertEntry h (Bool.eq_false_iff.2 h')) := by
   suffices some (getEntry a (insertEntry k v l) h) = if h' : (k == a) = true then some ⟨k, v⟩ else some (getEntry a l (containsKey_of_containsKey_insertEntry h (Bool.eq_false_iff.2 h'))) by
     split <;> (rename_i h; simpa [h] using this)
-  simp only [← getEntry?_eq_some_getEntry]
+  simp only [← getEntry?_eq_some_getEntry, dite_eq_ite]
   apply getEntry?_insertEntry
 
 theorem beq_of_getEntry_eq [BEq α] [PartialEquivBEq α] {l : List ((a : α) × β a)} {p : ((a : α) × β a)}
@@ -5136,7 +5136,7 @@ theorem getKey_modifyKey [EquivBEq α] {k k' : α} {f : β → β} (l : List ((_
         haveI h' : containsKey k' l := by rwa [containsKey_modifyKey] at h
         getKey k' l h' := by
   simp only [modifyKey_eq_alterKey, getKey_alterKey, hl]
-  rfl
+  split <;> rfl
 
 @[simp]
 theorem getKey_modifyKey_self [EquivBEq α] {k : α} {f : β → β}
