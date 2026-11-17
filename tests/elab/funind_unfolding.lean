@@ -1,3 +1,5 @@
+/-! Test generated functional induction principles, including conditional branches. -/
+
 axiom testSorry : α
 
 def fib : Nat → Nat
@@ -373,7 +375,7 @@ info: siftDown.induct_unfolding (e : Nat) (motive : (a : Array Int) → Nat → 
     ∀ (a : Array Int) (root : Nat) (h : e ≤ a.size),
       leftChild root < e →
         let child := leftChild root;
-        let child := if x : child + 1 < e then if h : a[child] < a[child + 1] then child + 1 else child else child;
+        let child := if x : child + 1 < e then if a[child] < a[child + 1] then child + 1 else child else child;
         a[root]! < a[child]! →
           let a_1 := a.swapIfInBounds root child;
           motive a_1 child ⋯ (siftDown a_1 child e ⋯) → motive a root h (siftDown a_1 child e ⋯))
@@ -381,7 +383,7 @@ info: siftDown.induct_unfolding (e : Nat) (motive : (a : Array Int) → Nat → 
     ∀ (a : Array Int) (root : Nat) (h : e ≤ a.size),
       leftChild root < e →
         let child := leftChild root;
-        have child := if x : child + 1 < e then if h : a[child] < a[child + 1] then child + 1 else child else child;
+        have child := if x : child + 1 < e then if a[child] < a[child + 1] then child + 1 else child else child;
         ¬a[root]! < a[child]! → motive a root h a)
   (case3 : ∀ (a : Array Int) (root : Nat) (h : e ≤ a.size), ¬leftChild root < e → motive a root h a) (a : Array Int)
   (root : Nat) (h : e ≤ a.size) : motive a root h (siftDown a root e h)
@@ -395,7 +397,7 @@ info: siftDown.induct (e : Nat) (motive : (a : Array Int) → Nat → e ≤ a.si
     ∀ (a : Array Int) (root : Nat) (h : e ≤ a.size),
       leftChild root < e →
         let child := leftChild root;
-        let child := if x : child + 1 < e then if h : a[child] < a[child + 1] then child + 1 else child else child;
+        let child := if x : child + 1 < e then if a[child] < a[child + 1] then child + 1 else child else child;
         a[root]! < a[child]! →
           let a_1 := a.swapIfInBounds root child;
           motive a_1 child ⋯ → motive a root h)
@@ -403,7 +405,7 @@ info: siftDown.induct (e : Nat) (motive : (a : Array Int) → Nat → e ≤ a.si
     ∀ (a : Array Int) (root : Nat) (h : e ≤ a.size),
       leftChild root < e →
         let child := leftChild root;
-        have child := if x : child + 1 < e then if h : a[child] < a[child + 1] then child + 1 else child else child;
+        have child := if x : child + 1 < e then if a[child] < a[child + 1] then child + 1 else child else child;
         ¬a[root]! < a[child]! → motive a root h)
   (case3 : ∀ (a : Array Int) (root : Nat) (h : e ≤ a.size), ¬leftChild root < e → motive a root h) (a : Array Int)
   (root : Nat) (h : e ≤ a.size) : motive a root h
@@ -546,7 +548,7 @@ info: with_bif_tailrec.induct_unfolding (motive : Nat → Nat → Prop) (case1 :
   (case2 : ∀ (n : Nat), (n % 2 == 0) = true → motive n (with_bif_tailrec n) → motive n.succ (with_bif_tailrec n))
   (case3 :
     ∀ (n : Nat),
-      (n % 2 == 0) = false → motive (n - 1) (with_bif_tailrec (n - 1)) → motive n.succ (with_bif_tailrec (n - 1)))
+      ¬(n % 2 == 0) = true → motive (n - 1) (with_bif_tailrec (n - 1)) → motive n.succ (with_bif_tailrec (n - 1)))
   (a✝ : Nat) : motive a✝ (with_bif_tailrec a✝)
 -/
 #guard_msgs in

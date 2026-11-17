@@ -39,7 +39,7 @@ builtin_initialize triggerDenyListExt : SimplePersistentEnvExtension Name NameSe
       (NameSet.ofList [`Eq, `BEq, `BEq.beq, `LE.le, `LT.lt, `GE.ge, `GT.gt,
         `Bool.not, `Bool.and, `Bool.or, `Bool.xor, `Bool.true, `Bool.false,
         `Not, `And, `Or, `Xor,
-        `ite, `dite, `Exists, `OfNat, `OfNat.ofNat, `SizeOf, `SizeOf.sizeOf])
+        `cond, `ite, `dite, `Exists, `OfNat, `OfNat.ofNat, `SizeOf, `SizeOf.sizeOf])
   }
 
 /--

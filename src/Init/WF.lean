@@ -669,3 +669,13 @@ context of a termination proof inside `if-then-else` with the condition.
 @[wf_preprocess] theorem ite_eq_dite [d : Decidable P] :
     ite P a b = (dite P (fun h => binderNameHint h () a) (fun h => binderNameHint h () b)) := by
   cases d <;> rfl
+
+/-- Extend termination proofs through a Boolean conditional with its branch condition. -/
+theorem cond_eq_dite (c : Bool) {α : Sort u} (a b : α) :
+    cond c a b = dite (c = true) (fun h => binderNameHint h () a) (fun h => binderNameHint h () b) := by
+  cases c <;> rfl
+
+/-- Retain the proposition underlying an undecided Boolean condition in termination proofs. -/
+theorem cond_decide_eq_dite [d : Decidable P] {α : Sort u} (a b : α) :
+    cond (decide P) a b = dite P (fun h => binderNameHint h () a) (fun h => binderNameHint h () b) := by
+  cases d <;> rfl

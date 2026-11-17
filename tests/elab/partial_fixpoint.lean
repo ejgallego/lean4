@@ -202,7 +202,7 @@ info: equations:
 theorem computeLfp'.eq_1.{u} : ∀ {α : Type u} [inst : DecidableEq α] (f : α → α) (x : α),
   computeLfp' f x =
     have next := f x;
-    if x ≠ next then computeLfp' f next else x
+    if ¬x = next then computeLfp' f next else x
 -/
 #guard_msgs in #print equations computeLfp'
 

@@ -2,6 +2,8 @@ import Lean.Elab.Tactic.Location
 import Lean.Meta.Tactic.SplitIf
 import Lean.Elab.Tactic.Simp
 
+/-! Test a Mathlib-style `split_ifs` tactic on nested proposition and Boolean guards. -/
+
 section Mathlib.Tactic.Core
 
 open Lean Elab Tactic
@@ -67,20 +69,26 @@ match loc with
    else return candidates.toList
 
 /-- Return the condition and decidable instance of an `if` expression to case split. -/
-private partial def findIfToSplit? (e : Expr) : Option (Expr × Expr) :=
-  match e.find? fun e => (e.isIte || e.isDIte) && !(e.getArg! 1 5).hasLooseBVars with
+private partial def findIfToSplit? (e : Expr) : MetaM (Option (Expr × Expr)) := do
+  match e.find? fun e =>
+    if e.isAppOfArity ``cond 4 then
+      !(e.getArg! 1 4).hasLooseBVars
+    else
+      (e.isIte || e.isDIte) && !(e.getArg! 1 5).hasLooseBVars with
   | some iteApp =>
-    let cond := iteApp.getArg! 1 5
-    let dec := iteApp.getArg! 2 5
+    let (cond, dec) ← if iteApp.isAppOfArity ``cond 4 then
+      getGuardDecision (iteApp.getArg! 1 4)
+    else
+      pure (iteApp.getArg! 1 5, iteApp.getArg! 2 5)
     -- Try to find a nested `if` in `cond`
-    findIfToSplit? cond |>.getD (cond, dec)
-  | none => none
+    return (← findIfToSplit? cond).getD (cond, dec)
+  | none => return none
 
 /-- Finds an if condition to split. If successful, returns the position and the condition.
 -/
 private def findIfCondAt (loc : Location) : TacticM (Option (SplitPosition × Expr)) := do
   for (pos, e) in (← getSplitCandidates loc) do
-    if let some (cond, _) := findIfToSplit? e
+    if let some (cond, _) ← findIfToSplit? e
     then return some (pos, cond)
   return none
 
@@ -247,3 +255,10 @@ example (a m tl : α) (f : α → β) [LinearOrder β] :
   split_ifs
   guard_goal_nums 7
   all_goals sorry
+
+example (b : Bool) (x y : Nat) : (if b then x else y) = x ∨ (if b then x else y) = y := by
+  split_ifs <;> simp_all
+
+example (p : Prop) [Decidable p] (x y : Nat)
+    (h : (if decide p then x else y) = 0) : x = 0 ∨ y = 0 := by
+  split_ifs at h <;> simp_all

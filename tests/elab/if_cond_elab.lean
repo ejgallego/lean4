@@ -1,5 +1,6 @@
 module
 import Lean
+import Std.Time
 import all Init.Data.Nat.Div.Basic
 
 /-!
@@ -223,6 +224,15 @@ end IfCondPropCoercion
 
 /-- info: fun x y => if ¬x = y then 1 else 2 : Nat → Nat → Nat -/
 #guard_msgs in #check fun (x y : Nat) => if x ≠ y then 1 else 2
+
+/-! `NeZero` instances for `Fin` literals see through conditional bounds. -/
+
+example (b : Bool) : NeZero (if b then 61 else 60) := inferInstance
+example (b : Bool) : Fin (if b then 61 else 60) := 37
+example (p : Prop) [Decidable p] : NeZero (if p then 61 else 60) := inferInstance
+example (p : Prop) [Decidable p] : NeZero (ite p 61 60) := inferInstance
+example := Std.Time.Second.Ordinal.ofFin (leap := false) 37
+example := Std.Time.Second.Ordinal.ofFin (leap := true) 37
 
 /-! `change` fills `ite` placeholders from conditionals. -/
 

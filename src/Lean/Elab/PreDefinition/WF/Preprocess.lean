@@ -74,6 +74,22 @@ builtin_initialize wfPreprocessSimpExtension : SimpExtension ←
     "simp lemma used in the preprocessing of well-founded recursive function definitions, in \
     particular to add additional hypotheses to the context. Also see `wfParam`."
 
+/-- Preserve the source predicate before simplifying its decision procedure. -/
+builtin_simproc_decl condToDite (cond _ _ _) := fun e => do
+  unless e.isAppOfArity ``cond 4 do return .continue
+  let env ← getEnv
+  unless env.contains ``cond_eq_dite && env.contains ``cond_decide_eq_dite do return .continue
+  let args := e.getAppArgs
+  let c := args[1]!.consumeMData
+  -- Branch types may contain definitionally equal `wfParam` applications.
+  let proof ← withDefault do
+    match ← Simp.getBoolDecision? c with
+    | some (p, d) =>
+      mkAppOptM ``cond_decide_eq_dite #[some p, some d, some args[0]!, some args[2]!, some args[3]!]
+    | none => mkAppM ``cond_eq_dite #[args[1]!, args[2]!, args[3]!]
+  let type ← inferType proof
+  return .visit { expr := ← type.appArg!.resolveBinderNameHint, proof? := proof }
+
 private def getSimpContext : MetaM Simp.Context := do
   let simpTheorems ← wfPreprocessSimpExtension.getTheorems
   Simp.mkContext
@@ -193,6 +209,7 @@ def preprocess (e : Expr) : MetaM Simp.Result := do
 
     -- Now run the simplifier
     let simprocs : Simprocs := {}
+    let simprocs ← simprocs.add ``condToDite (post := false)
     let simprocs ← simprocs.add ``paramProj (post := true)
     let simprocs ← simprocs.add ``paramMatcher (post := false)
     let simprocs ← simprocs.add ``paramLet (post := true)

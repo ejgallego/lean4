@@ -11,6 +11,7 @@ public import Lean.Meta.Match.MatcherApp.Transform
 public import Lean.Data.Array
 import Lean.Meta.Match.Rewrite
 import Lean.Meta.Tactic.Simp.Rewrite
+public import Lean.Meta.Decidable
 import Lean.Meta.Tactic.Assumption
 
 public section
@@ -67,7 +68,8 @@ Introduces fvars for all varying parts of a `SplitInfo` and provides the abstrac
 
 For `ite`/`dite`, introduces `c : Prop`, `dec : Decidable c`, `t : mα` (or `t : c → mα`),
 `e : mα` (or `e : ¬c → mα`).
-For `cond`, introduces `c : Bool`, `t : mα`, `e : mα`.
+For `cond`, introduces `c : Bool`, `t : mα`, `e : mα`; a decision guard instead
+abstracts its source proposition and decision instance, retaining the projection in `cond`.
 For `matcher`, introduces discriminant fvars and alternative fvars, builds a non-dependent
 motive `fun _ ... _ => mα`, and adjusts matcher universe levels.
 
@@ -99,7 +101,15 @@ def withAbstract {n} {α} [MonadLiftT MetaM n] [MonadControlT MetaM n] [Monad n]
     withLocalDeclD `e eTy fun e => do
     let u ← liftMetaM <| getLevel resTy
     k (.dite <| mkApp5 (mkConst ``_root_.dite [u]) resTy c dec t e) #[c, dec, t, e]
-  | .cond _ =>
+  | .cond original => do
+    if (← liftMetaM <| getBoolDecision? (original.getArg! 1)).isSome then
+      return ← withLocalDeclD `c (mkSort 0) fun c =>
+        withLocalDeclD `dec (mkApp (mkConst ``Decidable) c) fun dec =>
+        withLocalDeclD `t resTy fun t =>
+        withLocalDeclD `e resTy fun e => do
+          let u ← liftMetaM <| getLevel resTy
+          k (.cond <| mkApp4 (mkConst ``_root_.cond [u]) resTy
+            (mkProj ``Decidable 0 dec) t e) #[c, dec, t, e]
     withLocalDeclD `c (mkConst ``Bool) fun c =>
     withLocalDeclD `t resTy fun t =>
     withLocalDeclD `e resTy fun e => do
@@ -172,13 +182,14 @@ def splitWith
   | cond e => do
     let u ← getLevel resTy
     let c := e.getArg! 1
-    if useSplitter then -- Bool.dcond is the "splitter" for cond
+    if useSplitter then
+      let (p, d) ← liftMetaM <| getGuardDecision c
       let n ← liftMetaM <| mkFreshUserName `h
-      let hTrue ← liftMetaM <| mkEq c (mkConst ``Bool.true)
-      let hFalse ← liftMetaM <| mkEq c (mkConst ``Bool.false)
-      let t ← withLocalDecl n .default hTrue fun h => do mkLambdaFVars #[h] (← onAlt `isTrue resTy 0 { fields := #[h] })
-      let e ← withLocalDecl n .default hFalse fun h => do mkLambdaFVars #[h] (← onAlt `isFalse resTy 1 { fields := #[h] })
-      return mkApp4 (mkConst ``Bool.dcond [u]) resTy c t e
+      let t ← withLocalDecl n .default p fun h => do
+        mkLambdaFVars #[h] (← onAlt `isTrue resTy 0 { fields := #[h] })
+      let e ← withLocalDecl n .default (mkNot p) fun h => do
+        mkLambdaFVars #[h] (← onAlt `isFalse resTy 1 { fields := #[h] })
+      return mkApp5 (mkConst ``_root_.dite [u]) resTy p d t e
     else
       let t ← onAlt `isTrue resTy 0 { fields := #[] }
       let e ← onAlt `isFalse resTy 1 { fields := #[] }
@@ -225,9 +236,10 @@ def rwIfOrMatcher (idx : Nat) (e : Expr) : MetaM Simp.Result := do
     rwIfWith (mkFVar fv) e
   else if e.isAppOf ``cond then
     let c := e.getArg! 1
-    let h ← mkEq c (mkConst (if idx = 0 then ``Bool.true else ``Bool.false))
-    let .some fv ← findLocalDeclWithType? h
-      | throwError "Failed to find proof for cond condition {h}"
+    let (p, _) ← getGuardDecision c
+    let p := if idx = 0 then p else mkNot p
+    let .some fv ← findLocalDeclWithType? p
+      | throwError "Failed to find proof for if condition {p}"
     rwIfWith (mkFVar fv) e
   else
     rwMatcher idx e

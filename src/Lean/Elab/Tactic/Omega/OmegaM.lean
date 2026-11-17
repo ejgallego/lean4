@@ -179,6 +179,10 @@ def analyzeAtom (e : Expr) : OmegaM (List Expr) := do
         r := r.insert (mkApp2 (.const ``Fin.isLt []) n i)
       | _, (``BitVec.toNat, #[n, x]) =>
         r := r.insert (mkApp2 (.const ``BitVec.isLt []) n x)
+      | _, (``cond, #[α, c, a, b]) =>
+        r := r.insert (mkApp4 (.const ``cond_disjunction [0]) α c a b)
+      | _, (``ite, #[α, _, dec, a, b]) =>
+        r := r.insert (mkApp4 (.const ``cond_disjunction [0]) α (.proj ``Decidable 0 dec) a b)
       | _, _ => pure ()
     return r
   | (``HDiv.hDiv, #[_, _, _, _, x, k]) => match natCast? k with
@@ -227,9 +231,14 @@ def analyzeAtom (e : Expr) : OmegaM (List Expr) := do
     pure [mkApp2 (.const ``Int.min_le_left []) x y, mkApp2 (.const ``Int.min_le_right []) x y]
   | (``Max.max, #[_, _, x, y]) =>
     pure [mkApp2 (.const ``Int.le_max_left []) x y, mkApp2 (.const ``Int.le_max_right []) x y]
-  | (``ite, #[α, i, dec, t, e]) =>
+  | (``cond, #[α, c, a, b]) =>
       if α == (.const ``Int []) then
-        pure [mkApp5 (.const ``ite_disjunction [0]) α i dec t e]
+        pure [mkApp4 (.const ``cond_disjunction [0]) α c a b]
+      else
+        pure []
+  | (``ite, #[α, _, dec, t, e]) =>
+      if α == (.const ``Int []) then
+        pure [mkApp4 (.const ``cond_disjunction [0]) α (.proj ``Decidable 0 dec) t e]
       else
         pure []
   | _ => pure ∅

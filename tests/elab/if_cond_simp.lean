@@ -218,4 +218,8 @@ def filter (p : Bool) : Option Nat → Option Nat
 @[simp] theorem filter_none (p : Bool) : filter p none = none := rfl
 theorem filter_some (p : Bool) (a : Nat) : filter p (some a) = cond p (some a) none := rfl
 
+set_option maxHeartbeats 10000 in
+example (p q : Bool) (o : Option Nat) : filter q (filter p o) = filter (p && q) o := by
+  cases o <;> repeat (simp_all [filter_some]; try split)
+
 end IfCondSimp

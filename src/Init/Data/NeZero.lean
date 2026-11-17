@@ -46,6 +46,10 @@ instance {p : Prop} [Decidable p] {n m : Nat} [NeZero n] [NeZero m] :
     NeZero (if p then n else m) := by
   split <;> infer_instance
 
+instance {b : Bool} {n m : Nat} [NeZero n] [NeZero m] :
+    NeZero (cond b n m) := by
+  cases b <;> assumption
+
 instance {n m : Nat} [h : NeZero n] : NeZero (n + m) where
   out :=
     match n, h, m with

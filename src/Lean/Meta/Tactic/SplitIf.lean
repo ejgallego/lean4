@@ -44,6 +44,10 @@ private def isCandidate? (env : Environment) (ctx : Context) (e : Expr) : Option
       let numArgs := e.getAppNumArgs
       if numArgs >= 5 && !(e.getArg! 1 5).hasLooseBVars then
         return ret (e.getBoundedAppFn (numArgs - 5))
+    if e.isAppOf ``cond then
+      let numArgs := e.getAppNumArgs
+      if numArgs >= 4 && !(e.getArg! 1 4).hasLooseBVars then
+        return ret (e.getBoundedAppFn (numArgs - 4))
   if ctx.kind.considerMatch then
     if let some info := isMatcherAppCore? env e then
       let args := e.getAppArgs
@@ -98,14 +102,20 @@ where
 
 end FindSplitImpl
 
+private def getProjectedDecision? (c : Expr) : MetaM (Option (Expr × Expr)) := do
+  Simp.getBoolDecision? ((← instantiateMVars c).consumeMData)
+
 /-- Return an `if-then-else` or `match-expr` to split. -/
 partial def findSplit? (e : Expr) (kind : SplitKind := .both) (exceptionSet : ExprSet := {}) : MetaM (Option Expr) := do
   go (← instantiateMVars e)
 where
   go (e : Expr) : MetaM (Option Expr) := do
     if let some target ← find? e then
-      if target.isIte || target.isDIte then
-        let cond := target.getArg! 1 5
+      if target.isIte || target.isDIte || target.isAppOf ``cond then
+        let cond := target.getArg! 1 (if target.isAppOf ``cond then 4 else 5)
+        let cond ← if target.isAppOf ``cond then
+          pure ((← getProjectedDecision? cond).map (·.1) |>.getD cond)
+        else pure cond
         -- Try to find a nested `if` in `cond`
         return (← go cond).getD target
       else
@@ -119,12 +129,34 @@ where
     trace[split.debug] "candidate:{indentExpr candidate}"
     return some candidate
 
+private partial def isBoolCondition (p : Expr) : Bool :=
+  if p.isAppOfArity ``Not 1 then
+    isBoolCondition p.appArg!
+  else
+    p.isAppOfArity ``Eq 3 && (p.getArg! 0 3).isConstOf ``Bool
+
+private def normalizeBoolCondition (p : Expr) : MetaM Simp.Result := do
+  unless isBoolCondition p do
+    return { expr := p }
+  Simp.normalizeBoolCondition p
+
 /-- Return the condition and decidable instance of an `if` expression to case split. -/
 private partial def findIfToSplit? (e : Expr) : MetaM (Option (Expr × Expr)) := do
   if let some iteApp ← findSplit? e .ite then
-    let cond := iteApp.getArg! 1 5
-    let dec := iteApp.getArg! 2 5
-    return (cond, dec)
+    if iteApp.isAppOf ``cond then
+      let c := iteApp.getArg! 1 4
+      if let some decision ← getProjectedDecision? c then
+        return decision
+      let cond := mkApp3 (mkConst ``Eq [1]) (mkConst ``Bool) c (mkConst ``true)
+      let dec := mkApp2 (mkConst ``Bool.decEq) c (mkConst ``true)
+      return (cond, dec)
+    else
+      let cond := iteApp.getArg! 1 5
+      let dec := iteApp.getArg! 2 5
+      if let some r ← Simp.normalizeDecisionCondition? cond then
+        let dec ← mkEqMP (← mkCongrArg (mkConst ``Decidable) (← r.getProof)) dec
+        return (r.expr, dec)
+      return (cond, dec)
   else
     return none
 
@@ -134,6 +166,7 @@ register_builtin_option backward.split : Bool := {
 }
 
 namespace SplitIf
+
 /--
 The `Simp.Context` that used to be used with `simpIf` methods. It contains all congruence theorems, but
 just the rewriting rules for reducing `if` expressions.
@@ -145,6 +178,8 @@ def getSimpContext : MetaM Simp.Context := do
   s ← s.addConst ``ite_eq_right
   s ← s.addConst ``dite_eq_left
   s ← s.addConst ``dite_eq_right
+  s ← s.addConst ``Bool.cond_eq_left
+  s ← s.addConst ``Bool.cond_eq_right
   Simp.mkContext
    (simpTheorems  := #[s])
     (congrTheorems := (← getSimpCongrTheorems))
@@ -181,18 +216,27 @@ private def discharge? (numIndices : Nat) (useDecide : Bool) : Simp.Discharge :=
       let r ← withDefault <| whnf d
       if r.isConstOf ``true then
         return some <| mkApp3 (mkConst ``of_decide_eq_true) prop d.appArg! (← mkEqRefl (mkConst ``true))
-  (← getLCtx).findDeclRevM? fun localDecl => do
+  let r ← normalizeBoolCondition prop
+  let prop := r.expr
+  let result? ← (← getLCtx).findDeclRevM? fun localDecl => do
      if localDecl.index ≥ numIndices || localDecl.isAuxDecl then
        return none
-     else if (← isDefEq prop localDecl.type) then
+     if (← isDefEq prop localDecl.type) then
        return some localDecl.toExpr
-     else match prop.notNot? with
+     if isBoolCondition localDecl.type || localDecl.type.notNot?.isSome then
+       let r ← Simp.normalizeBoolCondition localDecl.type
+       if ← isDefEq prop r.expr then
+         return some (← mkEqMP (← r.getProof) localDecl.toExpr)
+     match prop.notNot? with
        | none => return none
        | some arg =>
          if (← isDefEq arg localDecl.type) then
            return some (mkApp2 (mkConst ``not_not_intro) arg localDecl.toExpr)
          else
            return none
+  match result? with
+  | none => return none
+  | some h => return some (← mkEqMPR (← r.getProof) h)
 
 private def reduceIte' (numIndices : Nat) (useDecideBool : Bool) : Simp.Simproc := fun e => do
   let_expr f@ite α c i tb eb ← e | return .continue
@@ -215,6 +259,24 @@ private def reduceIte' (numIndices : Nat) (useDecideBool : Bool) : Simp.Simproc 
       let h := mkApp8 (mkConst ``ite_cond_congr us) α c c' i i' tb eb (← r.getProof)
       let e' := mkApp5 f α c' i' tb eb
       return .done { expr := e', proof? := some h }
+
+private def reduceCond' (numIndices : Nat) (useDecideBool : Bool) : Simp.Simproc := fun e => do
+  let_expr f@cond α c tb eb ← e | return .continue
+  let us := f.constLevels!
+  let p := mkApp3 (mkConst ``Eq [1]) (mkConst ``Bool) c (mkConst ``true)
+  if let some h ← discharge? numIndices useDecideBool p then
+    let h := mkApp5 (mkConst ``Bool.cond_eq_left us) α c h tb eb
+    return .done { expr := tb, proof? := some h }
+  else if let some h ← discharge? numIndices useDecideBool (mkNot p) then
+    let h := mkApp5 (mkConst ``Bool.cond_eq_right us) α c h tb eb
+    return .done { expr := eb, proof? := some h }
+  else
+    let r ← Simp.simp c
+    if r.expr == c then
+      return .done { expr := e }
+    else
+      let h := mkApp6 (mkConst ``Bool.cond_cond_congr us) α c r.expr (← r.getProof) tb eb
+      return .done { expr := mkApp4 f α r.expr tb eb, proof? := some h }
 
 private def getBinderName (e : Expr) : MetaM Name := do
   let .lam n _ _ _ := e | mkFreshUserName `h
@@ -253,6 +315,7 @@ private def getSimprocs (numIndices : Nat) (useDecide : Bool) : MetaM (Array Sim
   let s : Simprocs := {}
   let s := s.addCore #[.const ``ite 5, .star, .star, .star, .star, .star] ``reduceIte' (post := false) (.inl <| reduceIte' numIndices useDecide)
   let s := s.addCore #[.const ``dite 5, .star, .star, .star, .star, .star] ``reduceDIte' (post := false) (.inl <| reduceDIte' numIndices useDecide)
+  let s := s.addCore #[.const ``cond 4, .star, .star, .star, .star] ``reduceCond' (post := false) (.inl <| reduceCond' numIndices useDecide)
   return #[s]
 
 def mkDischarge? (useDecide := false) : MetaM Simp.Discharge :=

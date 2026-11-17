@@ -52,4 +52,10 @@ theorem ite_disjunction {α : Type u} {P : Prop} [Decidable P] {a b : α} :
   else
     .inr ⟨h, ite_eq_right h⟩
 
+theorem cond_disjunction {α : Type u} (c : Bool) (a b : α) :
+    (c = true ∧ cond c a b = a) ∨ (¬ c = true ∧ cond c a b = b) := by
+  cases c with
+  | false => exact .inr ⟨Bool.noConfusion, rfl⟩
+  | true => exact .inl ⟨rfl, rfl⟩
+
 end Lean.Omega
