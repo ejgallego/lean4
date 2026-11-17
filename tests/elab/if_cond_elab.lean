@@ -104,6 +104,15 @@ opaque hiddenDecision (x : Nat) : Decidable (x = 0) := inferInstance
 def opaqueCondition (x : Nat) : Nat :=
   if (@Decidable.decide (x = 0) (hiddenDecision x)) then 10 else 20
 
+run_meta do
+  let ctx ← Simp.mkContext (simpTheorems := #[])
+  for decl in [``eqZero, ``ltCondition, ``opaqueCondition] do
+    lambdaTelescope (← getConstInfo decl).value! fun _ body => do
+      let (r, _) ← Lean.Meta.simp body ctx
+      unless r.expr.isAppOfArity ``cond 4 && r.expr.getAppArgs[1]! == body.getAppArgs[1]! do
+        throwError "empty simp set changed the decision projection in {decl}: {r.expr}"
+      Meta.check (← r.getProof)
+
 def andCondition (p q : Prop) [Decidable p] [Decidable q] : Nat := if p ∧ q then 1 else 0
 def orCondition (p q : Prop) [Decidable p] [Decidable q] : Nat := if p ∨ q then 1 else 0
 def impliesCondition (p q : Prop) [Decidable p] [Decidable q] : Nat := if p → q then 1 else 0

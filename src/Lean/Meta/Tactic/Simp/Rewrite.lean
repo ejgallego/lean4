@@ -12,6 +12,7 @@ public import Lean.Meta.Tactic.Simp.Arith
 public import Lean.Meta.Tactic.Simp.Attr
 public import Lean.Meta.BinderNameHint
 import Lean.Meta.WHNF
+import Lean.Meta.KAbstract
 public import Lean.Meta.HasAssignableMVar
 public section
 namespace Lean.Meta.Simp
@@ -127,7 +128,7 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
           trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}, has unassigned metavariables after unification"
           return none
         pure <| some proof
-      let rhs := (← instantiateMVars type).appArg!
+      let rhs := normalizeBoolTests (← instantiateMVars type).appArg!
       /-
       We used to use `e == rhs` in the following test.
       However, it include unnecessary proof steps when `e` and `rhs`
@@ -135,7 +136,9 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
       We are hoping the following `instantiateMVars` should not be too expensive since
       we seldom have assigned metavariables in goals.
       -/
-      if (← instantiateMVars e) == rhs then
+      if (← instantiateMVars e) == (canonicalizeIte? rhs).getD rhs then
+        -- A theorem relating two spellings of the same conditional applies trivially.
+        if (canonicalizeIte? rhs).isSome then recordSimpTheorem thm.origin
         trace[Debug.Meta.Tactic.simp] "Not applying {← ppSimpTheorem thm} with type\
           {indentExpr type}\nto{indentExpr e}\nas the result is structurally equal \
           to the original expression"
@@ -181,16 +184,17 @@ def tryTheoremWithExtraArgs? (e : Expr) (thm : SimpTheorem) (numExtraArgs : Nat)
     let type ← inferType val
     let (xs, bis, type) ← forallMetaTelescopeReducing type
     let type ← whnf (← instantiateMVars type)
-    let lhs := type.appFn!.appArg!
+    let lhs := canonicalizeItes type.appFn!.appArg!
     tryTheoremCore lhs xs bis val type e thm numExtraArgs
 
 def tryTheorem? (e : Expr) (thm : SimpTheorem) : SimpM (Option Result) := do
+  let e := (canonicalizeIte? e).getD e
   withNewMCtxDepth do
     let val  ← thm.getValue
     let type ← inferType val
     let (xs, bis, type) ← forallMetaTelescopeReducing type
     let type ← whnf (← instantiateMVars type)
-    let lhs := type.appFn!.appArg!
+    let lhs := canonicalizeItes type.appFn!.appArg!
     match (← tryTheoremCore lhs xs bis val type e thm 0) with
     | some result => return some result
     | none =>
@@ -200,6 +204,16 @@ def tryTheorem? (e : Expr) (thm : SimpTheorem) : SimpM (Option Result) := do
         tryTheoremCore lhs xs bis val type e thm (eNumArgs - lhsNumArgs)
       else
         return none
+
+private def uniqueSimpCandidates (candidates : Array (SimpTheorem × Nat)) : Array (SimpTheorem × Nat) := Id.run do
+  let mut seen : Std.HashSet (Origin × ExprStructEq × Nat × Nat) := {}
+  let mut result := #[]
+  for candidate in candidates do
+    let key := (candidate.1.origin, ExprStructEq.mk candidate.1.proof, candidate.1.priority, candidate.2)
+    unless seen.contains key do
+      seen := seen.insert key
+      result := result.push candidate
+  return result
 
 /--
 Remark: the parameter tag is used for creating trace messages. It is irrelevant otherwise.
@@ -213,6 +227,7 @@ where
   /-- For `(← getConfig).index := true`, use discrimination tree structure when collecting `simp` theorem candidates. -/
   rewriteUsingIndex? : SimpM (Option Result) := do
     let candidates ← withSimpIndexConfig <| s.getMatchWithExtra e
+    let candidates := uniqueSimpCandidates candidates
     if candidates.isEmpty then
       trace[Debug.Meta.Tactic.simp] "no theorems found for {tag}-rewriting {e}"
       return none
@@ -245,11 +260,13 @@ where
   -/
   rewriteNoIndex? : SimpM (Option Result) := do
     let (candidates, numArgs) ← withSimpIndexConfig <| s.getMatchLiberal e
+    let mut candidates := candidates
     if candidates.isEmpty then
       trace[Debug.Meta.Tactic.simp] "no theorems found for {tag}-rewriting {e}"
       return none
     else
-      let candidates := candidates.insertionSort fun e₁ e₂ => e₁.priority > e₂.priority
+      candidates := (uniqueSimpCandidates (candidates.map (·, 0))).map (·.1)
+      candidates := candidates.insertionSort fun e₁ e₂ => e₁.priority > e₂.priority
       let useBackward := backward.defeqAttrib.useBackward.get (← getOptions)
       for thm in candidates do
         checkSystem "simp"
@@ -259,7 +276,7 @@ where
             let type ← inferType val
             let (xs, bis, type) ← forallMetaTelescopeReducing type
             let type ← whnf (← instantiateMVars type)
-            let lhs := type.appFn!.appArg!
+            let lhs := canonicalizeItes type.appFn!.appArg!
             let lhsNumArgs := lhs.getAppNumArgs
             tryTheoremCore lhs xs bis val type e thm (numArgs - lhsNumArgs)
           if let some result := result? then

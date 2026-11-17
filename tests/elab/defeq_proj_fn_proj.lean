@@ -1,5 +1,4 @@
-module
-public import Lean
+import Lean
 /-!
 Unification of projection functions and primitive projections when the structure is a
 metavariable: `S.f ?s =?= t.i` and `?s.i =?= t.i` are solved by `?s := t` before either
@@ -82,6 +81,18 @@ example (n : Nat) : ∃ s : Pt, prj% 0 s = prj% 0 (mk n) := ⟨_, rfl⟩
 example (b : Bool) (n : Nat) : (if b then n else n) = n := ite_self n
 example (b : Bool) (h : b = true) (x y : Nat) : (if b then x else y) = x := if_pos h
 
+/-! A proposition-guard lemma used on a Boolean guard leaves the Boolean guard, not its test instance. -/
+
+example {f : α → β} {p : β → Bool} (x : α) :
+    (Option.map f (some x)).filter p = ((some x).filter (p ∘ f)).map f := by
+  simp only [Option.filter_some, Option.map_some, Option.map_ite, Function.comp_apply]
+
+/-! `simp` uses a hypothesis stated with explicit `ite` on the canonical form. -/
+
+example (p : Prop) (h h' : Decidable p) (x y : Prop)
+    (this : @ite _ p h x y = @ite _ p h' x y) : @ite _ p h x y ↔ @ite _ p h' x y := by
+  simp [this]
+
 /-! Projections of exposed constructors compute at reducible transparency, whatever their propositions. -/
 
 open Lean Meta in
@@ -93,3 +104,27 @@ run_meta do
     (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Nat) (mkNatLit 0))
   unless ← withReducible <| isDefEq (mkProj ``Decidable 0 a) (mkProj ``Decidable 0 b) do
     throwError "constructor projections did not compute"
+
+/-! A guard whose instance merely evaluates is not identified with `False` by `simp`. -/
+
+example : (if "hello" = "world" then 1 else 2) = 2 := by
+  simp (config := { decide := false }) [-String.reduceEq]
+  guard_target =ₛ ¬"hello" = "world"
+  decide
+
+/-! Metadata around a guard does not change how `simp` treats it. -/
+
+open Lean Meta Elab Tactic in
+elab "wrap_guard_mdata" : tactic => do
+  let g ← getMainGoal
+  let t ← instantiateMVars (← g.getType)
+  let t' := t.replace fun e =>
+    if e.isAppOfArity ``cond 4 then
+      some <| mkApp4 e.getAppFn (e.getArg! 0) (mkMData {} (e.getArg! 1)) (e.getArg! 2) (e.getArg! 3)
+    else none
+  replaceMainGoal [← g.replaceTargetDefEq t']
+
+example (p : Prop) [Decidable p] (h : decide p = true) : (if p then (1 : Nat) else 2) = 1 := by
+  wrap_guard_mdata
+  fail_if_success simp only [h, Bool.cond_true]
+  simp [of_decide_eq_true h]

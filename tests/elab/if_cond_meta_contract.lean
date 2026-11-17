@@ -3,8 +3,9 @@ import Lean
 public meta import Lean
 
 /-!
-Meta-level conditional abstraction: `kabstract` matches definitionally equal `ite` and `cond`
-applications at default transparency, including overapplications and excluded occurrences.
+Meta-level conditional contracts: `kabstract` matches definitionally equal `ite` and `cond`
+applications at default transparency, and guard normalization recursively removes comparisons
+of decision projections, with checked proof endpoints.
 -/
 
 open Lean Meta
@@ -37,3 +38,29 @@ run_meta withTransparency .default do
             check (mkLambda `value .default (← inferType pattern) body)
           unless (← kabstract input pattern (.pos [])) == input do
             throwError "excluded conditional match changed the original expression"
+
+run_meta do
+  withLocalDeclD `p (mkSort 0) fun p =>
+  withLocalDeclD `d (mkApp (mkConst ``Decidable) p) fun d => do
+    let inner ← mkEq (mkProj ``Decidable 0 d) (mkConst ``Bool.true)
+    withLocalDeclD `outer (mkApp (mkConst ``Decidable) inner) fun outer => do
+      for positive in [false, true] do
+        let condition ← mkEq (mkProj ``Decidable 0 outer)
+          (mkConst (if positive then ``Bool.true else ``Bool.false))
+        let expected := if positive then p else mkNot p
+        let some result ← Simp.normalizeDecisionCondition? condition
+          | throwError "nested decision comparison was not normalized"
+        unless result.expr == expected do
+          throwError "nested decision comparison retained an intermediate guard"
+        let proof ← result.getProof
+        check proof
+        unless ← isDefEq (← inferType proof) (← mkEq condition expected) do
+          throwError "nested guard normalization has incorrect proof endpoints"
+
+example (p : Prop) [d : Decidable p] (h : p) :
+    (if d.1 = true then (1 : Nat) else 2) = 1 := by
+  simp only [h, ite_true]
+
+example (p : Prop) [d : Decidable p] (h : ¬p) :
+    (if d.1 = true then (1 : Nat) else 2) = 2 := by
+  simp only [h, ite_false]

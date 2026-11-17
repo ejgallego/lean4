@@ -61,6 +61,8 @@ abbrev CongrCache := ExprMap (Option CongrTheorem)
 structure Context where
   private mk ::
   config            : Config := {}
+  /-- Solver normalizers rewrite decision guards as Booleans and select decided branches. -/
+  booleanGuardMode  : Bool := false
   /-- User-extensible configuration. Tactic options of the form `(user.optName := ...)`
   set keys `tactic.simp.user.optName`, if there is a global option named `tactic.simp.user.optName`. -/
   userConfig        : Options := {}
@@ -203,6 +205,10 @@ def Context.setFailIfUnchanged (c : Context) (flag : Bool) : Context :=
 
 def Context.setMemoize (c : Context) (flag : Bool) : Context :=
   { c with config.memoize := flag }
+
+/-- Select the Boolean guard normal form used by solver preprocessing. -/
+def Context.setBooleanGuardMode (c : Context) (flag : Bool) : Context :=
+  { c with booleanGuardMode := flag }
 
 def Context.setZetaDeltaSet (c : Context) (zetaDeltaSet : FVarIdSet) (initUsedZetaDelta : FVarIdSet) : Context :=
   { c with zetaDeltaSet, initUsedZetaDelta }
