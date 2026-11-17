@@ -343,8 +343,8 @@ return v___x_51_;
 }
 else
 {
-lean_dec(v_typeName_52_);
 lean_dec_ref_known(v_e_47_, 3);
+lean_dec(v_typeName_52_);
 return v___x_51_;
 }
 }

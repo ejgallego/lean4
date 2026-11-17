@@ -2650,10 +2650,10 @@ return v___x_885_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00__private_Lean_Meta_Tactic_Grind_PropagateInj_0__Lean_Meta_Grind_initInjFn_spec__1_spec__1___redArg___boxed(lean_object* v_x_886_, lean_object* v_x_887_, lean_object* v_x_888_){
 _start:
 {
-size_t v_x_9856__boxed_889_; lean_object* v_res_890_; 
-v_x_9856__boxed_889_ = lean_unbox_usize(v_x_887_);
+size_t v_x_9848__boxed_889_; lean_object* v_res_890_; 
+v_x_9848__boxed_889_ = lean_unbox_usize(v_x_887_);
 lean_dec(v_x_887_);
-v_res_890_ = l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00__private_Lean_Meta_Tactic_Grind_PropagateInj_0__Lean_Meta_Grind_initInjFn_spec__1_spec__1___redArg(v_x_886_, v_x_9856__boxed_889_, v_x_888_);
+v_res_890_ = l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00__private_Lean_Meta_Tactic_Grind_PropagateInj_0__Lean_Meta_Grind_initInjFn_spec__1_spec__1___redArg(v_x_886_, v_x_9848__boxed_889_, v_x_888_);
 lean_dec(v_x_888_);
 lean_dec_ref(v_x_886_);
 return v_res_890_;
@@ -3123,10 +3123,10 @@ return v___x_1094_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00__private_Lean_Meta_Tactic_Grind_PropagateInj_0__Lean_Meta_Grind_initInjFn_spec__1_spec__1___boxed(lean_object* v_00_u03b2_1095_, lean_object* v_x_1096_, lean_object* v_x_1097_, lean_object* v_x_1098_){
 _start:
 {
-size_t v_x_10117__boxed_1099_; lean_object* v_res_1100_; 
-v_x_10117__boxed_1099_ = lean_unbox_usize(v_x_1097_);
+size_t v_x_10109__boxed_1099_; lean_object* v_res_1100_; 
+v_x_10109__boxed_1099_ = lean_unbox_usize(v_x_1097_);
 lean_dec(v_x_1097_);
-v_res_1100_ = l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00__private_Lean_Meta_Tactic_Grind_PropagateInj_0__Lean_Meta_Grind_initInjFn_spec__1_spec__1(v_00_u03b2_1095_, v_x_1096_, v_x_10117__boxed_1099_, v_x_1098_);
+v_res_1100_ = l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00__private_Lean_Meta_Tactic_Grind_PropagateInj_0__Lean_Meta_Grind_initInjFn_spec__1_spec__1(v_00_u03b2_1095_, v_x_1096_, v_x_10109__boxed_1099_, v_x_1098_);
 lean_dec(v_x_1098_);
 lean_dec_ref(v_x_1096_);
 return v_res_1100_;

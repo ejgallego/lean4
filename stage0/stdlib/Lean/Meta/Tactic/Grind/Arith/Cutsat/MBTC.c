@@ -489,13 +489,13 @@ return v___x_57_;
 v___jp_58_:
 {
 lean_object* v___x_62_; uint8_t v___x_63_; 
-v___x_62_ = lean_int_emod(v___y_61_, v___y_59_);
+v___x_62_ = lean_int_emod(v___y_61_, v___y_60_);
 lean_dec(v___y_61_);
-v___x_63_ = l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_isSignedType(v___y_60_);
-lean_dec_ref(v___y_60_);
+v___x_63_ = l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_isSignedType(v___y_59_);
+lean_dec_ref(v___y_59_);
 if (v___x_63_ == 0)
 {
-lean_dec(v___y_59_);
+lean_dec(v___y_60_);
 v___y_54_ = v___x_62_;
 goto v___jp_53_;
 }
@@ -503,20 +503,20 @@ else
 {
 lean_object* v___x_64_; lean_object* v___x_65_; uint8_t v___x_66_; 
 v___x_64_ = lean_obj_once(&l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_getEmbeddedLitValue_x3f___redArg___closed__0, &l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_getEmbeddedLitValue_x3f___redArg___closed__0_once, _init_l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_getEmbeddedLitValue_x3f___redArg___closed__0);
-v___x_65_ = lean_int_ediv(v___y_59_, v___x_64_);
+v___x_65_ = lean_int_ediv(v___y_60_, v___x_64_);
 v___x_66_ = lean_int_dec_le(v___x_65_, v___x_62_);
 lean_dec(v___x_65_);
 if (v___x_66_ == 0)
 {
-lean_dec(v___y_59_);
+lean_dec(v___y_60_);
 v___y_54_ = v___x_62_;
 goto v___jp_53_;
 }
 else
 {
 lean_object* v___x_67_; 
-v___x_67_ = lean_int_sub(v___x_62_, v___y_59_);
-lean_dec(v___y_59_);
+v___x_67_ = lean_int_sub(v___x_62_, v___y_60_);
+lean_dec(v___y_60_);
 lean_dec(v___x_62_);
 v___y_54_ = v___x_67_;
 goto v___jp_53_;
@@ -591,8 +591,8 @@ if (v_neg_71_ == 0)
 {
 lean_object* v___x_89_; 
 v___x_89_ = lean_nat_to_int(v_val_81_);
-v___y_59_ = v___x_88_;
-v___y_60_ = v_00_u03b1_69_;
+v___y_59_ = v_00_u03b1_69_;
+v___y_60_ = v___x_88_;
 v___y_61_ = v___x_89_;
 goto v___jp_58_;
 }
@@ -602,8 +602,8 @@ lean_object* v___x_90_; lean_object* v___x_91_;
 v___x_90_ = lean_nat_to_int(v_val_81_);
 v___x_91_ = lean_int_neg(v___x_90_);
 lean_dec(v___x_90_);
-v___y_59_ = v___x_88_;
-v___y_60_ = v_00_u03b1_69_;
+v___y_59_ = v_00_u03b1_69_;
+v___y_60_ = v___x_88_;
 v___y_61_ = v___x_91_;
 goto v___jp_58_;
 }

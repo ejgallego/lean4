@@ -4729,7 +4729,7 @@ goto v___jp_1579_;
 v___jp_1524_:
 {
 lean_object* v___x_1527_; lean_object* v_a_1528_; lean_object* v___x_1530_; uint8_t v_isShared_1531_; uint8_t v_isSharedCheck_1536_; 
-v___x_1527_ = l___private_Lean_PrettyPrinter_Delaborator_Metavariable_0__Lean_PrettyPrinter_Delaborator_describeMVar_absentLCtxVars___redArg(v_lctxInitIndices_1507_, v_val_1520_, v___y_1526_);
+v___x_1527_ = l___private_Lean_PrettyPrinter_Delaborator_Metavariable_0__Lean_PrettyPrinter_Delaborator_describeMVar_absentLCtxVars___redArg(v_lctxInitIndices_1507_, v_val_1520_, v___y_1525_);
 lean_dec(v_val_1520_);
 v_a_1528_ = lean_ctor_get(v___x_1527_, 0);
 v_isSharedCheck_1536_ = !lean_is_exclusive(v___x_1527_);
@@ -4750,7 +4750,7 @@ goto v_resetjp_1529_;
 v_resetjp_1529_:
 {
 lean_object* v___x_1532_; lean_object* v___x_1534_; 
-v___x_1532_ = lean_string_append(v___y_1525_, v_a_1528_);
+v___x_1532_ = lean_string_append(v___y_1526_, v_a_1528_);
 lean_dec(v_a_1528_);
 if (v_isShared_1531_ == 0)
 {
@@ -4776,8 +4776,8 @@ v___jp_1537_:
 {
 if (v_fromDelayed_1508_ == 0)
 {
-v___y_1525_ = v_msg_1538_;
-v___y_1526_ = v___y_1539_;
+v___y_1525_ = v___y_1539_;
+v___y_1526_ = v_msg_1538_;
 goto v___jp_1524_;
 }
 else
@@ -4835,8 +4835,8 @@ return v___x_1551_;
 }
 else
 {
-v___y_1525_ = v_msg_1538_;
-v___y_1526_ = v___y_1539_;
+v___y_1525_ = v___y_1539_;
+v___y_1526_ = v_msg_1538_;
 goto v___jp_1524_;
 }
 }

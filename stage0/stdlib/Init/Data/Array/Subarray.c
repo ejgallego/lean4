@@ -2387,9 +2387,9 @@ return v___x_706_;
 LEAN_EXPORT lean_object* l_Subarray_findRevM_x3f___redArg___lam__0___boxed(lean_object* v_toPure_707_, lean_object* v_a_708_, lean_object* v_____do__lift_709_){
 _start:
 {
-uint8_t v_____do__lift_83__boxed_710_; lean_object* v_res_711_; 
-v_____do__lift_83__boxed_710_ = lean_unbox(v_____do__lift_709_);
-v_res_711_ = l_Subarray_findRevM_x3f___redArg___lam__0(v_toPure_707_, v_a_708_, v_____do__lift_83__boxed_710_);
+uint8_t v_____do__lift_76__boxed_710_; lean_object* v_res_711_; 
+v_____do__lift_76__boxed_710_ = lean_unbox(v_____do__lift_709_);
+v_res_711_ = l_Subarray_findRevM_x3f___redArg___lam__0(v_toPure_707_, v_a_708_, v_____do__lift_76__boxed_710_);
 return v_res_711_;
 }
 }

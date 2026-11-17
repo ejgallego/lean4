@@ -1101,10 +1101,10 @@ return v___x_308_;
 LEAN_EXPORT lean_object* l_Lake_JobAction_verb___boxed(lean_object* v_failed_309_, lean_object* v_x_310_){
 _start:
 {
-uint8_t v_failed_boxed_311_; uint8_t v_x_220__boxed_312_; lean_object* v_res_313_; 
+uint8_t v_failed_boxed_311_; uint8_t v_x_172__boxed_312_; lean_object* v_res_313_; 
 v_failed_boxed_311_ = lean_unbox(v_failed_309_);
-v_x_220__boxed_312_ = lean_unbox(v_x_310_);
-v_res_313_ = l_Lake_JobAction_verb(v_failed_boxed_311_, v_x_220__boxed_312_);
+v_x_172__boxed_312_ = lean_unbox(v_x_310_);
+v_res_313_ = l_Lake_JobAction_verb(v_failed_boxed_311_, v_x_172__boxed_312_);
 return v_res_313_;
 }
 }

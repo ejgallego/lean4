@@ -2436,9 +2436,9 @@ return v___x_1100_;
 LEAN_EXPORT lean_object* l_Lean_Elab_Deriving_mkNonemptyInstanceHandler___lam__0___boxed(lean_object* v_____do__lift_1101_, lean_object* v___y_1102_, lean_object* v___y_1103_, lean_object* v___y_1104_){
 _start:
 {
-uint8_t v_____do__lift_1871__boxed_1105_; lean_object* v_res_1106_; 
-v_____do__lift_1871__boxed_1105_ = lean_unbox(v_____do__lift_1101_);
-v_res_1106_ = l_Lean_Elab_Deriving_mkNonemptyInstanceHandler___lam__0(v_____do__lift_1871__boxed_1105_, v___y_1102_, v___y_1103_);
+uint8_t v_____do__lift_1863__boxed_1105_; lean_object* v_res_1106_; 
+v_____do__lift_1863__boxed_1105_ = lean_unbox(v_____do__lift_1101_);
+v_res_1106_ = l_Lean_Elab_Deriving_mkNonemptyInstanceHandler___lam__0(v_____do__lift_1863__boxed_1105_, v___y_1102_, v___y_1103_);
 lean_dec(v___y_1103_);
 lean_dec_ref(v___y_1102_);
 return v_res_1106_;

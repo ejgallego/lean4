@@ -1989,14 +1989,14 @@ return v_res_652_;
 LEAN_EXPORT lean_object* l_panic___at___00Lean_Meta_unfoldLocalDecl_spec__0(lean_object* v_msg_654_, lean_object* v___y_655_, lean_object* v___y_656_, lean_object* v___y_657_, lean_object* v___y_658_){
 _start:
 {
-lean_object* v___f_660_; lean_object* v___x_848__overap_661_; lean_object* v___x_662_; 
+lean_object* v___f_660_; lean_object* v___x_840__overap_661_; lean_object* v___x_662_; 
 v___f_660_ = ((lean_object*)(l_panic___at___00Lean_Meta_unfoldLocalDecl_spec__0___closed__0));
-v___x_848__overap_661_ = lean_panic_fn_borrowed(v___f_660_, v_msg_654_);
+v___x_840__overap_661_ = lean_panic_fn_borrowed(v___f_660_, v_msg_654_);
 lean_inc(v___y_658_);
 lean_inc_ref(v___y_657_);
 lean_inc(v___y_656_);
 lean_inc_ref(v___y_655_);
-v___x_662_ = lean_apply_5(v___x_848__overap_661_, v___y_655_, v___y_656_, v___y_657_, v___y_658_, lean_box(0));
+v___x_662_ = lean_apply_5(v___x_840__overap_661_, v___y_655_, v___y_656_, v___y_657_, v___y_658_, lean_box(0));
 return v___x_662_;
 }
 }

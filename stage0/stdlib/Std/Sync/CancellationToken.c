@@ -2186,9 +2186,9 @@ return v___x_683_;
 LEAN_EXPORT lean_object* l_Std_CancellationToken_selector___lam__0___boxed(lean_object* v___x_684_, lean_object* v___y_685_, lean_object* v___y_686_){
 _start:
 {
-uint8_t v___x_6991__boxed_687_; lean_object* v_res_688_; 
-v___x_6991__boxed_687_ = lean_unbox(v___x_684_);
-v_res_688_ = l_Std_CancellationToken_selector___lam__0(v___x_6991__boxed_687_, v___y_685_);
+uint8_t v___x_6973__boxed_687_; lean_object* v_res_688_; 
+v___x_6973__boxed_687_ = lean_unbox(v___x_684_);
+v_res_688_ = l_Std_CancellationToken_selector___lam__0(v___x_6973__boxed_687_, v___y_685_);
 lean_dec(v___y_685_);
 return v_res_688_;
 }

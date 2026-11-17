@@ -2070,9 +2070,9 @@ return v___x_658_;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_MatchExpr_0__Lean_Elab_Term_MatchExpr_generate_loop___lam__0___boxed(lean_object* v___x_659_, lean_object* v_____do__lift_660_, lean_object* v___y_661_, lean_object* v___y_662_){
 _start:
 {
-uint8_t v___x_20334__boxed_663_; lean_object* v_res_664_; 
-v___x_20334__boxed_663_ = lean_unbox(v___x_659_);
-v_res_664_ = l___private_Lean_Elab_MatchExpr_0__Lean_Elab_Term_MatchExpr_generate_loop___lam__0(v___x_20334__boxed_663_, v_____do__lift_660_, v___y_661_, v___y_662_);
+uint8_t v___x_20312__boxed_663_; lean_object* v_res_664_; 
+v___x_20312__boxed_663_ = lean_unbox(v___x_659_);
+v_res_664_ = l___private_Lean_Elab_MatchExpr_0__Lean_Elab_Term_MatchExpr_generate_loop___lam__0(v___x_20312__boxed_663_, v_____do__lift_660_, v___y_661_, v___y_662_);
 lean_dec_ref(v___y_661_);
 lean_dec(v_____do__lift_660_);
 return v_res_664_;

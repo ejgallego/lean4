@@ -765,8 +765,8 @@ lean_inc_ref_n(v_i_168_, 2);
 v___x_196_ = l___private_Lean_Server_Completion_CompletionInfoSelection_0__Lean_Server_Completion_findCompletionInfosAt_containsHoverPos(v_hoverPos_163_, v_i_168_);
 if (v___x_196_ == 0)
 {
-lean_dec_ref(v_i_168_);
 lean_dec_ref_known(v_info_166_, 1);
+lean_dec_ref(v_i_168_);
 lean_dec_ref(v_ctx_165_);
 lean_dec_ref(v_fileMap_162_);
 return v_best_167_;
@@ -2294,23 +2294,23 @@ return v___x_655_;
 v___jp_656_:
 {
 lean_object* v___x_661_; 
-v___x_661_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00__private_Lean_Server_Completion_CompletionInfoSelection_0__Lean_Server_Completion_computePrioritizedCompletionPartitions_spec__1___redArg(v___y_657_, v___y_659_, v___y_658_, v___y_660_);
+v___x_661_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00__private_Lean_Server_Completion_CompletionInfoSelection_0__Lean_Server_Completion_computePrioritizedCompletionPartitions_spec__1___redArg(v___y_659_, v___y_657_, v___y_658_, v___y_660_);
 lean_dec(v___y_660_);
-lean_dec(v___y_657_);
+lean_dec(v___y_659_);
 v___y_652_ = v___x_661_;
 goto v___jp_651_;
 }
 v___jp_662_:
 {
 uint8_t v___x_667_; 
-v___x_667_ = lean_nat_dec_le(v___y_666_, v___y_665_);
+v___x_667_ = lean_nat_dec_le(v___y_666_, v___y_664_);
 if (v___x_667_ == 0)
 {
-lean_dec(v___y_665_);
+lean_dec(v___y_664_);
 lean_inc(v___y_666_);
 v___y_657_ = v___y_663_;
 v___y_658_ = v___y_666_;
-v___y_659_ = v___y_664_;
+v___y_659_ = v___y_665_;
 v___y_660_ = v___y_666_;
 goto v___jp_656_;
 }
@@ -2318,8 +2318,8 @@ else
 {
 v___y_657_ = v___y_663_;
 v___y_658_ = v___y_666_;
-v___y_659_ = v___y_664_;
-v___y_660_ = v___y_665_;
+v___y_659_ = v___y_665_;
+v___y_660_ = v___y_664_;
 goto v___jp_656_;
 }
 }
@@ -2338,17 +2338,17 @@ v___x_675_ = lean_nat_dec_le(v___x_671_, v___x_674_);
 if (v___x_675_ == 0)
 {
 lean_inc(v___x_674_);
-v___y_663_ = v___x_670_;
-v___y_664_ = v___y_669_;
-v___y_665_ = v___x_674_;
+v___y_663_ = v___y_669_;
+v___y_664_ = v___x_674_;
+v___y_665_ = v___x_670_;
 v___y_666_ = v___x_674_;
 goto v___jp_662_;
 }
 else
 {
-v___y_663_ = v___x_670_;
-v___y_664_ = v___y_669_;
-v___y_665_ = v___x_674_;
+v___y_663_ = v___y_669_;
+v___y_664_ = v___x_674_;
+v___y_665_ = v___x_670_;
 v___y_666_ = v___x_671_;
 goto v___jp_662_;
 }

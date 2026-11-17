@@ -411,9 +411,9 @@ return v___x_86_;
 LEAN_EXPORT lean_object* l_Lean_forEachModuleInDir___redArg___lam__4___boxed(lean_object* v___x_87_, lean_object* v___f_88_, lean_object* v___x_89_, lean_object* v_toPure_90_, lean_object* v_a_91_, lean_object* v_f_92_, lean_object* v_toBind_93_, lean_object* v___f_94_, lean_object* v_inst_95_, lean_object* v_inst_96_, lean_object* v___f_97_, lean_object* v_____do__lift_98_){
 _start:
 {
-uint8_t v_____do__lift_493__boxed_99_; lean_object* v_res_100_; 
-v_____do__lift_493__boxed_99_ = lean_unbox(v_____do__lift_98_);
-v_res_100_ = l_Lean_forEachModuleInDir___redArg___lam__4(v___x_87_, v___f_88_, v___x_89_, v_toPure_90_, v_a_91_, v_f_92_, v_toBind_93_, v___f_94_, v_inst_95_, v_inst_96_, v___f_97_, v_____do__lift_493__boxed_99_);
+uint8_t v_____do__lift_476__boxed_99_; lean_object* v_res_100_; 
+v_____do__lift_476__boxed_99_ = lean_unbox(v_____do__lift_98_);
+v_res_100_ = l_Lean_forEachModuleInDir___redArg___lam__4(v___x_87_, v___f_88_, v___x_89_, v_toPure_90_, v_a_91_, v_f_92_, v_toBind_93_, v___f_94_, v_inst_95_, v_inst_96_, v___f_97_, v_____do__lift_476__boxed_99_);
 return v_res_100_;
 }
 }
@@ -998,9 +998,9 @@ return v___x_296_;
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___00Lean_SearchPath_findAllWithExt_spec__2___redArg___lam__0___boxed(lean_object* v_val_297_, lean_object* v_x_298_, lean_object* v___y_299_){
 _start:
 {
-uint8_t v_val_975__boxed_300_; lean_object* v_res_301_; 
-v_val_975__boxed_300_ = lean_unbox(v_val_297_);
-v_res_301_ = l_List_forIn_x27_loop___at___00Lean_SearchPath_findAllWithExt_spec__2___redArg___lam__0(v_val_975__boxed_300_, v_x_298_);
+uint8_t v_val_967__boxed_300_; lean_object* v_res_301_; 
+v_val_967__boxed_300_ = lean_unbox(v_val_297_);
+v_res_301_ = l_List_forIn_x27_loop___at___00Lean_SearchPath_findAllWithExt_spec__2___redArg___lam__0(v_val_967__boxed_300_, v_x_298_);
 lean_dec_ref(v_x_298_);
 return v_res_301_;
 }

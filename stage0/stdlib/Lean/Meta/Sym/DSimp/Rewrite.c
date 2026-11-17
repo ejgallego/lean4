@@ -687,10 +687,10 @@ return v___x_213_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00Lean_MVarId_isAssigned___at___00Lean_Meta_Sym_DSimp_rewriteWith_spec__2_spec__2_spec__4___redArg___boxed(lean_object* v_x_214_, lean_object* v_x_215_, lean_object* v_x_216_){
 _start:
 {
-size_t v_x_33314__boxed_217_; uint8_t v_res_218_; lean_object* v_r_219_; 
-v_x_33314__boxed_217_ = lean_unbox_usize(v_x_215_);
+size_t v_x_33277__boxed_217_; uint8_t v_res_218_; lean_object* v_r_219_; 
+v_x_33277__boxed_217_ = lean_unbox_usize(v_x_215_);
 lean_dec(v_x_215_);
-v_res_218_ = l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00Lean_MVarId_isAssigned___at___00Lean_Meta_Sym_DSimp_rewriteWith_spec__2_spec__2_spec__4___redArg(v_x_214_, v_x_33314__boxed_217_, v_x_216_);
+v_res_218_ = l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00Lean_MVarId_isAssigned___at___00Lean_Meta_Sym_DSimp_rewriteWith_spec__2_spec__2_spec__4___redArg(v_x_214_, v_x_33277__boxed_217_, v_x_216_);
 lean_dec(v_x_216_);
 lean_dec_ref(v_x_214_);
 v_r_219_ = lean_box(v_res_218_);
@@ -1916,10 +1916,10 @@ return v___x_600_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00Lean_MVarId_isAssigned___at___00Lean_Meta_Sym_DSimp_rewriteWith_spec__2_spec__2_spec__4___boxed(lean_object* v_00_u03b2_601_, lean_object* v_x_602_, lean_object* v_x_603_, lean_object* v_x_604_){
 _start:
 {
-size_t v_x_33916__boxed_605_; uint8_t v_res_606_; lean_object* v_r_607_; 
-v_x_33916__boxed_605_ = lean_unbox_usize(v_x_603_);
+size_t v_x_33879__boxed_605_; uint8_t v_res_606_; lean_object* v_r_607_; 
+v_x_33879__boxed_605_ = lean_unbox_usize(v_x_603_);
 lean_dec(v_x_603_);
-v_res_606_ = l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00Lean_MVarId_isAssigned___at___00Lean_Meta_Sym_DSimp_rewriteWith_spec__2_spec__2_spec__4(v_00_u03b2_601_, v_x_602_, v_x_33916__boxed_605_, v_x_604_);
+v_res_606_ = l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00Lean_MVarId_isAssigned___at___00Lean_Meta_Sym_DSimp_rewriteWith_spec__2_spec__2_spec__4(v_00_u03b2_601_, v_x_602_, v_x_33879__boxed_605_, v_x_604_);
 lean_dec(v_x_604_);
 lean_dec_ref(v_x_602_);
 v_r_607_ = lean_box(v_res_606_);

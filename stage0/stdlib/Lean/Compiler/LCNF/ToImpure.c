@@ -3267,18 +3267,18 @@ goto v_reusejp_1039_;
 }
 v_reusejp_1039_:
 {
-lean_object* v___x_1041_; lean_object* v___x_1042_; lean_object* v___x_1043_; lean_object* v___x_39233__overap_1044_; lean_object* v___x_1045_; 
+lean_object* v___x_1041_; lean_object* v___x_1042_; lean_object* v___x_1043_; lean_object* v___x_39155__overap_1044_; lean_object* v___x_1045_; 
 v___x_1041_ = l_StateRefT_x27_instMonad___redArg(v___x_1040_);
 v___x_1042_ = lean_obj_once(&l_panic___at___00__private_Lean_Compiler_LCNF_ToImpure_0__Lean_Compiler_LCNF_Alt_toImpure_loop_spec__0___closed__0, &l_panic___at___00__private_Lean_Compiler_LCNF_ToImpure_0__Lean_Compiler_LCNF_Alt_toImpure_loop_spec__0___closed__0_once, _init_l_panic___at___00__private_Lean_Compiler_LCNF_ToImpure_0__Lean_Compiler_LCNF_Alt_toImpure_loop_spec__0___closed__0);
 v___x_1043_ = l_instInhabitedOfMonad___redArg(v___x_1041_, v___x_1042_);
-v___x_39233__overap_1044_ = lean_panic_fn_borrowed(v___x_1043_, v_msg_994_);
+v___x_39155__overap_1044_ = lean_panic_fn_borrowed(v___x_1043_, v_msg_994_);
 lean_dec(v___x_1043_);
 lean_inc(v___y_999_);
 lean_inc_ref(v___y_998_);
 lean_inc(v___y_997_);
 lean_inc_ref(v___y_996_);
 lean_inc(v___y_995_);
-v___x_1045_ = lean_apply_6(v___x_39233__overap_1044_, v___y_995_, v___y_996_, v___y_997_, v___y_998_, v___y_999_, lean_box(0));
+v___x_1045_ = lean_apply_6(v___x_39155__overap_1044_, v___y_995_, v___y_996_, v___y_997_, v___y_998_, v___y_999_, lean_box(0));
 return v___x_1045_;
 }
 }

@@ -336,9 +336,9 @@ return v___x_123_;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_ForallAnd_0__Lean_Meta_Grind_forallImpAnd_x3f_go___lam__0___boxed(lean_object* v_body_124_, lean_object* v___x_125_, lean_object* v_a_126_, lean_object* v_binderType_127_, lean_object* v_t_128_, lean_object* v_x_129_, lean_object* v___y_130_, lean_object* v___y_131_, lean_object* v___y_132_, lean_object* v___y_133_, lean_object* v___y_134_){
 _start:
 {
-uint8_t v___x_4470__boxed_135_; lean_object* v_res_136_; 
-v___x_4470__boxed_135_ = lean_unbox(v___x_125_);
-v_res_136_ = l___private_Lean_Meta_Tactic_Grind_ForallAnd_0__Lean_Meta_Grind_forallImpAnd_x3f_go___lam__0(v_body_124_, v___x_4470__boxed_135_, v_a_126_, v_binderType_127_, v_t_128_, v_x_129_, v___y_130_, v___y_131_, v___y_132_, v___y_133_);
+uint8_t v___x_4455__boxed_135_; lean_object* v_res_136_; 
+v___x_4455__boxed_135_ = lean_unbox(v___x_125_);
+v_res_136_ = l___private_Lean_Meta_Tactic_Grind_ForallAnd_0__Lean_Meta_Grind_forallImpAnd_x3f_go___lam__0(v_body_124_, v___x_4455__boxed_135_, v_a_126_, v_binderType_127_, v_t_128_, v_x_129_, v___y_130_, v___y_131_, v___y_132_, v___y_133_);
 lean_dec(v___y_133_);
 lean_dec_ref(v___y_132_);
 lean_dec(v___y_131_);

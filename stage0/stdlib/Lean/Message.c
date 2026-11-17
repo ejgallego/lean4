@@ -1339,13 +1339,13 @@ goto v___jp_13_;
 v___jp_38_:
 {
 lean_object* v___x_43_; 
-lean_inc_ref(v___y_41_);
-v___x_43_ = lean_string_append(v___y_41_, v___y_42_);
+lean_inc_ref(v___y_40_);
+v___x_43_ = lean_string_append(v___y_40_, v___y_42_);
 if (lean_obj_tag(v___y_39_) == 0)
 {
 lean_object* v___x_44_; 
 v___x_44_ = ((lean_object*)(l_Lean_mkErrorStringWithPos___closed__2));
-v___y_32_ = v___y_40_;
+v___y_32_ = v___y_41_;
 v___y_33_ = v___x_43_;
 v___y_34_ = v___x_44_;
 goto v___jp_31_;
@@ -1356,7 +1356,7 @@ lean_object* v_val_45_;
 v_val_45_ = lean_ctor_get(v___y_39_, 0);
 lean_inc(v_val_45_);
 lean_dec_ref_known(v___y_39_, 1);
-v___y_32_ = v___y_40_;
+v___y_32_ = v___y_41_;
 v___y_33_ = v___x_43_;
 v___y_34_ = v_val_45_;
 goto v___jp_31_;
@@ -1371,8 +1371,8 @@ if (lean_obj_tag(v_kind_11_) == 0)
 lean_object* v___x_50_; 
 v___x_50_ = ((lean_object*)(l_Lean_mkErrorStringWithPos___closed__2));
 v___y_39_ = v___y_48_;
-v___y_40_ = v___y_47_;
-v___y_41_ = v___x_49_;
+v___y_40_ = v___x_49_;
+v___y_41_ = v___y_47_;
 v___y_42_ = v___x_50_;
 goto v___jp_38_;
 }
@@ -1381,8 +1381,8 @@ else
 lean_object* v_val_51_; 
 v_val_51_ = lean_ctor_get(v_kind_11_, 0);
 v___y_39_ = v___y_48_;
-v___y_40_ = v___y_47_;
-v___y_41_ = v___x_49_;
+v___y_40_ = v___x_49_;
+v___y_41_ = v___y_47_;
 v___y_42_ = v_val_51_;
 goto v___jp_38_;
 }
@@ -5907,10 +5907,10 @@ return v___x_1507_;
 LEAN_EXPORT lean_object* l_panic___at___00Lean_MessageData_formatAux_spec__3(lean_object* v_msg_1508_){
 _start:
 {
-lean_object* v___x_1510_; lean_object* v___x_1841__overap_1511_; lean_object* v___x_1512_; 
+lean_object* v___x_1510_; lean_object* v___x_1815__overap_1511_; lean_object* v___x_1512_; 
 v___x_1510_ = lean_obj_once(&l_panic___at___00Lean_MessageData_formatAux_spec__3___closed__0, &l_panic___at___00Lean_MessageData_formatAux_spec__3___closed__0_once, _init_l_panic___at___00Lean_MessageData_formatAux_spec__3___closed__0);
-v___x_1841__overap_1511_ = lean_panic_fn_borrowed(v___x_1510_, v_msg_1508_);
-v___x_1512_ = lean_apply_1(v___x_1841__overap_1511_, lean_box(0));
+v___x_1815__overap_1511_ = lean_panic_fn_borrowed(v___x_1510_, v_msg_1508_);
+v___x_1512_ = lean_apply_1(v___x_1815__overap_1511_, lean_box(0));
 return v___x_1512_;
 }
 }

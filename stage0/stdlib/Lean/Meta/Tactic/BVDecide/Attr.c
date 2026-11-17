@@ -10449,9 +10449,9 @@ goto _start;
 LEAN_EXPORT lean_object* l_List_allM___at___00Lean_isEnumType___at___00Lean_Meta_Tactic_BVDecide_isPotentialTypeAnalysisType_spec__1_spec__2___boxed(lean_object* v___x_2986_, lean_object* v_x_2987_, lean_object* v___y_2988_, lean_object* v___y_2989_, lean_object* v___y_2990_){
 _start:
 {
-uint8_t v___x_4369__boxed_2991_; lean_object* v_res_2992_; 
-v___x_4369__boxed_2991_ = lean_unbox(v___x_2986_);
-v_res_2992_ = l_List_allM___at___00Lean_isEnumType___at___00Lean_Meta_Tactic_BVDecide_isPotentialTypeAnalysisType_spec__1_spec__2(v___x_4369__boxed_2991_, v_x_2987_, v___y_2988_, v___y_2989_);
+uint8_t v___x_4353__boxed_2991_; lean_object* v_res_2992_; 
+v___x_4353__boxed_2991_ = lean_unbox(v___x_2986_);
+v_res_2992_ = l_List_allM___at___00Lean_isEnumType___at___00Lean_Meta_Tactic_BVDecide_isPotentialTypeAnalysisType_spec__1_spec__2(v___x_4353__boxed_2991_, v_x_2987_, v___y_2988_, v___y_2989_);
 lean_dec(v___y_2989_);
 lean_dec_ref(v___y_2988_);
 return v_res_2992_;

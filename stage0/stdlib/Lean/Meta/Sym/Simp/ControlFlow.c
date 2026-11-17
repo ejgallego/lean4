@@ -1079,9 +1079,9 @@ return v___x_271_;
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Simp_simpIte___lam__0___boxed(lean_object* v___x_344_, lean_object* v_e_345_, lean_object* v___y_346_, lean_object* v___y_347_, lean_object* v___y_348_, lean_object* v___y_349_, lean_object* v___y_350_, lean_object* v___y_351_, lean_object* v___y_352_, lean_object* v___y_353_, lean_object* v___y_354_, lean_object* v___y_355_){
 _start:
 {
-uint8_t v___x_9147__boxed_356_; lean_object* v_res_357_; 
-v___x_9147__boxed_356_ = lean_unbox(v___x_344_);
-v_res_357_ = l_Lean_Meta_Sym_Simp_simpIte___lam__0(v___x_9147__boxed_356_, v_e_345_, v___y_346_, v___y_347_, v___y_348_, v___y_349_, v___y_350_, v___y_351_, v___y_352_, v___y_353_, v___y_354_);
+uint8_t v___x_9140__boxed_356_; lean_object* v_res_357_; 
+v___x_9140__boxed_356_ = lean_unbox(v___x_344_);
+v_res_357_ = l_Lean_Meta_Sym_Simp_simpIte___lam__0(v___x_9140__boxed_356_, v_e_345_, v___y_346_, v___y_347_, v___y_348_, v___y_349_, v___y_350_, v___y_351_, v___y_352_, v___y_353_, v___y_354_);
 lean_dec(v___y_354_);
 lean_dec_ref(v___y_353_);
 lean_dec(v___y_352_);
@@ -2804,9 +2804,9 @@ return v___x_496_;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Sym_Simp_ControlFlow_0__Lean_Meta_Sym_Simp_simpDIte___lam__0___boxed(lean_object* v___x_814_, lean_object* v_e_815_, lean_object* v___y_816_, lean_object* v___y_817_, lean_object* v___y_818_, lean_object* v___y_819_, lean_object* v___y_820_, lean_object* v___y_821_, lean_object* v___y_822_, lean_object* v___y_823_, lean_object* v___y_824_, lean_object* v___y_825_){
 _start:
 {
-uint8_t v___x_35320__boxed_826_; lean_object* v_res_827_; 
-v___x_35320__boxed_826_ = lean_unbox(v___x_814_);
-v_res_827_ = l___private_Lean_Meta_Sym_Simp_ControlFlow_0__Lean_Meta_Sym_Simp_simpDIte___lam__0(v___x_35320__boxed_826_, v_e_815_, v___y_816_, v___y_817_, v___y_818_, v___y_819_, v___y_820_, v___y_821_, v___y_822_, v___y_823_, v___y_824_);
+uint8_t v___x_35281__boxed_826_; lean_object* v_res_827_; 
+v___x_35281__boxed_826_ = lean_unbox(v___x_814_);
+v_res_827_ = l___private_Lean_Meta_Sym_Simp_ControlFlow_0__Lean_Meta_Sym_Simp_simpDIte___lam__0(v___x_35281__boxed_826_, v_e_815_, v___y_816_, v___y_817_, v___y_818_, v___y_819_, v___y_820_, v___y_821_, v___y_822_, v___y_823_, v___y_824_);
 lean_dec(v___y_824_);
 lean_dec_ref(v___y_823_);
 lean_dec(v___y_822_);
@@ -4457,7 +4457,7 @@ goto v___jp_1236_;
 }
 else
 {
-lean_object* v_arg_1250_; lean_object* v_arg_1251_; lean_object* v_e_x27_1253_; lean_object* v_proof_1254_; uint8_t v_contextDependent_1255_; lean_object* v___y_1256_; lean_object* v___y_1257_; lean_object* v___y_1258_; lean_object* v___y_1259_; lean_object* v___y_1260_; lean_object* v___y_1261_; lean_object* v___y_1262_; lean_object* v___y_1263_; lean_object* v___y_1264_; lean_object* v_arg_1336_; lean_object* v_arg_1337_; uint8_t v_contextDependent_1339_; lean_object* v___y_1340_; lean_object* v_result_1396_; lean_object* v___y_1397_; lean_object* v___y_1398_; lean_object* v___y_1399_; lean_object* v___y_1400_; lean_object* v___y_1401_; lean_object* v___y_1402_; lean_object* v___y_1403_; lean_object* v___y_1404_; lean_object* v___y_1405_; lean_object* v___y_1411_; lean_object* v___y_1412_; lean_object* v___y_1413_; lean_object* v___y_1414_; lean_object* v___y_1415_; lean_object* v___y_1416_; lean_object* v___y_1417_; lean_object* v___y_1418_; lean_object* v___y_1419_; lean_object* v___y_1420_; uint8_t v___y_1421_; lean_object* v___y_1424_; uint8_t v___y_1425_; lean_object* v___y_1426_; lean_object* v___y_1427_; lean_object* v___y_1428_; lean_object* v___y_1429_; lean_object* v___y_1430_; lean_object* v___y_1431_; lean_object* v___y_1432_; lean_object* v___y_1433_; lean_object* v_a_1434_; lean_object* v_result_1437_; lean_object* v___y_1438_; lean_object* v___y_1439_; lean_object* v___y_1440_; lean_object* v___y_1441_; lean_object* v___y_1442_; lean_object* v___y_1443_; lean_object* v___y_1444_; lean_object* v___y_1445_; lean_object* v___y_1446_; lean_object* v___x_1486_; 
+lean_object* v_arg_1250_; lean_object* v_arg_1251_; lean_object* v_e_x27_1253_; lean_object* v_proof_1254_; uint8_t v_contextDependent_1255_; lean_object* v___y_1256_; lean_object* v___y_1257_; lean_object* v___y_1258_; lean_object* v___y_1259_; lean_object* v___y_1260_; lean_object* v___y_1261_; lean_object* v___y_1262_; lean_object* v___y_1263_; lean_object* v___y_1264_; lean_object* v_arg_1336_; lean_object* v_arg_1337_; uint8_t v_contextDependent_1339_; lean_object* v___y_1340_; lean_object* v_result_1396_; lean_object* v___y_1397_; lean_object* v___y_1398_; lean_object* v___y_1399_; lean_object* v___y_1400_; lean_object* v___y_1401_; lean_object* v___y_1402_; lean_object* v___y_1403_; lean_object* v___y_1404_; lean_object* v___y_1405_; lean_object* v___y_1411_; lean_object* v___y_1412_; lean_object* v___y_1413_; lean_object* v___y_1414_; lean_object* v___y_1415_; lean_object* v___y_1416_; lean_object* v___y_1417_; lean_object* v___y_1418_; lean_object* v___y_1419_; lean_object* v___y_1420_; uint8_t v___y_1421_; lean_object* v___y_1424_; lean_object* v___y_1425_; lean_object* v___y_1426_; uint8_t v___y_1427_; lean_object* v___y_1428_; lean_object* v___y_1429_; lean_object* v___y_1430_; lean_object* v___y_1431_; lean_object* v___y_1432_; lean_object* v___y_1433_; lean_object* v_a_1434_; lean_object* v_result_1437_; lean_object* v___y_1438_; lean_object* v___y_1439_; lean_object* v___y_1440_; lean_object* v___y_1441_; lean_object* v___y_1442_; lean_object* v___y_1443_; lean_object* v___y_1444_; lean_object* v___y_1445_; lean_object* v___y_1446_; lean_object* v___x_1486_; 
 v_arg_1250_ = lean_ctor_get(v___x_1239_, 1);
 lean_inc_ref(v_arg_1250_);
 lean_dec_ref(v___x_1239_);
@@ -5418,64 +5418,64 @@ v___jp_1410_:
 if (v___y_1421_ == 0)
 {
 lean_object* v___x_1422_; 
-v___x_1422_ = l_Lean_Meta_Sym_Simp_Result_withContextDependent(v___y_1420_);
+v___x_1422_ = l_Lean_Meta_Sym_Simp_Result_withContextDependent(v___y_1415_);
 v_result_1396_ = v___x_1422_;
-v___y_1397_ = v___y_1414_;
-v___y_1398_ = v___y_1417_;
-v___y_1399_ = v___y_1416_;
-v___y_1400_ = v___y_1418_;
-v___y_1401_ = v___y_1412_;
-v___y_1402_ = v___y_1413_;
+v___y_1397_ = v___y_1412_;
+v___y_1398_ = v___y_1413_;
+v___y_1399_ = v___y_1411_;
+v___y_1400_ = v___y_1414_;
+v___y_1401_ = v___y_1416_;
+v___y_1402_ = v___y_1418_;
 v___y_1403_ = v___y_1419_;
-v___y_1404_ = v___y_1415_;
-v___y_1405_ = v___y_1411_;
+v___y_1404_ = v___y_1420_;
+v___y_1405_ = v___y_1417_;
 goto v___jp_1395_;
 }
 else
 {
-v_result_1396_ = v___y_1420_;
-v___y_1397_ = v___y_1414_;
-v___y_1398_ = v___y_1417_;
-v___y_1399_ = v___y_1416_;
-v___y_1400_ = v___y_1418_;
-v___y_1401_ = v___y_1412_;
-v___y_1402_ = v___y_1413_;
+v_result_1396_ = v___y_1415_;
+v___y_1397_ = v___y_1412_;
+v___y_1398_ = v___y_1413_;
+v___y_1399_ = v___y_1411_;
+v___y_1400_ = v___y_1414_;
+v___y_1401_ = v___y_1416_;
+v___y_1402_ = v___y_1418_;
 v___y_1403_ = v___y_1419_;
-v___y_1404_ = v___y_1415_;
-v___y_1405_ = v___y_1411_;
+v___y_1404_ = v___y_1420_;
+v___y_1405_ = v___y_1417_;
 goto v___jp_1395_;
 }
 }
 v___jp_1423_:
 {
-if (v___y_1425_ == 0)
+if (v___y_1427_ == 0)
 {
 v_result_1396_ = v_a_1434_;
-v___y_1397_ = v___y_1428_;
-v___y_1398_ = v___y_1429_;
-v___y_1399_ = v___y_1430_;
-v___y_1400_ = v___y_1432_;
-v___y_1401_ = v___y_1426_;
-v___y_1402_ = v___y_1427_;
-v___y_1403_ = v___y_1433_;
-v___y_1404_ = v___y_1431_;
-v___y_1405_ = v___y_1424_;
+v___y_1397_ = v___y_1424_;
+v___y_1398_ = v___y_1426_;
+v___y_1399_ = v___y_1425_;
+v___y_1400_ = v___y_1428_;
+v___y_1401_ = v___y_1429_;
+v___y_1402_ = v___y_1430_;
+v___y_1403_ = v___y_1432_;
+v___y_1404_ = v___y_1433_;
+v___y_1405_ = v___y_1431_;
 goto v___jp_1395_;
 }
 else
 {
 uint8_t v_contextDependent_1435_; 
 v_contextDependent_1435_ = lean_ctor_get_uint8(v_a_1434_, sizeof(void*)*2 + 1);
-v___y_1411_ = v___y_1424_;
-v___y_1412_ = v___y_1426_;
-v___y_1413_ = v___y_1427_;
+v___y_1411_ = v___y_1425_;
+v___y_1412_ = v___y_1424_;
+v___y_1413_ = v___y_1426_;
 v___y_1414_ = v___y_1428_;
-v___y_1415_ = v___y_1431_;
-v___y_1416_ = v___y_1430_;
-v___y_1417_ = v___y_1429_;
-v___y_1418_ = v___y_1432_;
-v___y_1419_ = v___y_1433_;
-v___y_1420_ = v_a_1434_;
+v___y_1415_ = v_a_1434_;
+v___y_1416_ = v___y_1429_;
+v___y_1417_ = v___y_1431_;
+v___y_1418_ = v___y_1430_;
+v___y_1419_ = v___y_1432_;
+v___y_1420_ = v___y_1433_;
 v___y_1421_ = v_contextDependent_1435_;
 goto v___jp_1410_;
 }
@@ -5552,16 +5552,16 @@ v_reusejp_1458_:
 {
 lean_ctor_set_uint8(v___x_1459_, sizeof(void*)*2, v_done_1456_);
 lean_ctor_set_uint8(v___x_1459_, sizeof(void*)*2 + 1, v_contextDependent_1457_);
-v___y_1424_ = v___y_1446_;
-v___y_1425_ = v_contextDependent_1450_;
-v___y_1426_ = v___y_1442_;
-v___y_1427_ = v___y_1443_;
-v___y_1428_ = v___y_1438_;
-v___y_1429_ = v___y_1439_;
-v___y_1430_ = v___y_1440_;
-v___y_1431_ = v___y_1445_;
-v___y_1432_ = v___y_1441_;
-v___y_1433_ = v___y_1444_;
+v___y_1424_ = v___y_1438_;
+v___y_1425_ = v___y_1440_;
+v___y_1426_ = v___y_1439_;
+v___y_1427_ = v_contextDependent_1450_;
+v___y_1428_ = v___y_1441_;
+v___y_1429_ = v___y_1442_;
+v___y_1430_ = v___y_1443_;
+v___y_1431_ = v___y_1446_;
+v___y_1432_ = v___y_1444_;
+v___y_1433_ = v___y_1445_;
 v_a_1434_ = v___x_1459_;
 goto v___jp_1423_;
 }
@@ -5621,16 +5621,16 @@ goto v_reusejp_1470_;
 }
 v_reusejp_1470_:
 {
-v___y_1424_ = v___y_1446_;
-v___y_1425_ = v_contextDependent_1450_;
-v___y_1426_ = v___y_1442_;
-v___y_1427_ = v___y_1443_;
-v___y_1428_ = v___y_1438_;
-v___y_1429_ = v___y_1439_;
-v___y_1430_ = v___y_1440_;
-v___y_1431_ = v___y_1445_;
-v___y_1432_ = v___y_1441_;
-v___y_1433_ = v___y_1444_;
+v___y_1424_ = v___y_1438_;
+v___y_1425_ = v___y_1440_;
+v___y_1426_ = v___y_1439_;
+v___y_1427_ = v_contextDependent_1450_;
+v___y_1428_ = v___y_1441_;
+v___y_1429_ = v___y_1442_;
+v___y_1430_ = v___y_1443_;
+v___y_1431_ = v___y_1446_;
+v___y_1432_ = v___y_1444_;
+v___y_1433_ = v___y_1445_;
 v_a_1434_ = v___x_1471_;
 goto v___jp_1423_;
 }
@@ -5764,9 +5764,9 @@ return v___x_1238_;
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Simp_simpCondWith___lam__0___boxed(lean_object* v___x_1523_, lean_object* v_simplifyDecision_1524_, lean_object* v_e_1525_, lean_object* v___y_1526_, lean_object* v___y_1527_, lean_object* v___y_1528_, lean_object* v___y_1529_, lean_object* v___y_1530_, lean_object* v___y_1531_, lean_object* v___y_1532_, lean_object* v___y_1533_, lean_object* v___y_1534_, lean_object* v___y_1535_){
 _start:
 {
-uint8_t v___x_25622__boxed_1536_; lean_object* v_res_1537_; 
-v___x_25622__boxed_1536_ = lean_unbox(v___x_1523_);
-v_res_1537_ = l_Lean_Meta_Sym_Simp_simpCondWith___lam__0(v___x_25622__boxed_1536_, v_simplifyDecision_1524_, v_e_1525_, v___y_1526_, v___y_1527_, v___y_1528_, v___y_1529_, v___y_1530_, v___y_1531_, v___y_1532_, v___y_1533_, v___y_1534_);
+uint8_t v___x_25567__boxed_1536_; lean_object* v_res_1537_; 
+v___x_25567__boxed_1536_ = lean_unbox(v___x_1523_);
+v_res_1537_ = l_Lean_Meta_Sym_Simp_simpCondWith___lam__0(v___x_25567__boxed_1536_, v_simplifyDecision_1524_, v_e_1525_, v___y_1526_, v___y_1527_, v___y_1528_, v___y_1529_, v___y_1530_, v___y_1531_, v___y_1532_, v___y_1533_, v___y_1534_);
 lean_dec(v___y_1534_);
 lean_dec_ref(v___y_1533_);
 lean_dec(v___y_1532_);
@@ -6289,9 +6289,9 @@ lean_inc_ref(v_proof_1762_);
 v_done_1763_ = lean_ctor_get_uint8(v_a_1756_, sizeof(void*)*2);
 v_contextDependent_1764_ = lean_ctor_get_uint8(v_a_1756_, sizeof(void*)*2 + 1);
 lean_dec_ref_known(v_a_1756_, 2);
-v___y_1687_ = v_e_x27_1761_;
+v___y_1687_ = v_proof_1762_;
 v___y_1688_ = v_done_1763_;
-v___y_1689_ = v_proof_1762_;
+v___y_1689_ = v_e_x27_1761_;
 v___y_1690_ = v_contextDependent_1764_;
 goto v___jp_1686_;
 }
@@ -6304,9 +6304,9 @@ v_proof_1766_ = lean_ctor_get(v_a_1756_, 1);
 lean_inc_ref(v_proof_1766_);
 v_done_1767_ = lean_ctor_get_uint8(v_a_1756_, sizeof(void*)*2);
 lean_dec_ref_known(v_a_1756_, 2);
-v___y_1687_ = v_e_x27_1765_;
+v___y_1687_ = v_proof_1766_;
 v___y_1688_ = v_done_1767_;
-v___y_1689_ = v_proof_1766_;
+v___y_1689_ = v_e_x27_1765_;
 v___y_1690_ = v_contextDependent_1731_;
 goto v___jp_1686_;
 }
@@ -6538,8 +6538,8 @@ v___jp_1686_:
 {
 lean_object* v___x_1691_; lean_object* v___x_1692_; 
 v___x_1691_ = lean_alloc_ctor(1, 2, 2);
-lean_ctor_set(v___x_1691_, 0, v___y_1687_);
-lean_ctor_set(v___x_1691_, 1, v___y_1689_);
+lean_ctor_set(v___x_1691_, 0, v___y_1689_);
+lean_ctor_set(v___x_1691_, 1, v___y_1687_);
 lean_ctor_set_uint8(v___x_1691_, sizeof(void*)*2, v___y_1688_);
 lean_ctor_set_uint8(v___x_1691_, sizeof(void*)*2 + 1, v___y_1690_);
 v___x_1692_ = lean_alloc_ctor(0, 1, 0);

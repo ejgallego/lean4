@@ -397,9 +397,9 @@ return v___x_138_;
 LEAN_EXPORT lean_object* l_Std_SharedMutex_tryAtomically___redArg___lam__3___boxed(lean_object* v_toPure_139_, lean_object* v_toFunctor_140_, lean_object* v_k_141_, lean_object* v_ref_142_, lean_object* v___f_143_, lean_object* v_mutex_144_, lean_object* v_inst_145_, lean_object* v_inst_146_, lean_object* v___f_147_, lean_object* v_____do__lift_148_){
 _start:
 {
-uint8_t v_____do__lift_115__boxed_149_; lean_object* v_res_150_; 
-v_____do__lift_115__boxed_149_ = lean_unbox(v_____do__lift_148_);
-v_res_150_ = l_Std_SharedMutex_tryAtomically___redArg___lam__3(v_toPure_139_, v_toFunctor_140_, v_k_141_, v_ref_142_, v___f_143_, v_mutex_144_, v_inst_145_, v_inst_146_, v___f_147_, v_____do__lift_115__boxed_149_);
+uint8_t v_____do__lift_108__boxed_149_; lean_object* v_res_150_; 
+v_____do__lift_108__boxed_149_ = lean_unbox(v_____do__lift_148_);
+v_res_150_ = l_Std_SharedMutex_tryAtomically___redArg___lam__3(v_toPure_139_, v_toFunctor_140_, v_k_141_, v_ref_142_, v___f_143_, v_mutex_144_, v_inst_145_, v_inst_146_, v___f_147_, v_____do__lift_108__boxed_149_);
 return v_res_150_;
 }
 }
@@ -589,9 +589,9 @@ return v___x_253_;
 LEAN_EXPORT lean_object* l_Std_SharedMutex_tryAtomicallyRead___redArg___lam__1___boxed(lean_object* v_toPure_254_, lean_object* v_toFunctor_255_, lean_object* v_inst_256_, lean_object* v___f_257_, lean_object* v_toBind_258_, lean_object* v___f_259_, lean_object* v_mutex_260_, lean_object* v_inst_261_, lean_object* v___f_262_, lean_object* v_____do__lift_263_){
 _start:
 {
-uint8_t v_____do__lift_158__boxed_264_; lean_object* v_res_265_; 
-v_____do__lift_158__boxed_264_ = lean_unbox(v_____do__lift_263_);
-v_res_265_ = l_Std_SharedMutex_tryAtomicallyRead___redArg___lam__1(v_toPure_254_, v_toFunctor_255_, v_inst_256_, v___f_257_, v_toBind_258_, v___f_259_, v_mutex_260_, v_inst_261_, v___f_262_, v_____do__lift_158__boxed_264_);
+uint8_t v_____do__lift_151__boxed_264_; lean_object* v_res_265_; 
+v_____do__lift_151__boxed_264_ = lean_unbox(v_____do__lift_263_);
+v_res_265_ = l_Std_SharedMutex_tryAtomicallyRead___redArg___lam__1(v_toPure_254_, v_toFunctor_255_, v_inst_256_, v___f_257_, v_toBind_258_, v___f_259_, v_mutex_260_, v_inst_261_, v___f_262_, v_____do__lift_151__boxed_264_);
 return v_res_265_;
 }
 }

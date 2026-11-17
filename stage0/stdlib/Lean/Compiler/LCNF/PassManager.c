@@ -1905,8 +1905,8 @@ return v___x_651_;
 else
 {
 lean_del_object(v___x_644_);
-lean_dec(v_snd_642_);
 lean_dec_ref_known(v_fst_641_, 1);
+lean_dec(v_snd_642_);
 lean_del_object(v___x_639_);
 v___y_624_ = v_a_620_;
 v___y_625_ = v_a_621_;
@@ -2104,12 +2104,12 @@ return v_res_732_;
 LEAN_EXPORT lean_object* l_panic___at___00Lean_Compiler_LCNF_PassInstaller_withEachOccurrence_spec__0(lean_object* v_msg_734_, lean_object* v___y_735_, lean_object* v___y_736_){
 _start:
 {
-lean_object* v___f_738_; lean_object* v___x_1650__overap_739_; lean_object* v___x_740_; 
+lean_object* v___f_738_; lean_object* v___x_1642__overap_739_; lean_object* v___x_740_; 
 v___f_738_ = ((lean_object*)(l_panic___at___00Lean_Compiler_LCNF_PassInstaller_withEachOccurrence_spec__0___closed__0));
-v___x_1650__overap_739_ = lean_panic_fn_borrowed(v___f_738_, v_msg_734_);
+v___x_1642__overap_739_ = lean_panic_fn_borrowed(v___f_738_, v_msg_734_);
 lean_inc(v___y_736_);
 lean_inc_ref(v___y_735_);
-v___x_740_ = lean_apply_3(v___x_1650__overap_739_, v___y_735_, v___y_736_, lean_box(0));
+v___x_740_ = lean_apply_3(v___x_1642__overap_739_, v___y_735_, v___y_736_, lean_box(0));
 return v___x_740_;
 }
 }

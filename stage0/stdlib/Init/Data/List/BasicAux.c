@@ -581,9 +581,9 @@ return v_res_92_;
 LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_partitionM_go___redArg___lam__0___boxed(lean_object* v_a_93_, lean_object* v_head_94_, lean_object* v_inst_95_, lean_object* v_p_96_, lean_object* v_tail_97_, lean_object* v_a_98_, lean_object* v_____do__lift_99_){
 _start:
 {
-uint8_t v_____do__lift_95__boxed_100_; lean_object* v_res_101_; 
-v_____do__lift_95__boxed_100_ = lean_unbox(v_____do__lift_99_);
-v_res_101_ = l___private_Init_Data_List_BasicAux_0__List_partitionM_go___redArg___lam__0(v_a_93_, v_head_94_, v_inst_95_, v_p_96_, v_tail_97_, v_a_98_, v_____do__lift_95__boxed_100_);
+uint8_t v_____do__lift_87__boxed_100_; lean_object* v_res_101_; 
+v_____do__lift_87__boxed_100_ = lean_unbox(v_____do__lift_99_);
+v_res_101_ = l___private_Init_Data_List_BasicAux_0__List_partitionM_go___redArg___lam__0(v_a_93_, v_head_94_, v_inst_95_, v_p_96_, v_tail_97_, v_a_98_, v_____do__lift_87__boxed_100_);
 return v_res_101_;
 }
 }

@@ -1861,12 +1861,12 @@ v_lintDriver_365_ = lean_ctor_get(v___x_354_, 14);
 lean_inc_ref(v_lintDriver_365_);
 lean_inc_ref(v_testDriver_364_);
 lean_inc_ref(v___y_363_);
+lean_inc_ref(v___y_362_);
 lean_inc_ref(v___y_361_);
-lean_inc_ref(v___y_360_);
 lean_inc(v___y_359_);
+lean_inc(v___y_357_);
+lean_inc_ref(v___y_360_);
 lean_inc(v___y_358_);
-lean_inc_ref(v___y_357_);
-lean_inc(v___y_362_);
 v___x_366_ = lean_alloc_ctor(0, 25, 0);
 lean_ctor_set(v___x_366_, 0, v___x_350_);
 lean_ctor_set(v___x_366_, 1, v___x_351_);
@@ -1884,12 +1884,12 @@ lean_ctor_set(v___x_366_, 12, v___x_355_);
 lean_ctor_set(v___x_366_, 13, v___x_355_);
 lean_ctor_set(v___x_366_, 14, v___x_355_);
 lean_ctor_set(v___x_366_, 15, v___x_355_);
-lean_ctor_set(v___x_366_, 16, v___y_362_);
-lean_ctor_set(v___x_366_, 17, v___y_357_);
-lean_ctor_set(v___x_366_, 18, v___y_358_);
+lean_ctor_set(v___x_366_, 16, v___y_358_);
+lean_ctor_set(v___x_366_, 17, v___y_360_);
+lean_ctor_set(v___x_366_, 18, v___y_357_);
 lean_ctor_set(v___x_366_, 19, v___y_359_);
-lean_ctor_set(v___x_366_, 20, v___y_360_);
-lean_ctor_set(v___x_366_, 21, v___y_361_);
+lean_ctor_set(v___x_366_, 20, v___y_361_);
+lean_ctor_set(v___x_366_, 21, v___y_362_);
 lean_ctor_set(v___x_366_, 22, v___y_363_);
 lean_ctor_set(v___x_366_, 23, v_testDriver_364_);
 lean_ctor_set(v___x_366_, 24, v_lintDriver_365_);
@@ -1904,12 +1904,12 @@ if (lean_obj_tag(v_buildArchive_369_) == 1)
 {
 lean_object* v_val_371_; 
 v_val_371_ = lean_ctor_get(v_buildArchive_369_, 0);
-v___y_357_ = v___x_355_;
-v___y_358_ = v___x_370_;
+v___y_357_ = v___x_370_;
+v___y_358_ = v___y_368_;
 v___y_359_ = v___x_370_;
 v___y_360_ = v___x_355_;
 v___y_361_ = v___x_355_;
-v___y_362_ = v___y_368_;
+v___y_362_ = v___x_355_;
 v___y_363_ = v_val_371_;
 goto v___jp_356_;
 }
@@ -1917,12 +1917,12 @@ else
 {
 lean_object* v___x_372_; 
 v___x_372_ = lean_obj_once(&l_Lake_instInhabitedPackage_default___closed__9, &l_Lake_instInhabitedPackage_default___closed__9_once, _init_l_Lake_instInhabitedPackage_default___closed__9);
-v___y_357_ = v___x_355_;
-v___y_358_ = v___x_370_;
+v___y_357_ = v___x_370_;
+v___y_358_ = v___y_368_;
 v___y_359_ = v___x_370_;
 v___y_360_ = v___x_355_;
 v___y_361_ = v___x_355_;
-v___y_362_ = v___y_368_;
+v___y_362_ = v___x_355_;
 v___y_363_ = v___x_372_;
 goto v___jp_356_;
 }

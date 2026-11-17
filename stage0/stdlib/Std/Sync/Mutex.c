@@ -311,9 +311,9 @@ return v___x_79_;
 LEAN_EXPORT lean_object* l_Std_Condvar_waitUntil___redArg___lam__2___boxed(lean_object* v_condvar_80_, lean_object* v_mutex_81_, lean_object* v_inst_82_, lean_object* v_toBind_83_, lean_object* v___f_84_, lean_object* v___x_85_, lean_object* v_toPure_86_, lean_object* v_____do__lift_87_){
 _start:
 {
-uint8_t v_____do__lift_254__boxed_88_; lean_object* v_res_89_; 
-v_____do__lift_254__boxed_88_ = lean_unbox(v_____do__lift_87_);
-v_res_89_ = l_Std_Condvar_waitUntil___redArg___lam__2(v_condvar_80_, v_mutex_81_, v_inst_82_, v_toBind_83_, v___f_84_, v___x_85_, v_toPure_86_, v_____do__lift_254__boxed_88_);
+uint8_t v_____do__lift_246__boxed_88_; lean_object* v_res_89_; 
+v_____do__lift_246__boxed_88_ = lean_unbox(v_____do__lift_87_);
+v_res_89_ = l_Std_Condvar_waitUntil___redArg___lam__2(v_condvar_80_, v_mutex_81_, v_inst_82_, v_toBind_83_, v___f_84_, v___x_85_, v_toPure_86_, v_____do__lift_246__boxed_88_);
 return v_res_89_;
 }
 }
@@ -630,9 +630,9 @@ return v___x_225_;
 LEAN_EXPORT lean_object* l_Std_Mutex_tryAtomically___redArg___lam__3___boxed(lean_object* v_toPure_226_, lean_object* v_toFunctor_227_, lean_object* v_k_228_, lean_object* v_ref_229_, lean_object* v___f_230_, lean_object* v_mutex_231_, lean_object* v_inst_232_, lean_object* v_inst_233_, lean_object* v___f_234_, lean_object* v_____do__lift_235_){
 _start:
 {
-uint8_t v_____do__lift_115__boxed_236_; lean_object* v_res_237_; 
-v_____do__lift_115__boxed_236_ = lean_unbox(v_____do__lift_235_);
-v_res_237_ = l_Std_Mutex_tryAtomically___redArg___lam__3(v_toPure_226_, v_toFunctor_227_, v_k_228_, v_ref_229_, v___f_230_, v_mutex_231_, v_inst_232_, v_inst_233_, v___f_234_, v_____do__lift_115__boxed_236_);
+uint8_t v_____do__lift_108__boxed_236_; lean_object* v_res_237_; 
+v_____do__lift_108__boxed_236_ = lean_unbox(v_____do__lift_235_);
+v_res_237_ = l_Std_Mutex_tryAtomically___redArg___lam__3(v_toPure_226_, v_toFunctor_227_, v_k_228_, v_ref_229_, v___f_230_, v_mutex_231_, v_inst_232_, v_inst_233_, v___f_234_, v_____do__lift_108__boxed_236_);
 return v_res_237_;
 }
 }

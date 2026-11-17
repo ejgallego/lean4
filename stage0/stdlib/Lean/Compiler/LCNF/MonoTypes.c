@@ -589,12 +589,12 @@ return v___x_190_;
 LEAN_EXPORT lean_object* l_panic___at___00__private_Lean_Compiler_LCNF_MonoTypes_0__Lean_Compiler_LCNF_toMonoType_visitApp_spec__0(lean_object* v_msg_192_, lean_object* v___y_193_, lean_object* v___y_194_){
 _start:
 {
-lean_object* v___f_196_; lean_object* v___x_3068__overap_197_; lean_object* v___x_198_; 
+lean_object* v___f_196_; lean_object* v___x_3051__overap_197_; lean_object* v___x_198_; 
 v___f_196_ = ((lean_object*)(l_panic___at___00__private_Lean_Compiler_LCNF_MonoTypes_0__Lean_Compiler_LCNF_toMonoType_visitApp_spec__0___closed__0));
-v___x_3068__overap_197_ = lean_panic_fn_borrowed(v___f_196_, v_msg_192_);
+v___x_3051__overap_197_ = lean_panic_fn_borrowed(v___f_196_, v_msg_192_);
 lean_inc(v___y_194_);
 lean_inc_ref(v___y_193_);
-v___x_198_ = lean_apply_3(v___x_3068__overap_197_, v___y_193_, v___y_194_, lean_box(0));
+v___x_198_ = lean_apply_3(v___x_3051__overap_197_, v___y_193_, v___y_194_, lean_box(0));
 return v___x_198_;
 }
 }

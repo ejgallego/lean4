@@ -1243,9 +1243,9 @@ goto _start;
 LEAN_EXPORT lean_object* l_List_allM___at___00Lean_isEnumType___at___00Lean_Server_Completion_getCompletionKindForDecl_spec__1_spec__2___boxed(lean_object* v___x_372_, lean_object* v_x_373_, lean_object* v___y_374_, lean_object* v___y_375_, lean_object* v___y_376_, lean_object* v___y_377_, lean_object* v___y_378_){
 _start:
 {
-uint8_t v___x_7317__boxed_379_; lean_object* v_res_380_; 
-v___x_7317__boxed_379_ = lean_unbox(v___x_372_);
-v_res_380_ = l_List_allM___at___00Lean_isEnumType___at___00Lean_Server_Completion_getCompletionKindForDecl_spec__1_spec__2(v___x_7317__boxed_379_, v_x_373_, v___y_374_, v___y_375_, v___y_376_, v___y_377_);
+uint8_t v___x_7256__boxed_379_; lean_object* v_res_380_; 
+v___x_7256__boxed_379_ = lean_unbox(v___x_372_);
+v_res_380_ = l_List_allM___at___00Lean_isEnumType___at___00Lean_Server_Completion_getCompletionKindForDecl_spec__1_spec__2(v___x_7256__boxed_379_, v_x_373_, v___y_374_, v___y_375_, v___y_376_, v___y_377_);
 lean_dec(v___y_377_);
 lean_dec_ref(v___y_376_);
 lean_dec(v___y_375_);
@@ -2287,9 +2287,9 @@ return v___x_769_;
 LEAN_EXPORT lean_object* l_Lean_Server_Completion_getEligibleHeaderDecls___lam__0___boxed(lean_object* v_a_770_, lean_object* v___y_771_, lean_object* v___y_772_, lean_object* v___y_773_, lean_object* v___y_774_, lean_object* v___y_775_){
 _start:
 {
-uint8_t v_a_9026__boxed_776_; lean_object* v_res_777_; 
-v_a_9026__boxed_776_ = lean_unbox(v_a_770_);
-v_res_777_ = l_Lean_Server_Completion_getEligibleHeaderDecls___lam__0(v_a_9026__boxed_776_, v___y_771_, v___y_772_, v___y_773_, v___y_774_);
+uint8_t v_a_9017__boxed_776_; lean_object* v_res_777_; 
+v_a_9017__boxed_776_ = lean_unbox(v_a_770_);
+v_res_777_ = l_Lean_Server_Completion_getEligibleHeaderDecls___lam__0(v_a_9017__boxed_776_, v___y_771_, v___y_772_, v___y_773_, v___y_774_);
 lean_dec(v___y_774_);
 lean_dec_ref(v___y_773_);
 lean_dec(v___y_772_);

@@ -2821,12 +2821,12 @@ return v_res_954_;
 LEAN_EXPORT lean_object* l_panic___at___00Lean_Meta_setFunIndInfo_spec__0(lean_object* v_msg_956_, lean_object* v___y_957_, lean_object* v___y_958_){
 _start:
 {
-lean_object* v___f_960_; lean_object* v___x_455__overap_961_; lean_object* v___x_962_; 
+lean_object* v___f_960_; lean_object* v___x_447__overap_961_; lean_object* v___x_962_; 
 v___f_960_ = ((lean_object*)(l_panic___at___00Lean_Meta_setFunIndInfo_spec__0___closed__0));
-v___x_455__overap_961_ = lean_panic_fn_borrowed(v___f_960_, v_msg_956_);
+v___x_447__overap_961_ = lean_panic_fn_borrowed(v___f_960_, v_msg_956_);
 lean_inc(v___y_958_);
 lean_inc_ref(v___y_957_);
-v___x_962_ = lean_apply_3(v___x_455__overap_961_, v___y_957_, v___y_958_, lean_box(0));
+v___x_962_ = lean_apply_3(v___x_447__overap_961_, v___y_957_, v___y_958_, lean_box(0));
 return v___x_962_;
 }
 }

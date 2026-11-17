@@ -969,13 +969,13 @@ goto _start;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Elab_Tactic_Grind_DSimprocDSLBuiltin_0__Lean_Elab_Tactic_Grind_elabRewriteInline_spec__3___boxed(lean_object* v___x_425_, lean_object* v_as_426_, lean_object* v_i_427_, lean_object* v_stop_428_, lean_object* v_b_429_){
 _start:
 {
-uint8_t v___x_1834__boxed_430_; size_t v_i_boxed_431_; size_t v_stop_boxed_432_; lean_object* v_res_433_; 
-v___x_1834__boxed_430_ = lean_unbox(v___x_425_);
+uint8_t v___x_1827__boxed_430_; size_t v_i_boxed_431_; size_t v_stop_boxed_432_; lean_object* v_res_433_; 
+v___x_1827__boxed_430_ = lean_unbox(v___x_425_);
 v_i_boxed_431_ = lean_unbox_usize(v_i_427_);
 lean_dec(v_i_427_);
 v_stop_boxed_432_ = lean_unbox_usize(v_stop_428_);
 lean_dec(v_stop_428_);
-v_res_433_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Elab_Tactic_Grind_DSimprocDSLBuiltin_0__Lean_Elab_Tactic_Grind_elabRewriteInline_spec__3(v___x_1834__boxed_430_, v_as_426_, v_i_boxed_431_, v_stop_boxed_432_, v_b_429_);
+v_res_433_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Elab_Tactic_Grind_DSimprocDSLBuiltin_0__Lean_Elab_Tactic_Grind_elabRewriteInline_spec__3(v___x_1827__boxed_430_, v_as_426_, v_i_boxed_431_, v_stop_boxed_432_, v_b_429_);
 lean_dec_ref(v_as_426_);
 return v_res_433_;
 }

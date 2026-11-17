@@ -3282,11 +3282,11 @@ return v___x_1101_;
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lean_Markdown_normalizeLabel_spec__0___redArg___lam__0___boxed(lean_object* v___x_1102_, lean_object* v_sawWs_1103_, lean_object* v_____r_1104_, lean_object* v_out_1105_){
 _start:
 {
-uint32_t v___x_1848__boxed_1106_; uint8_t v_sawWs_boxed_1107_; lean_object* v_res_1108_; 
-v___x_1848__boxed_1106_ = lean_unbox_uint32(v___x_1102_);
+uint32_t v___x_1831__boxed_1106_; uint8_t v_sawWs_boxed_1107_; lean_object* v_res_1108_; 
+v___x_1831__boxed_1106_ = lean_unbox_uint32(v___x_1102_);
 lean_dec(v___x_1102_);
 v_sawWs_boxed_1107_ = lean_unbox(v_sawWs_1103_);
-v_res_1108_ = l_WellFounded_opaqueFix_u2083___at___00Lean_Markdown_normalizeLabel_spec__0___redArg___lam__0(v___x_1848__boxed_1106_, v_sawWs_boxed_1107_, v_____r_1104_, v_out_1105_);
+v_res_1108_ = l_WellFounded_opaqueFix_u2083___at___00Lean_Markdown_normalizeLabel_spec__0___redArg___lam__0(v___x_1831__boxed_1106_, v_sawWs_boxed_1107_, v_____r_1104_, v_out_1105_);
 return v_res_1108_;
 }
 }

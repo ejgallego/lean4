@@ -1430,13 +1430,13 @@ goto _start;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Meta_mkPackedPPRodInstance_spec__2___boxed(lean_object* v___x_519_, lean_object* v_as_520_, lean_object* v_i_521_, lean_object* v_stop_522_){
 _start:
 {
-uint8_t v___x_1339__boxed_523_; size_t v_i_boxed_524_; size_t v_stop_boxed_525_; uint8_t v_res_526_; lean_object* v_r_527_; 
-v___x_1339__boxed_523_ = lean_unbox(v___x_519_);
+uint8_t v___x_1322__boxed_523_; size_t v_i_boxed_524_; size_t v_stop_boxed_525_; uint8_t v_res_526_; lean_object* v_r_527_; 
+v___x_1322__boxed_523_ = lean_unbox(v___x_519_);
 v_i_boxed_524_ = lean_unbox_usize(v_i_521_);
 lean_dec(v_i_521_);
 v_stop_boxed_525_ = lean_unbox_usize(v_stop_522_);
 lean_dec(v_stop_522_);
-v_res_526_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Meta_mkPackedPPRodInstance_spec__2(v___x_1339__boxed_523_, v_as_520_, v_i_boxed_524_, v_stop_boxed_525_);
+v_res_526_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Meta_mkPackedPPRodInstance_spec__2(v___x_1322__boxed_523_, v_as_520_, v_i_boxed_524_, v_stop_boxed_525_);
 lean_dec_ref(v_as_520_);
 v_r_527_ = lean_box(v_res_526_);
 return v_r_527_;

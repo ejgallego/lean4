@@ -91,10 +91,10 @@ v___jp_12_:
 lean_object* v___x_16_; lean_object* v___x_17_; 
 lean_inc(v___y_15_);
 v___x_16_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_16_, 0, v___y_14_);
+lean_ctor_set(v___x_16_, 0, v___y_13_);
 lean_ctor_set(v___x_16_, 1, v___y_15_);
 v___x_17_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_17_, 0, v___y_13_);
+lean_ctor_set(v___x_17_, 0, v___y_14_);
 lean_ctor_set(v___x_17_, 1, v___x_16_);
 return v___x_17_;
 }
@@ -124,8 +124,8 @@ if (v___x_30_ == 0)
 {
 lean_object* v___x_31_; 
 v___x_31_ = ((lean_object*)(l_Float_Model_UnpackedFloat_sqrtCore___closed__1));
-v___y_13_ = v_root_25_;
-v___y_14_ = v___y_20_;
+v___y_13_ = v___y_20_;
+v___y_14_ = v_root_25_;
 v___y_15_ = v___x_31_;
 goto v___jp_12_;
 }
@@ -133,8 +133,8 @@ else
 {
 lean_object* v___x_32_; 
 v___x_32_ = ((lean_object*)(l_Float_Model_UnpackedFloat_sqrtCore___closed__2));
-v___y_13_ = v_root_25_;
-v___y_14_ = v___y_20_;
+v___y_13_ = v___y_20_;
+v___y_14_ = v_root_25_;
 v___y_15_ = v___x_32_;
 goto v___jp_12_;
 }
@@ -144,8 +144,8 @@ else
 lean_object* v___x_33_; 
 lean_dec(v_rem_27_);
 v___x_33_ = lean_box(0);
-v___y_13_ = v_root_25_;
-v___y_14_ = v___y_20_;
+v___y_13_ = v___y_20_;
+v___y_14_ = v_root_25_;
 v___y_15_ = v___x_33_;
 goto v___jp_12_;
 }

@@ -4691,8 +4691,8 @@ return v___x_1295_;
 else
 {
 lean_object* v___x_1296_; 
-lean_dec_ref_known(v_pre_1254_, 2);
 lean_dec(v_pre_1255_);
+lean_dec_ref_known(v_pre_1254_, 2);
 lean_dec_ref_known(v_val_1253_, 2);
 lean_del_object(v___x_1250_);
 v___x_1296_ = l___private_Lean_Meta_ReduceEval_0__Lean_Meta_throwFailedToEval___redArg(v_e_1241_, v_a_1242_, v_a_1243_, v_a_1244_, v_a_1245_);
@@ -4702,8 +4702,8 @@ return v___x_1296_;
 else
 {
 lean_object* v___x_1297_; 
-lean_dec(v_pre_1254_);
 lean_dec_ref_known(v_val_1253_, 2);
+lean_dec(v_pre_1254_);
 lean_del_object(v___x_1250_);
 v___x_1297_ = l___private_Lean_Meta_ReduceEval_0__Lean_Meta_throwFailedToEval___redArg(v_e_1241_, v_a_1242_, v_a_1243_, v_a_1244_, v_a_1245_);
 return v___x_1297_;

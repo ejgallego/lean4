@@ -5356,9 +5356,9 @@ return v___x_2049_;
 LEAN_EXPORT lean_object* l_Lean_Elab_Deriving_Hashable_mkHashableHandler___lam__0___boxed(lean_object* v_____do__lift_2050_, lean_object* v___y_2051_, lean_object* v___y_2052_, lean_object* v___y_2053_){
 _start:
 {
-uint8_t v_____do__lift_3887__boxed_2054_; lean_object* v_res_2055_; 
-v_____do__lift_3887__boxed_2054_ = lean_unbox(v_____do__lift_2050_);
-v_res_2055_ = l_Lean_Elab_Deriving_Hashable_mkHashableHandler___lam__0(v_____do__lift_3887__boxed_2054_, v___y_2051_, v___y_2052_);
+uint8_t v_____do__lift_3879__boxed_2054_; lean_object* v_res_2055_; 
+v_____do__lift_3879__boxed_2054_ = lean_unbox(v_____do__lift_2050_);
+v_res_2055_ = l_Lean_Elab_Deriving_Hashable_mkHashableHandler___lam__0(v_____do__lift_3879__boxed_2054_, v___y_2051_, v___y_2052_);
 lean_dec(v___y_2052_);
 lean_dec_ref(v___y_2051_);
 return v_res_2055_;

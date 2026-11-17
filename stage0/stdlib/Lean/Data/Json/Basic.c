@@ -1120,13 +1120,13 @@ return v___x_292_;
 v___jp_228_:
 {
 lean_object* v___x_233_; lean_object* v___x_234_; lean_object* v___x_235_; lean_object* v___x_236_; lean_object* v___x_237_; 
-lean_inc_ref(v___y_231_);
-v___x_233_ = lean_string_append(v___y_231_, v___y_230_);
-lean_dec_ref(v___y_230_);
+lean_inc_ref(v___y_230_);
+v___x_233_ = lean_string_append(v___y_230_, v___y_229_);
+lean_dec_ref(v___y_229_);
 v___x_234_ = ((lean_object*)(l_Lean_JsonNumber_toString___closed__0));
 v___x_235_ = lean_string_append(v___x_233_, v___x_234_);
-v___x_236_ = lean_string_append(v___x_235_, v___y_229_);
-lean_dec_ref(v___y_229_);
+v___x_236_ = lean_string_append(v___x_235_, v___y_231_);
+lean_dec_ref(v___y_231_);
 v___x_237_ = lean_string_append(v___x_236_, v___y_232_);
 lean_dec_ref(v___y_232_);
 return v___x_237_;
@@ -1163,9 +1163,9 @@ v___x_259_ = l_Int_repr(v___y_243_);
 lean_dec(v___y_243_);
 v___x_260_ = lean_string_append(v___x_258_, v___x_259_);
 lean_dec_ref(v___x_259_);
-v___y_229_ = v_right_256_;
-v___y_230_ = v___y_246_;
-v___y_231_ = v___y_247_;
+v___y_229_ = v___y_246_;
+v___y_230_ = v___y_247_;
+v___y_231_ = v_right_256_;
 v___y_232_ = v___x_260_;
 goto v___jp_228_;
 }
@@ -1174,9 +1174,9 @@ else
 lean_object* v___x_261_; 
 lean_dec(v___y_243_);
 v___x_261_ = ((lean_object*)(l_Lean_JsonNumber_toString___closed__2));
-v___y_229_ = v_right_256_;
-v___y_230_ = v___y_246_;
-v___y_231_ = v___y_247_;
+v___y_229_ = v___y_246_;
+v___y_230_ = v___y_247_;
+v___y_231_ = v_right_256_;
 v___y_232_ = v___x_261_;
 goto v___jp_228_;
 }

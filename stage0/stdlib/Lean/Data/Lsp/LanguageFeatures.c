@@ -12903,19 +12903,19 @@ v___x_2885_ = 102;
 v___x_2886_ = lean_uint32_dec_eq(v___y_2882_, v___x_2885_);
 if (v___x_2886_ == 0)
 {
-v___y_2860_ = v___y_2880_;
+v___y_2860_ = v___y_2881_;
 v_id_x3f_2861_ = v___x_2878_;
 goto v___jp_2859_;
 }
 else
 {
 lean_object* v___x_2887_; lean_object* v___x_2888_; lean_object* v_id_2889_; lean_object* v___x_2890_; 
-v___x_2887_ = lean_string_utf8_byte_size(v___y_2881_);
-v___x_2888_ = lean_string_utf8_extract(v___y_2881_, v___x_2789_, v___x_2887_);
+v___x_2887_ = lean_string_utf8_byte_size(v___y_2880_);
+v___x_2888_ = lean_string_utf8_extract(v___y_2880_, v___x_2789_, v___x_2887_);
 v_id_2889_ = l_String_toName(v___x_2888_);
 v___x_2890_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_2890_, 0, v_id_2889_);
-v___y_2875_ = v___y_2880_;
+v___y_2875_ = v___y_2881_;
 v_a_2876_ = v___x_2890_;
 goto v___jp_2874_;
 }
@@ -12923,12 +12923,12 @@ goto v___jp_2874_;
 else
 {
 lean_object* v___x_2891_; lean_object* v___x_2892_; lean_object* v_declName_2893_; lean_object* v___x_2894_; 
-v___x_2891_ = lean_string_utf8_byte_size(v___y_2881_);
-v___x_2892_ = lean_string_utf8_extract(v___y_2881_, v___x_2789_, v___x_2891_);
+v___x_2891_ = lean_string_utf8_byte_size(v___y_2880_);
+v___x_2892_ = lean_string_utf8_extract(v___y_2880_, v___x_2789_, v___x_2891_);
 v_declName_2893_ = l_String_toName(v___x_2892_);
 v___x_2894_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_2894_, 0, v_declName_2893_);
-v___y_2875_ = v___y_2880_;
+v___y_2875_ = v___y_2881_;
 v_a_2876_ = v___x_2894_;
 goto v___jp_2874_;
 }
@@ -12963,8 +12963,8 @@ if (lean_obj_tag(v___x_2902_) == 0)
 {
 uint32_t v___x_2903_; 
 v___x_2903_ = 65;
-v___y_2880_ = v_cPos_x3f_2896_;
-v___y_2881_ = v_s_2899_;
+v___y_2880_ = v_s_2899_;
+v___y_2881_ = v_cPos_x3f_2896_;
 v___y_2882_ = v___x_2903_;
 goto v___jp_2879_;
 }
@@ -12976,8 +12976,8 @@ lean_inc(v_val_2904_);
 lean_dec_ref_known(v___x_2902_, 1);
 v___x_2905_ = lean_unbox_uint32(v_val_2904_);
 lean_dec(v_val_2904_);
-v___y_2880_ = v_cPos_x3f_2896_;
-v___y_2881_ = v_s_2899_;
+v___y_2880_ = v_s_2899_;
+v___y_2881_ = v_cPos_x3f_2896_;
 v___y_2882_ = v___x_2905_;
 goto v___jp_2879_;
 }
