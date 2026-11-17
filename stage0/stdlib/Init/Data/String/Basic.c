@@ -1098,7 +1098,7 @@ v___x_258_ = lean_uint32_dec_le(v___x_257_, v_r_256_);
 if (v___x_258_ == 0)
 {
 lean_dec(v_i_180_);
-return v___x_218_;
+return v___x_258_;
 }
 else
 {
@@ -1151,7 +1151,7 @@ v___x_271_ = lean_uint8_dec_eq(v___x_270_, v___x_208_);
 if (v___x_271_ == 0)
 {
 lean_dec(v_i_180_);
-return v___x_215_;
+return v___x_271_;
 }
 else
 {
@@ -1175,7 +1175,7 @@ v___x_287_ = lean_uint32_dec_le(v___x_286_, v_r_285_);
 if (v___x_287_ == 0)
 {
 lean_dec(v_i_180_);
-return v___x_215_;
+return v___x_287_;
 }
 else
 {

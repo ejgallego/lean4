@@ -848,7 +848,7 @@ theorem or_none : or o none = o := by
 theorem or_eq_ite : or o o' = if o.isSome then o else o' := by
   cases o <;> simp
 
-@[deprecated or_eq_ite +typeChanged (since := "2026-07-29")]
+@[deprecated or_eq_ite (since := "2026-07-29")]
 theorem or_eq_bif : or o o' = bif o.isSome then o else o' := by
   cases o <;> rfl
 
@@ -1385,7 +1385,7 @@ theorem eq_some_of_pfilter_eq_some {o : Option α} {p : (a : α) → o = some a 
   cases o with
   | none => rfl
   | some a =>
-    simp only [pfilter, Option.filter, Bool.cond_eq_ite_iff]
+    simp only [pfilter, Option.filter] <;> rfl
 
 @[simp] theorem pfilter_filter {o : Option α} {p : α → Bool} {q : (a : α) → o.filter p = some a → Bool} :
     (o.filter p).pfilter q = o.pfilter (fun a h => if h' : p a then q a (Option.filter_eq_some_iff.2 ⟨h, h'⟩) else false) := by

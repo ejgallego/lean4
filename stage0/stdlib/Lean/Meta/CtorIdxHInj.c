@@ -203,16 +203,16 @@ lean_inc(v_mvarId_7_);
 v___x_13_ = l_Lean_MVarId_getType(v_mvarId_7_, v_a_8_, v_a_9_, v_a_10_, v_a_11_);
 if (lean_obj_tag(v___x_13_) == 0)
 {
-lean_object* v_a_14_; uint8_t v___x_15_; uint8_t v___x_16_; 
+lean_object* v_a_14_; uint8_t v___x_15_; 
 v_a_14_ = lean_ctor_get(v___x_13_, 0);
 lean_inc(v_a_14_);
 lean_dec_ref_known(v___x_13_, 1);
 v___x_15_ = l_Lean_Expr_isForall(v_a_14_);
 lean_dec(v_a_14_);
-v___x_16_ = 1;
 if (v___x_15_ == 0)
 {
-lean_object* v___x_17_; 
+uint8_t v___x_16_; lean_object* v___x_17_; 
+v___x_16_ = 1;
 v___x_17_ = l_Lean_MVarId_refl(v_mvarId_7_, v___x_16_, v_a_8_, v_a_9_, v_a_10_, v_a_11_);
 return v___x_17_;
 }
@@ -232,7 +232,7 @@ lean_inc(v_fst_21_);
 v_snd_22_ = lean_ctor_get(v_a_20_, 1);
 lean_inc(v_snd_22_);
 lean_dec(v_a_20_);
-v___x_23_ = l_Lean_Meta_heqToEq(v_snd_22_, v_fst_21_, v___x_16_, v_a_8_, v_a_9_, v_a_10_, v_a_11_);
+v___x_23_ = l_Lean_Meta_heqToEq(v_snd_22_, v_fst_21_, v___x_15_, v_a_8_, v_a_9_, v_a_10_, v_a_11_);
 if (lean_obj_tag(v___x_23_) == 0)
 {
 lean_object* v_a_24_; lean_object* v_fst_25_; lean_object* v_snd_26_; lean_object* v___x_27_; lean_object* v___x_28_; 

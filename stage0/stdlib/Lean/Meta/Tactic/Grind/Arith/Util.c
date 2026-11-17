@@ -402,7 +402,14 @@ lean_dec_ref(v___x_20_);
 v___x_23_ = ((lean_object*)(l_Lean_Meta_Grind_Arith_isNatNum___closed__4));
 v___x_24_ = l_Lean_Expr_isConstOf(v___x_22_, v___x_23_);
 lean_dec_ref(v___x_22_);
+if (v___x_24_ == 0)
+{
 return v___x_24_;
+}
+else
+{
+return v___x_21_;
+}
 }
 }
 }
@@ -489,7 +496,14 @@ lean_dec_ref(v___x_42_);
 v___x_45_ = ((lean_object*)(l_Lean_Meta_Grind_Arith_isNonnegIntNum___closed__1));
 v___x_46_ = l_Lean_Expr_isConstOf(v___x_44_, v___x_45_);
 lean_dec_ref(v___x_44_);
+if (v___x_46_ == 0)
+{
 return v___x_46_;
+}
+else
+{
+return v___x_43_;
+}
 }
 }
 }
@@ -1321,42 +1335,49 @@ lean_object* v___x_305_; uint8_t v___x_306_;
 v___x_305_ = ((lean_object*)(l_Lean_Meta_Grind_Arith_isNatAdd_x3f___closed__2));
 v___x_306_ = l_Lean_Expr_isConstOf(v___x_292_, v___x_305_);
 lean_dec_ref(v___x_292_);
+if (v___x_306_ == 0)
+{
 return v___x_306_;
 }
 else
 {
-lean_dec_ref(v___x_292_);
-return v___x_304_;
+return v___x_291_;
 }
 }
 else
 {
 lean_dec_ref(v___x_292_);
-return v___x_302_;
+return v___x_291_;
 }
 }
 else
 {
 lean_dec_ref(v___x_292_);
-return v___x_300_;
+return v___x_291_;
 }
 }
 else
 {
 lean_dec_ref(v___x_292_);
-return v___x_298_;
+return v___x_291_;
 }
 }
 else
 {
 lean_dec_ref(v___x_292_);
-return v___x_296_;
+return v___x_291_;
 }
 }
 else
 {
 lean_dec_ref(v___x_292_);
-return v___x_294_;
+return v___x_291_;
+}
+}
+else
+{
+lean_dec_ref(v___x_292_);
+return v___x_291_;
 }
 }
 }
@@ -1365,25 +1386,25 @@ return v___x_294_;
 else
 {
 lean_dec_ref(v___x_278_);
-return v___x_286_;
+return v___x_277_;
 }
 }
 else
 {
 lean_dec_ref(v___x_278_);
-return v___x_284_;
+return v___x_277_;
 }
 }
 else
 {
 lean_dec_ref(v___x_278_);
-return v___x_282_;
+return v___x_277_;
 }
 }
 else
 {
 lean_dec_ref(v___x_278_);
-return v___x_280_;
+return v___x_277_;
 }
 }
 }

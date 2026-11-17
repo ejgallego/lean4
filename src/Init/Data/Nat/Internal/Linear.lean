@@ -219,7 +219,7 @@ theorem Poly.denote_insert (ctx : Context) (k : Nat) (v : Var) (p : Poly) :
     by_cases h₁ : Nat.blt v v'
     · simp [h₁]
     · by_cases h₂ : Nat.beq v v'
-      · simp only [insert, h₁, h₂, Bool.cond_false, Bool.cond_true]
+      · simp only [insert, h₁, h₂, Bool.cond_false]
         simp [Nat.eq_of_beq_eq_true h₂]
       · simp only [insert, h₁, h₂, Bool.cond_false]
         simp [denote_insert]

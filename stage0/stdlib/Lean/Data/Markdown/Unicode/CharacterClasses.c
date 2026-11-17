@@ -9016,10 +9016,10 @@ return v_r_2007_;
 LEAN_EXPORT uint8_t l_Lean_Markdown_isUnicodePunctuation(uint32_t v_c_2008_){
 _start:
 {
-uint32_t v___x_2014_; uint8_t v___x_2015_; 
-v___x_2014_ = 128;
-v___x_2015_ = lean_uint32_dec_lt(v_c_2008_, v___x_2014_);
-if (v___x_2015_ == 0)
+uint32_t v___x_2024_; uint8_t v___x_2025_; 
+v___x_2024_ = 128;
+v___x_2025_ = lean_uint32_dec_lt(v_c_2008_, v___x_2024_);
+if (v___x_2025_ == 0)
 {
 uint8_t v___x_2026_; 
 v___x_2026_ = l___private_Lean_Data_Markdown_Unicode_CharacterClasses_0__Lean_Markdown_punctuation__00A1__1FBFA(v_c_2008_);
@@ -9032,7 +9032,7 @@ v___x_2027_ = 33;
 v___x_2028_ = lean_uint32_dec_le(v___x_2027_, v_c_2008_);
 if (v___x_2028_ == 0)
 {
-goto v___jp_2021_;
+goto v___jp_2019_;
 }
 else
 {
@@ -9041,11 +9041,11 @@ v___x_2029_ = 47;
 v___x_2030_ = lean_uint32_dec_le(v_c_2008_, v___x_2029_);
 if (v___x_2030_ == 0)
 {
-goto v___jp_2021_;
+goto v___jp_2019_;
 }
 else
 {
-return v___x_2015_;
+return v___x_2030_;
 }
 }
 }
@@ -9066,51 +9066,51 @@ v___x_2013_ = lean_uint32_dec_le(v_c_2008_, v___x_2012_);
 return v___x_2013_;
 }
 }
-v___jp_2016_:
+v___jp_2014_:
+{
+uint32_t v___x_2015_; uint8_t v___x_2016_; 
+v___x_2015_ = 91;
+v___x_2016_ = lean_uint32_dec_le(v___x_2015_, v_c_2008_);
+if (v___x_2016_ == 0)
+{
+goto v___jp_2009_;
+}
+else
 {
 uint32_t v___x_2017_; uint8_t v___x_2018_; 
-v___x_2017_ = 91;
-v___x_2018_ = lean_uint32_dec_le(v___x_2017_, v_c_2008_);
+v___x_2017_ = 96;
+v___x_2018_ = lean_uint32_dec_le(v_c_2008_, v___x_2017_);
 if (v___x_2018_ == 0)
 {
 goto v___jp_2009_;
 }
 else
 {
-uint32_t v___x_2019_; uint8_t v___x_2020_; 
-v___x_2019_ = 96;
-v___x_2020_ = lean_uint32_dec_le(v_c_2008_, v___x_2019_);
-if (v___x_2020_ == 0)
+return v___x_2018_;
+}
+}
+}
+v___jp_2019_:
 {
-goto v___jp_2009_;
+uint32_t v___x_2020_; uint8_t v___x_2021_; 
+v___x_2020_ = 58;
+v___x_2021_ = lean_uint32_dec_le(v___x_2020_, v_c_2008_);
+if (v___x_2021_ == 0)
+{
+goto v___jp_2014_;
 }
 else
-{
-return v___x_2015_;
-}
-}
-}
-v___jp_2021_:
 {
 uint32_t v___x_2022_; uint8_t v___x_2023_; 
-v___x_2022_ = 58;
-v___x_2023_ = lean_uint32_dec_le(v___x_2022_, v_c_2008_);
+v___x_2022_ = 64;
+v___x_2023_ = lean_uint32_dec_le(v_c_2008_, v___x_2022_);
 if (v___x_2023_ == 0)
 {
-goto v___jp_2016_;
+goto v___jp_2014_;
 }
 else
 {
-uint32_t v___x_2024_; uint8_t v___x_2025_; 
-v___x_2024_ = 64;
-v___x_2025_ = lean_uint32_dec_le(v_c_2008_, v___x_2024_);
-if (v___x_2025_ == 0)
-{
-goto v___jp_2016_;
-}
-else
-{
-return v___x_2015_;
+return v___x_2023_;
 }
 }
 }

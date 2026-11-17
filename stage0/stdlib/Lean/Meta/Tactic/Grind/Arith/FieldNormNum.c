@@ -6953,7 +6953,7 @@ else
 lean_dec_ref(v___x_1985_);
 lean_dec_ref(v___x_1981_);
 lean_dec_ref(v___x_1979_);
-return v___x_1991_;
+return v___x_1984_;
 }
 }
 else
@@ -6961,7 +6961,7 @@ else
 lean_dec_ref(v___x_1985_);
 lean_dec_ref(v___x_1981_);
 lean_dec_ref(v___x_1979_);
-return v___x_1989_;
+return v___x_1984_;
 }
 }
 else
@@ -6969,7 +6969,7 @@ else
 lean_dec_ref(v___x_1985_);
 lean_dec_ref(v___x_1981_);
 lean_dec_ref(v___x_1979_);
-return v___x_1987_;
+return v___x_1984_;
 }
 }
 }

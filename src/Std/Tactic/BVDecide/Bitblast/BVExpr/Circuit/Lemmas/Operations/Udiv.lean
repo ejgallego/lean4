@@ -104,7 +104,7 @@ theorem denote_blastDivSubtractShift_q (aig : AIG α) (assign : α → Bool) (lh
       rhs
       rw [apply_ite (f := BitVec.DivModState.q)]
       rw [apply_ite (f := (BitVec.getLsbD · idx))]
-    apply ite_congr
+    apply Bool.cond_congr
     · rw [BVPred.mkUlt_denote_eq (assign := assign) (lhs := rbv.shiftConcat (lhs.getLsbD (wn - 1))) (rhs := rhs)]
       · simp [Std.Tactic.BVDecide.Normalize.BitVec.lt_ult]
       · intro idx hidx

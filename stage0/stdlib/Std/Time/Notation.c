@@ -2060,7 +2060,7 @@ lean_inc_ref(v_name_1062_);
 v___x_1063_ = l___private_Std_Time_Notation_0__Std_Time_isFixedZoneId(v_name_1062_);
 if (v___x_1063_ == 0)
 {
-v___y_1050_ = v___x_1032_;
+v___y_1050_ = v___x_1038_;
 goto v___jp_1049_;
 }
 else

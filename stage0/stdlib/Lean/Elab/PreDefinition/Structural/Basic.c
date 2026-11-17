@@ -43,9 +43,9 @@ lean_object* l_Id_instMonad___lam__2___boxed(lean_object*, lean_object*);
 size_t lean_array_size(lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Array_instInhabited___redArg();
 lean_object* l_instInhabitedOfMonad___redArg(lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_panic___redArg(lean_object*, lean_object*);
 lean_object* l_Array_zipWithMAux___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_blt___boxed(lean_object*, lean_object*);
@@ -509,35 +509,35 @@ return v_positions_142_;
 v___jp_151_:
 {
 lean_object* v___x_157_; 
-lean_inc_ref(v___y_153_);
-v___x_157_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort(lean_box(0), v___y_153_, v___y_155_, v___y_154_, v___y_152_, v___y_156_, lean_box(0), lean_box(0), lean_box(0));
+lean_inc_ref(v___y_154_);
+v___x_157_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort(lean_box(0), v___y_154_, v___y_153_, v___y_152_, v___y_155_, v___y_156_, lean_box(0), lean_box(0), lean_box(0));
 lean_dec(v___y_156_);
-lean_dec(v___y_155_);
+lean_dec(v___y_153_);
 v___y_146_ = v___x_157_;
 goto v___jp_145_;
 }
 v___jp_158_:
 {
 uint8_t v___x_164_; 
-v___x_164_ = lean_nat_dec_le(v___y_163_, v___y_161_);
+v___x_164_ = lean_nat_dec_le(v___y_163_, v___y_160_);
 if (v___x_164_ == 0)
 {
-lean_dec(v___y_161_);
+lean_dec(v___y_160_);
 lean_inc(v___y_163_);
-v___y_152_ = v___y_163_;
-v___y_153_ = v___y_159_;
-v___y_154_ = v___y_160_;
-v___y_155_ = v___y_162_;
+v___y_152_ = v___y_159_;
+v___y_153_ = v___y_161_;
+v___y_154_ = v___y_162_;
+v___y_155_ = v___y_163_;
 v___y_156_ = v___y_163_;
 goto v___jp_151_;
 }
 else
 {
-v___y_152_ = v___y_163_;
-v___y_153_ = v___y_159_;
-v___y_154_ = v___y_160_;
-v___y_155_ = v___y_162_;
-v___y_156_ = v___y_161_;
+v___y_152_ = v___y_159_;
+v___y_153_ = v___y_161_;
+v___y_154_ = v___y_162_;
+v___y_155_ = v___y_163_;
+v___y_156_ = v___y_160_;
 goto v___jp_151_;
 }
 }
@@ -557,19 +557,19 @@ v___x_173_ = lean_nat_dec_le(v___x_168_, v___x_172_);
 if (v___x_173_ == 0)
 {
 lean_inc(v___x_172_);
-v___y_159_ = v___x_170_;
-v___y_160_ = v___y_166_;
-v___y_161_ = v___x_172_;
-v___y_162_ = v___x_167_;
+v___y_159_ = v___y_166_;
+v___y_160_ = v___x_172_;
+v___y_161_ = v___x_167_;
+v___y_162_ = v___x_170_;
 v___y_163_ = v___x_172_;
 goto v___jp_158_;
 }
 else
 {
-v___y_159_ = v___x_170_;
-v___y_160_ = v___y_166_;
-v___y_161_ = v___x_172_;
-v___y_162_ = v___x_167_;
+v___y_159_ = v___y_166_;
+v___y_160_ = v___x_172_;
+v___y_161_ = v___x_167_;
+v___y_162_ = v___x_170_;
 v___y_163_ = v___x_168_;
 goto v___jp_158_;
 }
@@ -651,14 +651,14 @@ return v___x_220_;
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_Positions_mapMwith___redArg(lean_object* v_inst_223_, lean_object* v_inst_224_, lean_object* v_f_225_, lean_object* v_positions_226_, lean_object* v_ys_227_, lean_object* v_xs_228_){
 _start:
 {
-lean_object* v___x_229_; lean_object* v___x_230_; uint8_t v___x_231_; lean_object* v___x_232_; lean_object* v___x_233_; 
-v___x_229_ = lean_array_get_size(v_positions_226_);
-v___x_230_ = lean_array_get_size(v_ys_227_);
-v___x_231_ = lean_nat_dec_eq(v___x_229_, v___x_230_);
-v___x_232_ = lean_obj_once(&l_Lean_Elab_Structural_Positions_groupAndSort___redArg___closed__1, &l_Lean_Elab_Structural_Positions_groupAndSort___redArg___closed__1_once, _init_l_Lean_Elab_Structural_Positions_groupAndSort___redArg___closed__1);
+lean_object* v___x_229_; lean_object* v___x_230_; lean_object* v___x_231_; lean_object* v___x_232_; uint8_t v___x_233_; 
+v___x_229_ = lean_obj_once(&l_Lean_Elab_Structural_Positions_groupAndSort___redArg___closed__1, &l_Lean_Elab_Structural_Positions_groupAndSort___redArg___closed__1_once, _init_l_Lean_Elab_Structural_Positions_groupAndSort___redArg___closed__1);
 lean_inc_ref(v_inst_223_);
-v___x_233_ = l_instInhabitedOfMonad___redArg(v_inst_223_, v___x_232_);
-if (v___x_231_ == 0)
+v___x_230_ = l_instInhabitedOfMonad___redArg(v_inst_223_, v___x_229_);
+v___x_231_ = lean_array_get_size(v_positions_226_);
+v___x_232_ = lean_array_get_size(v_ys_227_);
+v___x_233_ = lean_nat_dec_eq(v___x_231_, v___x_232_);
+if (v___x_233_ == 0)
 {
 lean_object* v___x_234_; lean_object* v___x_235_; 
 lean_dec_ref(v_xs_228_);
@@ -668,8 +668,8 @@ lean_dec(v_f_225_);
 lean_dec(v_inst_224_);
 lean_dec_ref(v_inst_223_);
 v___x_234_ = lean_obj_once(&l_Lean_Elab_Structural_Positions_mapMwith___redArg___closed__2, &l_Lean_Elab_Structural_Positions_mapMwith___redArg___closed__2_once, _init_l_Lean_Elab_Structural_Positions_mapMwith___redArg___closed__2);
-v___x_235_ = l_panic___redArg(v___x_233_, v___x_234_);
-lean_dec(v___x_233_);
+v___x_235_ = l_panic___redArg(v___x_230_, v___x_234_);
+lean_dec(v___x_230_);
 return v___x_235_;
 }
 else
@@ -689,14 +689,14 @@ lean_dec(v_f_225_);
 lean_dec(v_inst_224_);
 lean_dec_ref(v_inst_223_);
 v___x_239_ = lean_obj_once(&l_Lean_Elab_Structural_Positions_mapMwith___redArg___closed__4, &l_Lean_Elab_Structural_Positions_mapMwith___redArg___closed__4_once, _init_l_Lean_Elab_Structural_Positions_mapMwith___redArg___closed__4);
-v___x_240_ = l_panic___redArg(v___x_233_, v___x_239_);
-lean_dec(v___x_233_);
+v___x_240_ = l_panic___redArg(v___x_230_, v___x_239_);
+lean_dec(v___x_230_);
 return v___x_240_;
 }
 else
 {
 lean_object* v___f_241_; lean_object* v___f_242_; lean_object* v___x_243_; lean_object* v___x_244_; lean_object* v___x_245_; 
-lean_dec(v___x_233_);
+lean_dec(v___x_230_);
 v___f_241_ = lean_alloc_closure((void*)(l_Lean_Elab_Structural_Positions_mapMwith___redArg___lam__0___boxed), 3, 2);
 lean_closure_set(v___f_241_, 0, v_inst_224_);
 lean_closure_set(v___f_241_, 1, v_xs_228_);

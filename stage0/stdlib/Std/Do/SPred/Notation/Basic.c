@@ -809,9 +809,9 @@ return v___x_363_;
 LEAN_EXPORT lean_object* l_Std_Do_SPred_Notation_unpack___redArg___lam__3___boxed(lean_object* v___x_364_, lean_object* v_toPure_365_, lean_object* v_____do__lift_366_){
 _start:
 {
-uint8_t v___x_1566__boxed_367_; lean_object* v_res_368_; 
-v___x_1566__boxed_367_ = lean_unbox(v___x_364_);
-v_res_368_ = l_Std_Do_SPred_Notation_unpack___redArg___lam__3(v___x_1566__boxed_367_, v_toPure_365_, v_____do__lift_366_);
+uint8_t v___x_5969__boxed_367_; lean_object* v_res_368_; 
+v___x_5969__boxed_367_ = lean_unbox(v___x_364_);
+v_res_368_ = l_Std_Do_SPred_Notation_unpack___redArg___lam__3(v___x_5969__boxed_367_, v_toPure_365_, v_____do__lift_366_);
 lean_dec(v_____do__lift_366_);
 return v_res_368_;
 }

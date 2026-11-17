@@ -200,7 +200,7 @@ v___x_36_ = l_Lean_Expr_isApp(v___x_35_);
 if (v___x_36_ == 0)
 {
 lean_dec_ref(v___x_35_);
-return v___x_34_;
+return v___x_36_;
 }
 else
 {
@@ -211,7 +211,7 @@ if (v___x_38_ == 0)
 {
 lean_dec_ref(v___x_37_);
 lean_dec_ref(v___x_35_);
-return v___x_34_;
+return v___x_38_;
 }
 else
 {
@@ -223,7 +223,7 @@ if (v___x_40_ == 0)
 lean_dec_ref(v___x_39_);
 lean_dec_ref(v___x_37_);
 lean_dec_ref(v___x_35_);
-return v___x_34_;
+return v___x_40_;
 }
 else
 {
@@ -242,7 +242,7 @@ lean_dec_ref(v___x_41_);
 if (v___x_45_ == 0)
 {
 lean_dec_ref(v___x_37_);
-return v___x_34_;
+return v___x_45_;
 }
 else
 {
@@ -269,7 +269,7 @@ v___x_50_ = l_Lean_Expr_isApp(v___x_49_);
 if (v___x_50_ == 0)
 {
 lean_dec_ref(v___x_49_);
-return v___x_34_;
+return v___x_50_;
 }
 else
 {
@@ -280,7 +280,7 @@ v___x_52_ = l_Lean_Expr_isApp(v___x_51_);
 if (v___x_52_ == 0)
 {
 lean_dec_ref(v___x_51_);
-return v___x_34_;
+return v___x_52_;
 }
 else
 {
@@ -291,7 +291,7 @@ if (v___x_54_ == 0)
 {
 lean_dec_ref(v___x_53_);
 lean_dec_ref(v___x_51_);
-return v___x_34_;
+return v___x_54_;
 }
 else
 {
@@ -304,7 +304,7 @@ lean_dec_ref(v___x_55_);
 if (v___x_57_ == 0)
 {
 lean_dec_ref(v___x_51_);
-return v___x_34_;
+return v___x_57_;
 }
 else
 {

@@ -1,6 +1,7 @@
 module
 import Lean
 import Std.Time
+import Std.Sat.AIG.If
 import all Init.Data.Nat.Div.Basic
 
 /-!
@@ -317,6 +318,28 @@ run_meta do
     throwError "quotation matcher selected the wrong branch"
 
 end
+
+/-! Library statements written with `if` carry `cond`. -/
+
+example (d l r : Bool) : (if d then l else r) = (d && l || !d && r) :=
+  Std.Sat.AIG.ite_as_bool d l r
+
+run_meta do
+  forallTelescope (← getConstInfo ``Int.bmod_eq_emod).type fun _ type => do
+    let some (_, _, rhs) := type.eq? | throwError "expected bmod equality"
+    if (rhs.find? (·.isConstOf ``ite)).isSome then
+      throwError "bmod normalization must not introduce ite"
+    let some c := rhs.find? (fun e => e.isAppOfArity ``cond 4) |
+      throwError "bmod normalization must introduce cond"
+    unless c.getAppArgs[0]!.isConstOf ``Nat do
+      throwError "bmod normalization must keep the natural conditional before casting"
+  forallTelescope (← getConstInfo ``Std.Sat.AIG.denote_mkIfCached).type fun _ type => do
+    unless type.isAppOfArity ``Eq 3 && (type.getArg! 2).isAppOfArity ``cond 4 do
+      throwError "AIG denotation lemma must have a cond right-hand side"
+  forallTelescope (← getConstInfo ``Int.Internal.Linear.natCast_sub).type fun _ type => do
+    let some (_, _, rhs) := type.eq? | throwError "expected cast-subtraction equality"
+    unless rhs.isAppOfArity ``cond 4 do
+      throwError "arithmetic proof helper must use cond"
 
 /-! Delaboration round-trips conditionals under `pp.analyze`. -/
 

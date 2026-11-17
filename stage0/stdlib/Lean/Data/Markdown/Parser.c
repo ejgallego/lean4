@@ -604,6 +604,7 @@ LEAN_EXPORT lean_object* l_Lean_Markdown_parseDocument(lean_object* v_s_148_, le
 _start:
 {
 lean_object* v_blocks_152_; lean_object* v_refs_153_; size_t v_sz_154_; size_t v___x_155_; lean_object* v___x_156_; 
+lean_inc_ref(v_s_148_);
 v_blocks_152_ = l_Lean_Markdown_parseBlocks(v_s_148_, v_indent_149_);
 v_refs_153_ = l_Lean_Markdown_buildRefTable(v_s_148_, v_blocks_152_, v_externalRefs_151_);
 v_sz_154_ = lean_array_size(v_blocks_152_);

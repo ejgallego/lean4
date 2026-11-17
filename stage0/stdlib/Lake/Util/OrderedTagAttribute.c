@@ -1191,9 +1191,9 @@ lean_ctor_set(v___x_367_, 6, v_recordedDeps_360_);
 lean_ctor_set(v___x_367_, 7, v_messages_361_);
 lean_ctor_set(v___x_367_, 8, v_infoState_362_);
 lean_ctor_set(v___x_367_, 9, v_snapshotTasks_363_);
-v___x_368_ = lean_st_ref_put(v___y_364_, v___x_367_);
+v___x_368_ = lean_st_ref_put(v___y_355_, v___x_367_);
 v___x_369_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v___x_369_, 0, v___y_355_);
+lean_ctor_set(v___x_369_, 0, v___y_364_);
 return v___x_369_;
 }
 v___jp_371_:
@@ -1240,7 +1240,7 @@ if (v_logWrites_387_ == 0)
 lean_object* v___x_391_; 
 v___x_391_ = l___private_Lean_Environment_0__Lean_EnvExtension_modifyStateCore(lean_box(0), v_toEnvExtension_376_, v_env_377_, v___f_370_, v_asyncMode_386_, v___x_389_, v___x_390_);
 lean_dec(v_asyncMode_386_);
-v___y_355_ = v___x_388_;
+v___y_355_ = v___y_373_;
 v_nextMacroScope_356_ = v_nextMacroScope_378_;
 v_ngen_357_ = v_ngen_379_;
 v_auxDeclNGen_358_ = v_auxDeclNGen_380_;
@@ -1249,7 +1249,7 @@ v_recordedDeps_360_ = v_recordedDeps_382_;
 v_messages_361_ = v_messages_383_;
 v_infoState_362_ = v_infoState_384_;
 v_snapshotTasks_363_ = v_snapshotTasks_385_;
-v___y_364_ = v___y_373_;
+v___y_364_ = v___x_388_;
 v___y_365_ = v___x_391_;
 goto v___jp_354_;
 }
@@ -1261,7 +1261,7 @@ v___x_392_ = l___private_Lean_Environment_0__Lean_EnvExtension_panicUnloggedWrit
 lean_dec_ref(v_env_377_);
 v___x_393_ = l___private_Lean_Environment_0__Lean_EnvExtension_modifyStateCore(lean_box(0), v_toEnvExtension_376_, v___x_392_, v___f_370_, v_asyncMode_386_, v___x_389_, v___x_390_);
 lean_dec(v_asyncMode_386_);
-v___y_355_ = v___x_388_;
+v___y_355_ = v___y_373_;
 v_nextMacroScope_356_ = v_nextMacroScope_378_;
 v_ngen_357_ = v_ngen_379_;
 v_auxDeclNGen_358_ = v_auxDeclNGen_380_;
@@ -1270,7 +1270,7 @@ v_recordedDeps_360_ = v_recordedDeps_382_;
 v_messages_361_ = v_messages_383_;
 v_infoState_362_ = v_infoState_384_;
 v_snapshotTasks_363_ = v_snapshotTasks_385_;
-v___y_364_ = v___y_373_;
+v___y_364_ = v___x_388_;
 v___y_365_ = v___x_393_;
 goto v___jp_354_;
 }

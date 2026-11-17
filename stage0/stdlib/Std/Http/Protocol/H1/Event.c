@@ -604,11 +604,11 @@ goto v___jp_284_;
 }
 v___jp_284_:
 {
-lean_object* v___x_286_; lean_object* v___x_287_; lean_object* v___x_351__overap_288_; lean_object* v___x_289_; lean_object* v___x_290_; lean_object* v___x_291_; uint8_t v___x_292_; lean_object* v___x_293_; lean_object* v___x_294_; 
+lean_object* v___x_286_; lean_object* v___x_287_; lean_object* v___x_501__overap_288_; lean_object* v___x_289_; lean_object* v___x_290_; lean_object* v___x_291_; uint8_t v___x_292_; lean_object* v___x_293_; lean_object* v___x_294_; 
 v___x_286_ = ((lean_object*)(l_Std_Http_Protocol_H1_instReprEvent_repr___closed__12));
 v___x_287_ = lean_unsigned_to_nat(1024u);
-v___x_351__overap_288_ = l_Std_Http_Protocol_H1_instReprHead(v_dir_245_);
-v___x_289_ = lean_apply_2(v___x_351__overap_288_, v_head_283_, v___x_287_);
+v___x_501__overap_288_ = l_Std_Http_Protocol_H1_instReprHead(v_dir_245_);
+v___x_289_ = lean_apply_2(v___x_501__overap_288_, v_head_283_, v___x_287_);
 v___x_290_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_290_, 0, v___x_286_);
 lean_ctor_set(v___x_290_, 1, v___x_289_);
@@ -891,9 +891,9 @@ return v___x_282_;
 LEAN_EXPORT lean_object* l_Std_Http_Protocol_H1_instReprEvent_repr___boxed(lean_object* v_dir_349_, lean_object* v_x_350_, lean_object* v_prec_351_){
 _start:
 {
-uint8_t v_dir_685__boxed_352_; lean_object* v_res_353_; 
-v_dir_685__boxed_352_ = lean_unbox(v_dir_349_);
-v_res_353_ = l_Std_Http_Protocol_H1_instReprEvent_repr(v_dir_685__boxed_352_, v_x_350_, v_prec_351_);
+uint8_t v_dir_909__boxed_352_; lean_object* v_res_353_; 
+v_dir_909__boxed_352_ = lean_unbox(v_dir_349_);
+v_res_353_ = l_Std_Http_Protocol_H1_instReprEvent_repr(v_dir_909__boxed_352_, v_x_350_, v_prec_351_);
 lean_dec(v_prec_351_);
 return v_res_353_;
 }

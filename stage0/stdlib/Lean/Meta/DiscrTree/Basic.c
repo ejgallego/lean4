@@ -5171,10 +5171,10 @@ return v___x_1711_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_DiscrTree_getEntriesWithKeys_spec__0_spec__0___redArg___boxed(lean_object* v_x_1712_, lean_object* v_x_1713_, lean_object* v_x_1714_){
 _start:
 {
-size_t v_x_235__boxed_1715_; lean_object* v_res_1716_; 
-v_x_235__boxed_1715_ = lean_unbox_usize(v_x_1713_);
+size_t v_x_266__boxed_1715_; lean_object* v_res_1716_; 
+v_x_266__boxed_1715_ = lean_unbox_usize(v_x_1713_);
 lean_dec(v_x_1713_);
-v_res_1716_ = l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_DiscrTree_getEntriesWithKeys_spec__0_spec__0___redArg(v_x_1712_, v_x_235__boxed_1715_, v_x_1714_);
+v_res_1716_ = l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_DiscrTree_getEntriesWithKeys_spec__0_spec__0___redArg(v_x_1712_, v_x_266__boxed_1715_, v_x_1714_);
 lean_dec(v_x_1714_);
 lean_dec_ref(v_x_1712_);
 return v_res_1716_;
@@ -5309,10 +5309,10 @@ return v___x_1769_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_DiscrTree_getEntriesWithKeys_spec__0_spec__0___boxed(lean_object* v_00_u03b2_1770_, lean_object* v_x_1771_, lean_object* v_x_1772_, lean_object* v_x_1773_){
 _start:
 {
-size_t v_x_351__boxed_1774_; lean_object* v_res_1775_; 
-v_x_351__boxed_1774_ = lean_unbox_usize(v_x_1772_);
+size_t v_x_382__boxed_1774_; lean_object* v_res_1775_; 
+v_x_382__boxed_1774_ = lean_unbox_usize(v_x_1772_);
 lean_dec(v_x_1772_);
-v_res_1775_ = l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_DiscrTree_getEntriesWithKeys_spec__0_spec__0(v_00_u03b2_1770_, v_x_1771_, v_x_351__boxed_1774_, v_x_1773_);
+v_res_1775_ = l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_DiscrTree_getEntriesWithKeys_spec__0_spec__0(v_00_u03b2_1770_, v_x_1771_, v_x_382__boxed_1774_, v_x_1773_);
 lean_dec(v_x_1773_);
 lean_dec_ref(v_x_1771_);
 return v_res_1775_;

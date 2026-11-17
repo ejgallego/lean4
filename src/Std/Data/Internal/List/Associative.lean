@@ -6183,11 +6183,11 @@ theorem size_filter_not_contains_add_size_inter_eq_size_left [BEq α] [EquivBEq 
     split
     case isTrue hc =>
       simp only [Bool.not_eq_eq_eq_not, Bool.not_true] at hc
-      simp only [List.length_cons, hc, Bool.false_eq_true, ↓reduceIte]
+      simp only [List.length_cons]
       omega
     case isFalse hc =>
       simp only [Bool.not_eq_eq_eq_not, Bool.not_true, Bool.not_eq_false] at hc
-      simp only [hc, ↓reduceIte, List.length_cons]
+      simp only [List.length_cons]
       omega
 
 theorem size_filter_not_contains_map_fst_add_size_inter_eq_size_left [BEq α] [EquivBEq α]
@@ -7742,7 +7742,7 @@ theorem Const.beqModel_eq_true_of_perm {β : Type v} [BEq α] [EquivBEq α] [BEq
   · exact hc
 
 theorem perm_of_beqModel [BEq α] [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, LawfulBEq (β k)] {l₁ l₂ : List ((a : α) × β a)} (hl₁ : DistinctKeys l₁) (hl₂ : DistinctKeys l₂) : beqModel l₁ l₂ → l₁.Perm l₂ := by
-  simp only [beqModel, ne_eq, ite_not, Bool.ite_false_right, Bool.and_eq_true, decide_eq_true_eq,
+  simp only [beqModel, ite_not, Bool.ite_false_right, Bool.and_eq_true, decide_eq_true_eq,
     List.all_eq_true, beq_iff_eq, and_imp]
   intro he hyp
   apply getValueCast?_ext hl₁ hl₂
@@ -7772,13 +7772,13 @@ theorem perm_of_beqModel [BEq α] [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, Law
 
 theorem beqModel_congr [BEq α] [LawfulBEq α] [∀ k, BEq (β k)] {l₁ l₂ l₃ l₄ : List ((a : α) × β a)}
     (hl : DistinctKeys l₂) (p₁ : l₁.Perm l₃) (p₂ : l₂.Perm l₄) : beqModel l₁ l₂ = beqModel l₃ l₄ := by
-  simp only [beqModel, ne_eq, ite_not, Bool.ite_false_right, Perm.length_eq p₁, Perm.length_eq p₂]
+  simp only [beqModel, ite_not, Bool.ite_false_right, Perm.length_eq p₁, Perm.length_eq p₂]
   suffices h : (l₁.all fun x => getValueCast? x.fst l₂ == some x.snd) = (l₃.all fun x => getValueCast? x.fst l₄ == some x.snd) by simp [h]
   simp [getValueCast?_of_perm hl p₂, List.Perm.all_eq p₁]
 
 theorem Const.beqModel_congr {β : Type v} [BEq α] [EquivBEq α] [BEq β] {l₁ l₂ l₃ l₄ : List ((_ : α) × β)}
     (hl : DistinctKeys l₂) (p₁ : l₁.Perm l₃) (p₂ : l₂.Perm l₄) : beqModel l₁ l₂ = beqModel l₃ l₄ := by
-  simp only [beqModel, ne_eq, ite_not, Bool.ite_false_right, Perm.length_eq p₁, Perm.length_eq p₂]
+  simp only [beqModel, ite_not, Bool.ite_false_right, Perm.length_eq p₁, Perm.length_eq p₂]
   suffices h : (l₁.all fun x => getValue? x.fst l₂ == some x.snd) = (l₃.all fun x => getValue? x.fst l₄ == some x.snd) by simp [h]
   simp [getValue?_of_perm hl p₂, List.Perm.all_eq p₁]
 

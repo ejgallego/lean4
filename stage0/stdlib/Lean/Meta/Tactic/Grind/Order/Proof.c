@@ -2824,11 +2824,11 @@ return v___x_951_;
 LEAN_EXPORT lean_object* l_panic___at___00__private_Lean_Meta_Tactic_Grind_Order_Proof_0__Lean_Meta_Grind_Order_mkPropagateEqTrueProofCore_spec__0(lean_object* v_msg_952_, lean_object* v___y_953_, lean_object* v___y_954_, lean_object* v___y_955_, lean_object* v___y_956_, lean_object* v___y_957_, lean_object* v___y_958_, lean_object* v___y_959_, lean_object* v___y_960_, lean_object* v___y_961_, lean_object* v___y_962_, lean_object* v___y_963_){
 _start:
 {
-lean_object* v___x_965_; lean_object* v___f_966_; lean_object* v___x_1542__overap_967_; lean_object* v___x_968_; 
+lean_object* v___x_965_; lean_object* v___f_966_; lean_object* v___x_1609__overap_967_; lean_object* v___x_968_; 
 v___x_965_ = lean_obj_once(&l_panic___at___00__private_Lean_Meta_Tactic_Grind_Order_Proof_0__Lean_Meta_Grind_Order_mkPropagateEqTrueProofCore_spec__0___closed__0, &l_panic___at___00__private_Lean_Meta_Tactic_Grind_Order_Proof_0__Lean_Meta_Grind_Order_mkPropagateEqTrueProofCore_spec__0___closed__0_once, _init_l_panic___at___00__private_Lean_Meta_Tactic_Grind_Order_Proof_0__Lean_Meta_Grind_Order_mkPropagateEqTrueProofCore_spec__0___closed__0);
 v___f_966_ = lean_alloc_closure((void*)(l_instInhabitedReaderT___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(v___f_966_, 0, v___x_965_);
-v___x_1542__overap_967_ = lean_panic_fn_borrowed(v___f_966_, v_msg_952_);
+v___x_1609__overap_967_ = lean_panic_fn_borrowed(v___f_966_, v_msg_952_);
 lean_dec_ref(v___f_966_);
 lean_inc(v___y_963_);
 lean_inc_ref(v___y_962_);
@@ -2841,7 +2841,7 @@ lean_inc_ref(v___y_956_);
 lean_inc(v___y_955_);
 lean_inc(v___y_954_);
 lean_inc(v___y_953_);
-v___x_968_ = lean_apply_12(v___x_1542__overap_967_, v___y_953_, v___y_954_, v___y_955_, v___y_956_, v___y_957_, v___y_958_, v___y_959_, v___y_960_, v___y_961_, v___y_962_, v___y_963_, lean_box(0));
+v___x_968_ = lean_apply_12(v___x_1609__overap_967_, v___y_953_, v___y_954_, v___y_955_, v___y_956_, v___y_957_, v___y_958_, v___y_959_, v___y_960_, v___y_961_, v___y_962_, v___y_963_, lean_box(0));
 return v___x_968_;
 }
 }

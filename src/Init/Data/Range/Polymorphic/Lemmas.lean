@@ -491,7 +491,7 @@ theorem Rxc.Iterator.toList_eq_toList_rxoIterator [LE α] [DecidableLE α] [LT �
     split <;> rename_i h
     · rw [ihy]; rotate_left
       · simp [Iter.IsPlausibleStep, IterM.IsPlausibleStep, Iterator.IsPlausibleStep, instIteratorIteratorIdOfUpwardEnumerableOfDecidableLE, -- TODO
-          Iterator.Monadic.step, Iter.toIterM, *]; rfl
+          Iterator.Monadic.step, Iter.toIterM, UpwardEnumerable.le_iff, *]; rfl
       · simpa [UpwardEnumerable.lt_iff, UpwardEnumerable.le_iff, UpwardEnumerable.lt_succ_iff] using h
     · simpa [UpwardEnumerable.lt_iff, UpwardEnumerable.le_iff, UpwardEnumerable.lt_succ_iff] using h
 
@@ -3054,7 +3054,7 @@ theorem getElem?_toList_eq [LE α] [DecidableLE α] [UpwardEnumerable α] [Lawfu
     r.toList[i]? = (UpwardEnumerable.succMany? i r.lower).filter (· ≤ r.upper) := by
   induction i generalizing r
   · rw [toList_eq_ite_roc, UpwardEnumerable.succMany?_zero]
-    simp only [Option.filter_some, decide_eq_true_eq]
+    simp only [Option.filter_some]
     split <;> simp
   · rename_i n ih
     rw [toList_eq_ite_roc]
@@ -3070,7 +3070,7 @@ theorem getElem?_toList_eq [LE α] [DecidableLE α] [UpwardEnumerable α] [Lawfu
       cases hs : UpwardEnumerable.succMany? (n + 1) r.lower
       · simp
       · rename_i hl a
-        simp only [Option.filter_some, decide_eq_true_eq, right_eq_ite_iff,
+        simp only [Option.filter_some, right_eq_ite_iff,
           UpwardEnumerable.le_iff] at hl ⊢
         intro ha
         exact hl.elim <| UpwardEnumerable.le_trans ⟨n + 1, hs⟩ ha
@@ -3446,7 +3446,7 @@ theorem getElem?_toList_eq [LT α] [DecidableLT α] [UpwardEnumerable α]
     r.toList[i]? = (UpwardEnumerable.succMany? i r.lower).filter (· < r.upper) := by
   induction i generalizing r
   · rw [toList_eq_ite_roo, UpwardEnumerable.succMany?_zero]
-    simp only [Option.filter_some, decide_eq_true_eq]
+    simp only [Option.filter_some]
     split <;> simp
   · rename_i n ih
     rw [toList_eq_ite_roo]
@@ -3462,7 +3462,7 @@ theorem getElem?_toList_eq [LT α] [DecidableLT α] [UpwardEnumerable α]
       cases hs : UpwardEnumerable.succMany? (n + 1) r.lower
       · simp
       · rename_i hl a
-        simp only [Option.filter_some, decide_eq_true_eq, right_eq_ite_iff,
+        simp only [Option.filter_some, right_eq_ite_iff,
           UpwardEnumerable.lt_iff] at hl ⊢
         intro ha
         exact hl.elim <| UpwardEnumerable.lt_trans ⟨n, hs⟩ ha

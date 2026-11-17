@@ -669,17 +669,17 @@ v___x_108_ = lean_box(0);
 v___x_109_ = lean_name_eq(v_name_102_, v___x_108_);
 if (v___x_109_ == 0)
 {
-uint8_t v___x_110_; lean_object* v___x_111_; lean_object* v___x_112_; lean_object* v___x_113_; lean_object* v___x_114_; lean_object* v___x_115_; lean_object* v___x_116_; lean_object* v_r_117_; 
-v___x_110_ = 1;
-v___x_111_ = ((lean_object*)(l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatCtorInfo___closed__1));
-v___x_112_ = lean_alloc_ctor(5, 2, 0);
-lean_ctor_set(v___x_112_, 0, v_r_107_);
-lean_ctor_set(v___x_112_, 1, v___x_111_);
-v___x_113_ = l_Lean_Name_toString(v_name_102_, v___x_110_);
+lean_object* v___x_110_; lean_object* v___x_111_; uint8_t v___x_112_; lean_object* v___x_113_; lean_object* v___x_114_; lean_object* v___x_115_; lean_object* v___x_116_; lean_object* v_r_117_; 
+v___x_110_ = ((lean_object*)(l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatCtorInfo___closed__1));
+v___x_111_ = lean_alloc_ctor(5, 2, 0);
+lean_ctor_set(v___x_111_, 0, v_r_107_);
+lean_ctor_set(v___x_111_, 1, v___x_110_);
+v___x_112_ = 1;
+v___x_113_ = l_Lean_Name_toString(v_name_102_, v___x_112_);
 v___x_114_ = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(v___x_114_, 0, v___x_113_);
 v___x_115_ = lean_alloc_ctor(5, 2, 0);
-lean_ctor_set(v___x_115_, 0, v___x_112_);
+lean_ctor_set(v___x_115_, 0, v___x_111_);
 lean_ctor_set(v___x_115_, 1, v___x_114_);
 v___x_116_ = ((lean_object*)(l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatCtorInfo___closed__3));
 v_r_117_ = lean_alloc_ctor(5, 2, 0);

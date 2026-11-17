@@ -1908,9 +1908,9 @@ return v___x_533_;
 LEAN_EXPORT lean_object* l_Std_Async_instReprSignal_repr___boxed(lean_object* v_x_622_, lean_object* v_prec_623_){
 _start:
 {
-uint8_t v_x_1197__boxed_624_; lean_object* v_res_625_; 
-v_x_1197__boxed_624_ = lean_unbox(v_x_622_);
-v_res_625_ = l_Std_Async_instReprSignal_repr(v_x_1197__boxed_624_, v_prec_623_);
+uint8_t v_x_1813__boxed_624_; lean_object* v_res_625_; 
+v_x_1813__boxed_624_ = lean_unbox(v_x_622_);
+v_res_625_ = l_Std_Async_instReprSignal_repr(v_x_1813__boxed_624_, v_prec_623_);
 lean_dec(v_prec_623_);
 return v_res_625_;
 }

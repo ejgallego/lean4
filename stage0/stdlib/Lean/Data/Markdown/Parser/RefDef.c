@@ -461,7 +461,7 @@ v___x_158_ = l_Lean_Markdown_InlineCursor_drop1(v_s_26_, v___x_84_);
 v___x_159_ = lean_unsigned_to_nat(2u);
 v___x_160_ = lean_nat_add(v_fst_53_, v___x_159_);
 lean_dec(v_fst_53_);
-v___x_161_ = lean_box(v___x_64_);
+v___x_161_ = lean_box(v___x_157_);
 v___x_162_ = lean_box(v_sawNonWs_83_);
 v___x_163_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_163_, 0, v___x_161_);
@@ -1582,7 +1582,7 @@ goto v_resetjp_368_;
 }
 v_resetjp_368_:
 {
-lean_object* v___x_379_; lean_object* v___x_380_; uint8_t v___x_381_; 
+uint8_t v___y_372_; lean_object* v___x_379_; lean_object* v___x_380_; uint8_t v___x_381_; 
 v___x_379_ = l_Lean_Markdown_InlineCursor_front_x3f(v_s_364_, v_snd_367_);
 v___x_380_ = lean_obj_once(&l___private_Init_While_0__repeatM_erased___at___00__private_Lean_Data_Markdown_Parser_RefDef_0__Lean_Markdown_consumeRefDefLineEnd_spec__1___redArg___closed__0, &l___private_Init_While_0__repeatM_erased___at___00__private_Lean_Data_Markdown_Parser_RefDef_0__Lean_Markdown_consumeRefDefLineEnd_spec__1___redArg___closed__0_once, _init_l___private_Init_While_0__repeatM_erased___at___00__private_Lean_Data_Markdown_Parser_RefDef_0__Lean_Markdown_consumeRefDefLineEnd_spec__1___redArg___closed__0);
 v___x_381_ = l_instBEqOption_beq___at___00__private_Lean_Data_Markdown_Parser_RefDef_0__Lean_Markdown_consumeRefDefLineEnd_spec__0(v___x_379_, v___x_380_);
@@ -1606,6 +1606,7 @@ return v___x_385_;
 else
 {
 lean_dec(v_fst_366_);
+v___y_372_ = v___x_383_;
 goto v___jp_371_;
 }
 }
@@ -1613,14 +1614,14 @@ else
 {
 lean_dec(v___x_379_);
 lean_dec(v_fst_366_);
+v___y_372_ = v___x_381_;
 goto v___jp_371_;
 }
 v___jp_371_:
 {
-uint8_t v___x_372_; lean_object* v___x_373_; lean_object* v___x_374_; lean_object* v___x_376_; 
-v___x_372_ = 1;
+lean_object* v___x_373_; lean_object* v___x_374_; lean_object* v___x_376_; 
 v___x_373_ = l_Lean_Markdown_InlineCursor_drop1(v_s_364_, v_snd_367_);
-v___x_374_ = lean_box(v___x_372_);
+v___x_374_ = lean_box(v___y_372_);
 if (v_isShared_370_ == 0)
 {
 lean_ctor_set(v___x_369_, 1, v___x_373_);

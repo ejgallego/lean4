@@ -779,9 +779,9 @@ return v___x_98_;
 LEAN_EXPORT lean_object* l_Lean_Meta_instReprCoeFnType_repr___boxed(lean_object* v_x_111_, lean_object* v_prec_112_){
 _start:
 {
-uint8_t v_x_171__boxed_113_; lean_object* v_res_114_; 
-v_x_171__boxed_113_ = lean_unbox(v_x_111_);
-v_res_114_ = l_Lean_Meta_instReprCoeFnType_repr(v_x_171__boxed_113_, v_prec_112_);
+uint8_t v_x_255__boxed_113_; lean_object* v_res_114_; 
+v_x_255__boxed_113_ = lean_unbox(v_x_111_);
+v_res_114_ = l_Lean_Meta_instReprCoeFnType_repr(v_x_255__boxed_113_, v_prec_112_);
 lean_dec(v_prec_112_);
 return v_res_114_;
 }

@@ -1479,9 +1479,9 @@ return v___x_499_;
 LEAN_EXPORT lean_object* l___private_Lean_PostprocessTraces_Postprocessors_0__Lean_PostprocessTraces_exposeSubtrees_go___lam__0___boxed(lean_object* v_a_502_, lean_object* v_x_503_){
 _start:
 {
-uint8_t v_a_905__boxed_504_; lean_object* v_res_505_; 
-v_a_905__boxed_504_ = lean_unbox(v_a_502_);
-v_res_505_ = l___private_Lean_PostprocessTraces_Postprocessors_0__Lean_PostprocessTraces_exposeSubtrees_go___lam__0(v_a_905__boxed_504_, v_x_503_);
+uint8_t v_a_1029__boxed_504_; lean_object* v_res_505_; 
+v_a_1029__boxed_504_ = lean_unbox(v_a_502_);
+v_res_505_ = l___private_Lean_PostprocessTraces_Postprocessors_0__Lean_PostprocessTraces_exposeSubtrees_go___lam__0(v_a_1029__boxed_504_, v_x_503_);
 return v_res_505_;
 }
 }
@@ -1507,7 +1507,7 @@ goto _start;
 else
 {
 uint8_t v___x_516_; 
-v___x_516_ = 1;
+v___x_516_ = lean_unbox(v_snd_511_);
 return v___x_516_;
 }
 }

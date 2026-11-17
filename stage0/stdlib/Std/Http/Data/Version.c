@@ -482,9 +482,9 @@ return v___x_119_;
 LEAN_EXPORT lean_object* l_Std_Http_instReprVersion_repr___boxed(lean_object* v_x_136_, lean_object* v_prec_137_){
 _start:
 {
-uint8_t v_x_225__boxed_138_; lean_object* v_res_139_; 
-v_x_225__boxed_138_ = lean_unbox(v_x_136_);
-v_res_139_ = l_Std_Http_instReprVersion_repr(v_x_225__boxed_138_, v_prec_137_);
+uint8_t v_x_337__boxed_138_; lean_object* v_res_139_; 
+v_x_337__boxed_138_ = lean_unbox(v_x_136_);
+v_res_139_ = l_Std_Http_instReprVersion_repr(v_x_337__boxed_138_, v_prec_137_);
 lean_dec(v_prec_137_);
 return v_res_139_;
 }

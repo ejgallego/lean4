@@ -750,10 +750,10 @@ return v___x_253_;
 LEAN_EXPORT lean_object* l_Lean_Markdown_InlineSource_ofLines___lam__0___boxed(lean_object* v___y_260_){
 _start:
 {
-uint32_t v___y_365__boxed_261_; uint8_t v_res_262_; lean_object* v_r_263_; 
-v___y_365__boxed_261_ = lean_unbox_uint32(v___y_260_);
+uint32_t v___y_400__boxed_261_; uint8_t v_res_262_; lean_object* v_r_263_; 
+v___y_400__boxed_261_ = lean_unbox_uint32(v___y_260_);
 lean_dec(v___y_260_);
-v_res_262_ = l_Lean_Markdown_InlineSource_ofLines___lam__0(v___y_365__boxed_261_);
+v_res_262_ = l_Lean_Markdown_InlineSource_ofLines___lam__0(v___y_400__boxed_261_);
 v_r_263_ = lean_box(v_res_262_);
 return v_r_263_;
 }

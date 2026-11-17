@@ -611,7 +611,7 @@ theorem Expr.denote_toPoly'_go (ctx : Context) (e : Expr) :
   (toPoly'.go k e p).denote ctx = k * e.denote ctx + p.denote ctx := by
     induction k, e using Expr.toPoly'.go.induct generalizing p with
   | case1 k k' h =>
-    simp only [toPoly'.go, h, Bool.cond_true]
+    simp only [toPoly'.go, h]
     simp [eq_of_beq h]
   | case2 k k' h =>
     simp only [toPoly'.go, h, Bool.cond_false]

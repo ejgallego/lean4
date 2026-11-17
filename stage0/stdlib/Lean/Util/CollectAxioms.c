@@ -1719,9 +1719,9 @@ return v___x_542_;
 LEAN_EXPORT lean_object* l___private_Lean_Util_CollectAxioms_0__Lean_initFn___lam__4_00___x40_Lean_Util_CollectAxioms_53144371____hygCtx___hyg_2____boxed(lean_object* v_exportedEnv_543_, lean_object* v___x_544_, lean_object* v_names_545_, lean_object* v_name_546_, lean_object* v_x_547_){
 _start:
 {
-uint8_t v___x_1707__boxed_548_; lean_object* v_res_549_; 
-v___x_1707__boxed_548_ = lean_unbox(v___x_544_);
-v_res_549_ = l___private_Lean_Util_CollectAxioms_0__Lean_initFn___lam__4_00___x40_Lean_Util_CollectAxioms_53144371____hygCtx___hyg_2_(v_exportedEnv_543_, v___x_1707__boxed_548_, v_names_545_, v_name_546_, v_x_547_);
+uint8_t v___x_1720__boxed_548_; lean_object* v_res_549_; 
+v___x_1720__boxed_548_ = lean_unbox(v___x_544_);
+v_res_549_ = l___private_Lean_Util_CollectAxioms_0__Lean_initFn___lam__4_00___x40_Lean_Util_CollectAxioms_53144371____hygCtx___hyg_2_(v_exportedEnv_543_, v___x_1720__boxed_548_, v_names_545_, v_name_546_, v_x_547_);
 lean_dec_ref(v_x_547_);
 return v_res_549_;
 }

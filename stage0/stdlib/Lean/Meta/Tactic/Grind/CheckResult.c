@@ -474,9 +474,9 @@ return v___x_136_;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_instReprCheckResult_repr___boxed(lean_object* v_x_153_, lean_object* v_prec_154_){
 _start:
 {
-uint8_t v_x_225__boxed_155_; lean_object* v_res_156_; 
-v_x_225__boxed_155_ = lean_unbox(v_x_153_);
-v_res_156_ = l_Lean_Meta_Grind_instReprCheckResult_repr(v_x_225__boxed_155_, v_prec_154_);
+uint8_t v_x_337__boxed_155_; lean_object* v_res_156_; 
+v_x_337__boxed_155_ = lean_unbox(v_x_153_);
+v_res_156_ = l_Lean_Meta_Grind_instReprCheckResult_repr(v_x_337__boxed_155_, v_prec_154_);
 lean_dec(v_prec_154_);
 return v_res_156_;
 }

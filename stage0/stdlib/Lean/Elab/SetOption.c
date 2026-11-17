@@ -888,27 +888,27 @@ return v_res_246_;
 LEAN_EXPORT lean_object* l_Lean_Elab_validateOptionValue___redArg(lean_object* v_inst_247_, lean_object* v_inst_248_, lean_object* v_optionName_249_, lean_object* v_decl_250_, lean_object* v_val_251_){
 _start:
 {
-lean_object* v_toApplicative_252_; lean_object* v_defValue_253_; lean_object* v_toPure_254_; uint8_t v___x_255_; 
+lean_object* v_toApplicative_252_; lean_object* v_toPure_253_; lean_object* v_defValue_254_; uint8_t v___x_255_; 
 v_toApplicative_252_ = lean_ctor_get(v_inst_247_, 0);
-v_defValue_253_ = lean_ctor_get(v_decl_250_, 2);
-v_toPure_254_ = lean_ctor_get(v_toApplicative_252_, 1);
-v___x_255_ = l_Lean_DataValue_sameCtor(v_defValue_253_, v_val_251_);
+v_toPure_253_ = lean_ctor_get(v_toApplicative_252_, 1);
+v_defValue_254_ = lean_ctor_get(v_decl_250_, 2);
+v___x_255_ = l_Lean_DataValue_sameCtor(v_defValue_254_, v_val_251_);
 if (v___x_255_ == 0)
 {
 lean_object* v___x_256_; 
-v___x_256_ = l___private_Lean_Elab_SetOption_0__Lean_Elab_validateOptionValue_throwMistypedOptionValue___redArg(v_inst_247_, v_inst_248_, v_optionName_249_, v_val_251_, v_defValue_253_);
+v___x_256_ = l___private_Lean_Elab_SetOption_0__Lean_Elab_validateOptionValue_throwMistypedOptionValue___redArg(v_inst_247_, v_inst_248_, v_optionName_249_, v_val_251_, v_defValue_254_);
 return v___x_256_;
 }
 else
 {
 lean_object* v___x_257_; lean_object* v___x_258_; 
-lean_inc(v_toPure_254_);
+lean_inc(v_toPure_253_);
 lean_dec_ref(v_val_251_);
 lean_dec(v_optionName_249_);
 lean_dec_ref(v_inst_248_);
 lean_dec_ref(v_inst_247_);
 v___x_257_ = lean_box(0);
-v___x_258_ = lean_apply_2(v_toPure_254_, lean_box(0), v___x_257_);
+v___x_258_ = lean_apply_2(v_toPure_253_, lean_box(0), v___x_257_);
 return v___x_258_;
 }
 }

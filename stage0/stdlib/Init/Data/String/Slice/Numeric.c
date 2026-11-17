@@ -128,7 +128,7 @@ else
 lean_object* v___x_30_; lean_object* v___x_31_; 
 lean_del_object(v___x_11_);
 lean_dec(v_snd_9_);
-v___x_30_ = lean_box(v___x_27_);
+v___x_30_ = lean_box(v___x_29_);
 v___x_31_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_31_, 0, v___x_19_);
 lean_ctor_set(v___x_31_, 1, v___x_30_);

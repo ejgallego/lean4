@@ -1562,9 +1562,9 @@ return v___x_323_;
 LEAN_EXPORT lean_object* l_Lean_instReprDefinitionSafety_repr___boxed(lean_object* v_x_336_, lean_object* v_prec_337_){
 _start:
 {
-uint8_t v_x_171__boxed_338_; lean_object* v_res_339_; 
-v_x_171__boxed_338_ = lean_unbox(v_x_336_);
-v_res_339_ = l_Lean_instReprDefinitionSafety_repr(v_x_171__boxed_338_, v_prec_337_);
+uint8_t v_x_255__boxed_338_; lean_object* v_res_339_; 
+v_x_255__boxed_338_ = lean_unbox(v_x_336_);
+v_res_339_ = l_Lean_instReprDefinitionSafety_repr(v_x_255__boxed_338_, v_prec_337_);
 lean_dec(v_prec_337_);
 return v_res_339_;
 }

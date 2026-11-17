@@ -1229,18 +1229,18 @@ v___x_315_ = lean_unsigned_to_nat(0u);
 v___x_316_ = lean_nat_dec_eq(v___x_314_, v___x_315_);
 if (v___x_316_ == 0)
 {
-uint8_t v___x_317_; lean_object* v___x_318_; double v___x_319_; lean_object* v___x_320_; lean_object* v___x_321_; lean_object* v___x_322_; lean_object* v___x_323_; lean_object* v___x_324_; 
-v___x_317_ = 1;
-v___x_318_ = lean_box(0);
-v___x_319_ = lean_float_once(&l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_PP_0__Lean_Meta_Grind_Arith_CommRing_toOption___closed__0, &l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_PP_0__Lean_Meta_Grind_Arith_CommRing_toOption___closed__0_once, _init_l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_PP_0__Lean_Meta_Grind_Arith_CommRing_toOption___closed__0);
+lean_object* v___x_317_; double v___x_318_; uint8_t v___x_319_; lean_object* v___x_320_; lean_object* v___x_321_; lean_object* v___x_322_; lean_object* v___x_323_; lean_object* v___x_324_; 
+v___x_317_ = lean_box(0);
+v___x_318_ = lean_float_once(&l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_PP_0__Lean_Meta_Grind_Arith_CommRing_toOption___closed__0, &l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_PP_0__Lean_Meta_Grind_Arith_CommRing_toOption___closed__0_once, _init_l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_PP_0__Lean_Meta_Grind_Arith_CommRing_toOption___closed__0);
+v___x_319_ = 1;
 v___x_320_ = ((lean_object*)(l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_PP_0__Lean_Meta_Grind_Arith_CommRing_toOption___closed__1));
 v___x_321_ = lean_alloc_ctor(0, 3, 17);
 lean_ctor_set(v___x_321_, 0, v_cls_311_);
-lean_ctor_set(v___x_321_, 1, v___x_318_);
+lean_ctor_set(v___x_321_, 1, v___x_317_);
 lean_ctor_set(v___x_321_, 2, v___x_320_);
-lean_ctor_set_float(v___x_321_, sizeof(void*)*3, v___x_319_);
-lean_ctor_set_float(v___x_321_, sizeof(void*)*3 + 8, v___x_319_);
-lean_ctor_set_uint8(v___x_321_, sizeof(void*)*3 + 16, v___x_317_);
+lean_ctor_set_float(v___x_321_, sizeof(void*)*3, v___x_318_);
+lean_ctor_set_float(v___x_321_, sizeof(void*)*3 + 8, v___x_318_);
+lean_ctor_set_uint8(v___x_321_, sizeof(void*)*3 + 16, v___x_319_);
 v___x_322_ = lean_thunk_get_own(v_header_312_);
 v___x_323_ = lean_alloc_ctor(9, 3, 0);
 lean_ctor_set(v___x_323_, 0, v___x_321_);

@@ -1009,8 +1009,8 @@ return v___x_240_;
 else
 {
 lean_object* v___x_241_; 
-lean_dec(v_pre_229_);
 lean_dec_ref_known(v_declName_228_, 2);
+lean_dec(v_pre_229_);
 v___x_241_ = lean_box(0);
 return v___x_241_;
 }
@@ -1487,7 +1487,7 @@ else
 {
 lean_dec_ref(v___x_325_);
 lean_dec_ref(v___x_323_);
-return v___x_327_;
+return v___x_324_;
 }
 }
 }
@@ -2079,7 +2079,7 @@ return v___x_463_;
 else
 {
 lean_dec_ref(v___x_431_);
-return v___x_433_;
+return v___x_430_;
 }
 }
 }

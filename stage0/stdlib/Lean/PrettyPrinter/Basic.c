@@ -1155,7 +1155,7 @@ lean_inc(v_k_351_);
 v___x_361_ = l_Lean_getConstInfo___at___00Lean_PrettyPrinter_runForNodeKind_spec__0(v_k_351_, v_a_353_, v_a_354_);
 if (lean_obj_tag(v___x_361_) == 0)
 {
-lean_object* v_a_362_; lean_object* v___x_376_; lean_object* v___x_377_; uint8_t v___x_378_; 
+lean_object* v_a_362_; uint8_t v___y_364_; lean_object* v___x_376_; lean_object* v___x_377_; uint8_t v___x_378_; 
 v_a_362_ = lean_ctor_get(v___x_361_, 0);
 lean_inc(v_a_362_);
 lean_dec_ref_known(v___x_361_, 1);
@@ -1202,6 +1202,7 @@ return v___x_392_;
 else
 {
 lean_dec_ref(v_attr_350_);
+v___y_364_ = v___x_380_;
 goto v___jp_363_;
 }
 }
@@ -1209,13 +1210,13 @@ else
 {
 lean_dec_ref(v___x_376_);
 lean_dec_ref(v_attr_350_);
+v___y_364_ = v___x_378_;
 goto v___jp_363_;
 }
 v___jp_363_:
 {
-uint8_t v___x_364_; lean_object* v___x_365_; 
-v___x_364_ = 1;
-v___x_365_ = l_Lean_evalConst___at___00Lean_PrettyPrinter_runForNodeKind_spec__1___redArg(v_k_351_, v___x_364_, v_a_353_, v_a_354_);
+lean_object* v___x_365_; 
+v___x_365_ = l_Lean_evalConst___at___00Lean_PrettyPrinter_runForNodeKind_spec__1___redArg(v_k_351_, v___y_364_, v_a_353_, v_a_354_);
 if (lean_obj_tag(v___x_365_) == 0)
 {
 lean_object* v_a_366_; lean_object* v___x_367_; 

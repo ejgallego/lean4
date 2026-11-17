@@ -58,7 +58,7 @@ theorem countP_replace [BEq α] [LawfulBEq α] {a b : α} {l : List α} {p : α 
       simp [h, countP_cons]
       omega
     · simp only [beq_eq_false_iff_ne, ne_eq] at h
-      simp only [countP_cons, ih, contains_eq_mem, decide_eq_true_eq, mem_cons, h, false_or]
+      simp only [countP_cons, ih, contains_eq_mem, decide_eq_true_eq, h, false_or]
       split <;> rename_i h'
       · by_cases h'' : p a
         · have : countP p l > 0 := countP_pos_iff.mpr ⟨a, h', h''⟩
@@ -80,7 +80,6 @@ theorem count_replace [BEq α] [LawfulBEq α] {a b c : α} {l : List α} :
   split <;> rename_i h
   · split <;> rename_i h'
     · rw [Nat.max_def]
-      simp only [beq_iff_eq] at h'
       split
       · have := List.count_pos_iff.mpr (h' ▸ h)
         omega

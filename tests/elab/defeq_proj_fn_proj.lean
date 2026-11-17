@@ -80,12 +80,19 @@ example (n : Nat) : ∃ s : Pt, prj% 0 s = prj% 0 (mk n) := ⟨_, rfl⟩
 
 example (b : Bool) (n : Nat) : (if b then n else n) = n := ite_self n
 example (b : Bool) (h : b = true) (x y : Nat) : (if b then x else y) = x := if_pos h
+example (b : Bool) (h : b = true) (x y : Nat) : (if b then x else y) = x := by rw [ite_eq_left h]
 
 /-! A proposition-guard lemma used on a Boolean guard leaves the Boolean guard, not its test instance. -/
 
 example {f : α → β} {p : β → Bool} (x : α) :
     (Option.map f (some x)).filter p = ((some x).filter (p ∘ f)).map f := by
   simp only [Option.filter_some, Option.map_some, Option.map_ite, Function.comp_apply]
+
+example (b : Bool) (x y : Nat) (h : b = true) (g : Nat → Nat) :
+    g (if b then x else y) = g x := by
+  rw [apply_ite g]
+  guard_target =ₛ (if b then g x else g y) = g x
+  rw [ite_eq_left h]
 
 /-! `simp` uses a hypothesis stated with explicit `ite` on the canonical form. -/
 

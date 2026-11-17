@@ -1076,10 +1076,10 @@ goto _start;
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Fold_0__Nat_foldTR_loop___at___00Lake_Hash_ofHex_spec__0___redArg___boxed(lean_object* v_s_332_, lean_object* v_n_333_, lean_object* v_j_334_, lean_object* v_a_335_){
 _start:
 {
-uint64_t v_a_246__boxed_336_; uint64_t v_res_337_; lean_object* v_r_338_; 
-v_a_246__boxed_336_ = lean_unbox_uint64(v_a_335_);
+uint64_t v_a_316__boxed_336_; uint64_t v_res_337_; lean_object* v_r_338_; 
+v_a_316__boxed_336_ = lean_unbox_uint64(v_a_335_);
 lean_dec_ref(v_a_335_);
-v_res_337_ = l___private_Init_Data_Nat_Fold_0__Nat_foldTR_loop___at___00Lake_Hash_ofHex_spec__0___redArg(v_s_332_, v_n_333_, v_j_334_, v_a_246__boxed_336_);
+v_res_337_ = l___private_Init_Data_Nat_Fold_0__Nat_foldTR_loop___at___00Lake_Hash_ofHex_spec__0___redArg(v_s_332_, v_n_333_, v_j_334_, v_a_316__boxed_336_);
 lean_dec(v_n_333_);
 lean_dec_ref(v_s_332_);
 v_r_338_ = lean_box_uint64(v_res_337_);
@@ -1117,10 +1117,10 @@ return v___x_351_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Fold_0__Nat_foldTR_loop___at___00Lake_Hash_ofHex_spec__0___boxed(lean_object* v_s_352_, lean_object* v_n_353_, lean_object* v_j_354_, lean_object* v_a_355_, lean_object* v_a_356_){
 _start:
 {
-uint64_t v_a_310__boxed_357_; uint64_t v_res_358_; lean_object* v_r_359_; 
-v_a_310__boxed_357_ = lean_unbox_uint64(v_a_356_);
+uint64_t v_a_380__boxed_357_; uint64_t v_res_358_; lean_object* v_r_359_; 
+v_a_380__boxed_357_ = lean_unbox_uint64(v_a_356_);
 lean_dec_ref(v_a_356_);
-v_res_358_ = l___private_Init_Data_Nat_Fold_0__Nat_foldTR_loop___at___00Lake_Hash_ofHex_spec__0(v_s_352_, v_n_353_, v_j_354_, v_a_355_, v_a_310__boxed_357_);
+v_res_358_ = l___private_Init_Data_Nat_Fold_0__Nat_foldTR_loop___at___00Lake_Hash_ofHex_spec__0(v_s_352_, v_n_353_, v_j_354_, v_a_355_, v_a_380__boxed_357_);
 lean_dec(v_n_353_);
 lean_dec_ref(v_s_352_);
 v_r_359_ = lean_box_uint64(v_res_358_);

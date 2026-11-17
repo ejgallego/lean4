@@ -127,8 +127,8 @@ theorem propagateHints_spec (s : State) (assign : Assignment) (hints : Array Nat
     exact Or.inr ih.left
   · simp
   · next pref1 cur1 suff1 hfor1 b1 curAssign hintClause hclause hout pref cur suff hfor b st
-      assignNow unit value hget hval isUnit hisU ih =>
-    simp only [isUnit, unit, st, assignNow] at hisU hget ⊢
+      assignNow unit value hget hval hisU ih =>
+    simp only [unit, st, assignNow] at hisU hget ⊢
     simp only [beq_iff_eq] at hval
     simp only [true_and, reduceCtorEq, false_and, and_false, exists_false, or_false,
       List.forall_mem_append, List.forall_mem_singleton] at ih ⊢

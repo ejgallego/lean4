@@ -2024,20 +2024,20 @@ v___x_1080_ = lean_int_dec_le(v___x_1079_, v_hour_1074_);
 lean_dec(v_hour_1074_);
 if (v___x_1080_ == 0)
 {
-uint8_t v___x_1081_; lean_object* v___x_24__overap_1082_; lean_object* v___x_1083_; lean_object* v___x_1084_; 
+uint8_t v___x_1081_; lean_object* v___x_44__overap_1082_; lean_object* v___x_1083_; lean_object* v___x_1084_; 
 v___x_1081_ = 0;
-v___x_24__overap_1082_ = l_Std_Time_GenericFormat_formatBuilder___redArg(v___x_1077_);
+v___x_44__overap_1082_ = l_Std_Time_GenericFormat_formatBuilder___redArg(v___x_1077_);
 v___x_1083_ = lean_box(v___x_1081_);
-v___x_1084_ = lean_apply_4(v___x_24__overap_1082_, v___x_1078_, v_minute_1075_, v_second_1076_, v___x_1083_);
+v___x_1084_ = lean_apply_4(v___x_44__overap_1082_, v___x_1078_, v_minute_1075_, v_second_1076_, v___x_1083_);
 return v___x_1084_;
 }
 else
 {
-uint8_t v___x_1085_; lean_object* v___x_26__overap_1086_; lean_object* v___x_1087_; lean_object* v___x_1088_; 
+uint8_t v___x_1085_; lean_object* v___x_46__overap_1086_; lean_object* v___x_1087_; lean_object* v___x_1088_; 
 v___x_1085_ = 1;
-v___x_26__overap_1086_ = l_Std_Time_GenericFormat_formatBuilder___redArg(v___x_1077_);
+v___x_46__overap_1086_ = l_Std_Time_GenericFormat_formatBuilder___redArg(v___x_1077_);
 v___x_1087_ = lean_box(v___x_1085_);
-v___x_1088_ = lean_apply_4(v___x_26__overap_1086_, v___x_1078_, v_minute_1075_, v_second_1076_, v___x_1087_);
+v___x_1088_ = lean_apply_4(v___x_46__overap_1086_, v___x_1078_, v_minute_1075_, v_second_1076_, v___x_1087_);
 return v___x_1088_;
 }
 }

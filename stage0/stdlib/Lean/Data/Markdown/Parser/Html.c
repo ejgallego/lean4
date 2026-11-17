@@ -5954,9 +5954,9 @@ return v___x_1847_;
 LEAN_EXPORT lean_object* l_Lean_Markdown_instReprHtmlBlockKind_repr___boxed(lean_object* v_x_1876_, lean_object* v_prec_1877_){
 _start:
 {
-uint8_t v_x_387__boxed_1878_; lean_object* v_res_1879_; 
-v_x_387__boxed_1878_ = lean_unbox(v_x_1876_);
-v_res_1879_ = l_Lean_Markdown_instReprHtmlBlockKind_repr(v_x_387__boxed_1878_, v_prec_1877_);
+uint8_t v_x_583__boxed_1878_; lean_object* v_res_1879_; 
+v_x_583__boxed_1878_ = lean_unbox(v_x_1876_);
+v_res_1879_ = l_Lean_Markdown_instReprHtmlBlockKind_repr(v_x_583__boxed_1878_, v_prec_1877_);
 lean_dec(v_prec_1877_);
 return v_res_1879_;
 }

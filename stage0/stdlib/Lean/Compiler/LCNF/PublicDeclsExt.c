@@ -337,9 +337,8 @@ return v___x_95_;
 }
 else
 {
-lean_object* v___x_96_; uint8_t v___x_97_; lean_object* v___y_99_; 
+lean_object* v___x_96_; lean_object* v___y_98_; 
 v___x_96_ = ((lean_object*)(l_Lean_Compiler_LCNF_isDeclPublic___closed__0));
-v___x_97_ = 0;
 if (lean_obj_tag(v_declName_92_) == 1)
 {
 lean_object* v_pre_106_; lean_object* v_str_107_; lean_object* v___x_108_; uint8_t v___x_109_; 
@@ -349,31 +348,32 @@ v___x_108_ = ((lean_object*)(l_Lean_Compiler_LCNF_isDeclPublic___closed__1));
 v___x_109_ = lean_string_dec_eq(v_str_107_, v___x_108_);
 if (v___x_109_ == 0)
 {
-v___y_99_ = v_declName_92_;
-goto v___jp_98_;
+v___y_98_ = v_declName_92_;
+goto v___jp_97_;
 }
 else
 {
-v___y_99_ = v_pre_106_;
-goto v___jp_98_;
+v___y_98_ = v_pre_106_;
+goto v___jp_97_;
 }
 }
 else
 {
-v___y_99_ = v_declName_92_;
-goto v___jp_98_;
+v___y_98_ = v_declName_92_;
+goto v___jp_97_;
 }
-v___jp_98_:
+v___jp_97_:
 {
-lean_object* v___x_100_; lean_object* v_asyncMode_101_; lean_object* v___x_102_; lean_object* v___x_103_; lean_object* v_snd_104_; uint8_t v___x_105_; 
-v___x_100_ = l___private_Lean_Compiler_LCNF_PublicDeclsExt_0__Lean_Compiler_LCNF_publicDeclsExt;
-v_asyncMode_101_ = lean_ctor_get(v___x_100_, 2);
-v___x_102_ = lean_box(0);
-v___x_103_ = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(v___x_96_, v___x_100_, v_env_91_, v_asyncMode_101_, v___x_102_, v___x_97_);
+lean_object* v___x_99_; lean_object* v_asyncMode_100_; lean_object* v___x_101_; uint8_t v___x_102_; lean_object* v___x_103_; lean_object* v_snd_104_; uint8_t v___x_105_; 
+v___x_99_ = l___private_Lean_Compiler_LCNF_PublicDeclsExt_0__Lean_Compiler_LCNF_publicDeclsExt;
+v_asyncMode_100_ = lean_ctor_get(v___x_99_, 2);
+v___x_101_ = lean_box(0);
+v___x_102_ = 0;
+v___x_103_ = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(v___x_96_, v___x_99_, v_env_91_, v_asyncMode_100_, v___x_101_, v___x_102_);
 v_snd_104_ = lean_ctor_get(v___x_103_, 1);
 lean_inc(v_snd_104_);
 lean_dec(v___x_103_);
-v___x_105_ = l_Lean_NameSet_contains(v_snd_104_, v___y_99_);
+v___x_105_ = l_Lean_NameSet_contains(v_snd_104_, v___y_98_);
 lean_dec(v_snd_104_);
 return v___x_105_;
 }
@@ -451,18 +451,18 @@ lean_inc_ref(v_env_127_);
 v___x_129_ = l_Lean_Compiler_LCNF_isDeclPublic(v_env_127_, v_declName_128_);
 if (v___x_129_ == 0)
 {
-lean_object* v___x_130_; lean_object* v_asyncMode_131_; uint8_t v_logWrites_132_; lean_object* v___f_133_; uint8_t v___x_134_; lean_object* v___x_135_; 
+lean_object* v___x_130_; lean_object* v_asyncMode_131_; uint8_t v_logWrites_132_; lean_object* v___f_133_; lean_object* v___x_134_; uint8_t v___x_135_; 
 v___x_130_ = l___private_Lean_Compiler_LCNF_PublicDeclsExt_0__Lean_Compiler_LCNF_publicDeclsExt;
 v_asyncMode_131_ = lean_ctor_get(v___x_130_, 2);
 v_logWrites_132_ = lean_ctor_get_uint8(v___x_130_, sizeof(void*)*6);
 v___f_133_ = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_setDeclPublic___lam__0), 2, 1);
 lean_closure_set(v___f_133_, 0, v_declName_128_);
-v___x_134_ = 1;
-v___x_135_ = lean_box(0);
+v___x_134_ = lean_box(0);
+v___x_135_ = 1;
 if (v_logWrites_132_ == 0)
 {
 lean_object* v___x_136_; 
-v___x_136_ = l___private_Lean_Environment_0__Lean_EnvExtension_modifyStateCore(lean_box(0), v___x_130_, v_env_127_, v___f_133_, v_asyncMode_131_, v___x_135_, v___x_134_);
+v___x_136_ = l___private_Lean_Environment_0__Lean_EnvExtension_modifyStateCore(lean_box(0), v___x_130_, v_env_127_, v___f_133_, v_asyncMode_131_, v___x_134_, v___x_135_);
 return v___x_136_;
 }
 else
@@ -470,7 +470,7 @@ else
 lean_object* v___x_137_; lean_object* v___x_138_; 
 v___x_137_ = l___private_Lean_Environment_0__Lean_EnvExtension_panicUnloggedWrite(lean_box(0), v___x_130_, v_env_127_);
 lean_dec_ref(v_env_127_);
-v___x_138_ = l___private_Lean_Environment_0__Lean_EnvExtension_modifyStateCore(lean_box(0), v___x_130_, v___x_137_, v___f_133_, v_asyncMode_131_, v___x_135_, v___x_134_);
+v___x_138_ = l___private_Lean_Environment_0__Lean_EnvExtension_modifyStateCore(lean_box(0), v___x_130_, v___x_137_, v___f_133_, v_asyncMode_131_, v___x_134_, v___x_135_);
 return v___x_138_;
 }
 }

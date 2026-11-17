@@ -721,9 +721,9 @@ return v___x_210_;
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Arith_getCharInfo___lam__0___boxed(lean_object* v___x_213_, lean_object* v___x_214_, lean_object* v___x_215_, lean_object* v_u_216_, lean_object* v___x_217_, lean_object* v_type_218_, lean_object* v_semiringInst_219_, lean_object* v___y_220_, lean_object* v___y_221_, lean_object* v___y_222_, lean_object* v___y_223_, lean_object* v___y_224_, lean_object* v___y_225_, lean_object* v___y_226_){
 _start:
 {
-uint8_t v___x_4014__boxed_227_; lean_object* v_res_228_; 
-v___x_4014__boxed_227_ = lean_unbox(v___x_214_);
-v_res_228_ = l_Lean_Meta_Sym_Arith_getCharInfo___lam__0(v___x_213_, v___x_4014__boxed_227_, v___x_215_, v_u_216_, v___x_217_, v_type_218_, v_semiringInst_219_, v___y_220_, v___y_221_, v___y_222_, v___y_223_, v___y_224_, v___y_225_);
+uint8_t v___x_3888__boxed_227_; lean_object* v_res_228_; 
+v___x_3888__boxed_227_ = lean_unbox(v___x_214_);
+v_res_228_ = l_Lean_Meta_Sym_Arith_getCharInfo___lam__0(v___x_213_, v___x_3888__boxed_227_, v___x_215_, v_u_216_, v___x_217_, v_type_218_, v_semiringInst_219_, v___y_220_, v___y_221_, v___y_222_, v___y_223_, v___y_224_, v___y_225_);
 lean_dec(v___y_225_);
 lean_dec_ref(v___y_224_);
 lean_dec(v___y_223_);

@@ -239,7 +239,7 @@ instance [Ring R] [LE R] [LT R] [LawfulOrderLT R] [IsPreorder R] [OrderedRing R]
       have : (0 : R) < 0 := Preorder.lt_of_le_of_lt h₂ h₁
       simp
       exact (Preorder.lt_irrefl 0) this
-  next => intro h; rw [OfNat.ofNat, h]; rfl
+  next => intro h; rw [OfNat.ofNat, h]
 
 end Preorder
 

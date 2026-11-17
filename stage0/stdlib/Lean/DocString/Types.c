@@ -718,9 +718,9 @@ return v___x_73_;
 LEAN_EXPORT lean_object* l_Lean_Doc_instReprMathMode_repr___boxed(lean_object* v_x_82_, lean_object* v_prec_83_){
 _start:
 {
-uint8_t v_x_117__boxed_84_; lean_object* v_res_85_; 
-v_x_117__boxed_84_ = lean_unbox(v_x_82_);
-v_res_85_ = l_Lean_Doc_instReprMathMode_repr(v_x_117__boxed_84_, v_prec_83_);
+uint8_t v_x_173__boxed_84_; lean_object* v_res_85_; 
+v_x_173__boxed_84_ = lean_unbox(v_x_82_);
+v_res_85_ = l_Lean_Doc_instReprMathMode_repr(v_x_173__boxed_84_, v_prec_83_);
 lean_dec(v_prec_83_);
 return v_res_85_;
 }
@@ -5193,17 +5193,17 @@ goto v_reusejp_1608_;
 v_reusejp_1608_:
 {
 lean_object* v___x_1610_; lean_object* v___x_1611_; lean_object* v___x_1612_; lean_object* v___x_1613_; uint8_t v___x_1614_; lean_object* v___x_1615_; lean_object* v___x_1616_; 
-lean_inc(v___y_1606_);
+lean_inc(v___y_1604_);
 v___x_1610_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_1610_, 0, v___x_1609_);
-lean_ctor_set(v___x_1610_, 1, v___y_1606_);
+lean_ctor_set(v___x_1610_, 1, v___y_1604_);
 v___x_1611_ = l_Array_repr___redArg(v___x_1548_, v_items_1599_);
 v___x_1612_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_1612_, 0, v___x_1610_);
 lean_ctor_set(v___x_1612_, 1, v___x_1611_);
-lean_inc(v___y_1604_);
+lean_inc(v___y_1606_);
 v___x_1613_ = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(v___x_1613_, 0, v___y_1604_);
+lean_ctor_set(v___x_1613_, 0, v___y_1606_);
 lean_ctor_set(v___x_1613_, 1, v___x_1612_);
 v___x_1614_ = 0;
 v___x_1615_ = lean_alloc_ctor(6, 1, 1);
@@ -5227,9 +5227,9 @@ v___x_1624_ = l_Int_repr(v_start_1598_);
 lean_dec(v_start_1598_);
 v___x_1625_ = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(v___x_1625_, 0, v___x_1624_);
-v___y_1604_ = v___y_1619_;
+v___y_1604_ = v___x_1620_;
 v___y_1605_ = v___x_1621_;
-v___y_1606_ = v___x_1620_;
+v___y_1606_ = v___y_1619_;
 v___y_1607_ = v___x_1625_;
 goto v___jp_1603_;
 }
@@ -5242,9 +5242,9 @@ lean_dec(v_start_1598_);
 v___x_1628_ = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(v___x_1628_, 0, v___x_1627_);
 v___x_1629_ = l_Repr_addAppParen(v___x_1628_, v___x_1626_);
-v___y_1604_ = v___y_1619_;
+v___y_1604_ = v___x_1620_;
 v___y_1605_ = v___x_1621_;
-v___y_1606_ = v___x_1620_;
+v___y_1606_ = v___y_1619_;
 v___y_1607_ = v___x_1629_;
 goto v___jp_1603_;
 }

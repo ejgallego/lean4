@@ -302,7 +302,7 @@ v___x_37_ = l_Lean_Expr_getAppNumArgs(v_e_1_);
 v___x_38_ = lean_mk_empty_array_with_capacity(v___x_37_);
 lean_dec(v___x_37_);
 v___x_39_ = l___private_Lean_Expr_0__Lean_Expr_getAppRevArgsAux(v_e_1_, v___x_38_);
-v___x_40_ = l_Lean_Expr_betaRev(v_a_33_, v___x_39_, v___x_27_, v___x_18_);
+v___x_40_ = l_Lean_Expr_betaRev(v_a_33_, v___x_39_, v___x_31_, v___x_18_);
 lean_dec_ref(v___x_39_);
 if (v_isShared_23_ == 0)
 {

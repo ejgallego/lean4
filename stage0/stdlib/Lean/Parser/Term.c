@@ -13620,10 +13620,10 @@ return v___x_18_;
 LEAN_EXPORT lean_object* l_Lean_Parser_Command_docCommentOpen___lam__0___boxed(lean_object* v_x_25_){
 _start:
 {
-uint32_t v_x_889__boxed_26_; uint8_t v_res_27_; lean_object* v_r_28_; 
-v_x_889__boxed_26_ = lean_unbox_uint32(v_x_25_);
+uint32_t v_x_1062__boxed_26_; uint8_t v_res_27_; lean_object* v_r_28_; 
+v_x_1062__boxed_26_ = lean_unbox_uint32(v_x_25_);
 lean_dec(v_x_25_);
-v_res_27_ = l_Lean_Parser_Command_docCommentOpen___lam__0(v_x_889__boxed_26_);
+v_res_27_ = l_Lean_Parser_Command_docCommentOpen___lam__0(v_x_1062__boxed_26_);
 v_r_28_ = lean_box(v_res_27_);
 return v_r_28_;
 }
@@ -13888,10 +13888,10 @@ v___jp_72_:
 {
 lean_object* v_info_77_; lean_object* v___x_78_; lean_object* v___x_79_; lean_object* v___x_80_; 
 v_info_77_ = lean_alloc_ctor(0, 4, 0);
-lean_ctor_set(v_info_77_, 0, v___y_74_);
+lean_ctor_set(v_info_77_, 0, v___y_73_);
 lean_ctor_set(v_info_77_, 1, v_pos_71_);
 lean_ctor_set(v_info_77_, 2, v___y_76_);
-lean_ctor_set(v_info_77_, 3, v___y_73_);
+lean_ctor_set(v_info_77_, 3, v___y_74_);
 v___x_78_ = l_Lean_Parser_ParserState_popSyntax(v___y_75_);
 v___x_79_ = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(v___x_79_, 0, v_info_77_);
@@ -13937,8 +13937,8 @@ v___x_100_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_100_, 0, v_inputString_96_);
 lean_ctor_set(v___x_100_, 1, v_stopPos_92_);
 lean_ctor_set(v___x_100_, 2, v_endPos_97_);
-v___y_73_ = v_stopPos_92_;
-v___y_74_ = v___x_98_;
+v___y_73_ = v___x_98_;
+v___y_74_ = v_stopPos_92_;
 v___y_75_ = v_s_94_;
 v___y_76_ = v___x_100_;
 goto v___jp_72_;
@@ -13953,8 +13953,8 @@ v___x_101_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_101_, 0, v_inputString_96_);
 lean_ctor_set(v___x_101_, 1, v_stopPos_92_);
 lean_ctor_set(v___x_101_, 2, v_pos_95_);
-v___y_73_ = v_stopPos_92_;
-v___y_74_ = v___x_98_;
+v___y_73_ = v___x_98_;
+v___y_74_ = v_stopPos_92_;
 v___y_75_ = v_s_94_;
 v___y_76_ = v___x_101_;
 goto v___jp_72_;

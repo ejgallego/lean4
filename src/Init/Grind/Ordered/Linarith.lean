@@ -417,13 +417,13 @@ theorem Expr.toPoly'_k_go (e : Expr) (c : Int) (p : Poly) :
     rw [show (k == 0) = Nat.beq k 0 from rfl]
     cases Nat.beq k 0
     · simp only [Bool.cond_false]; rw [← ih, Int.mul_k_eq]; rfl
-    · simp only [Bool.cond_true]; rfl
+    · rfl
   | intMul k a ih =>
     simp only [toPoly'.go]
     rw [← Int.beqZero_k_eq]
     cases Int.beqZero_k k
     · simp only [Bool.cond_false]; rw [← ih, Int.mul_k_eq]
-    · simp only [Bool.cond_true]; rfl
+    · rfl
 
 noncomputable def Expr.norm_k (e : Expr) : Poly :=
   e.toPoly'_k.norm_k

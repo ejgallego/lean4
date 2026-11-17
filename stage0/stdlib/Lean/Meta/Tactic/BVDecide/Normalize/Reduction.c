@@ -2175,7 +2175,7 @@ goto v_resetjp_789_;
 v_resetjp_789_:
 {
 lean_object* v___x_792_; lean_object* v___x_793_; lean_object* v___x_795_; 
-v___x_792_ = lean_box(v___x_742_);
+v___x_792_ = lean_box(v___x_756_);
 v___x_793_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_793_, 0, v___x_792_);
 if (v_isShared_747_ == 0)

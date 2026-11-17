@@ -846,9 +846,9 @@ return v___x_188_;
 LEAN_EXPORT lean_object* l_Std_Time_instReprWeekday_repr___boxed(lean_object* v_x_217_, lean_object* v_prec_218_){
 _start:
 {
-uint8_t v_x_387__boxed_219_; lean_object* v_res_220_; 
-v_x_387__boxed_219_ = lean_unbox(v_x_217_);
-v_res_220_ = l_Std_Time_instReprWeekday_repr(v_x_387__boxed_219_, v_prec_218_);
+uint8_t v_x_583__boxed_219_; lean_object* v_res_220_; 
+v_x_583__boxed_219_ = lean_unbox(v_x_217_);
+v_res_220_ = l_Std_Time_instReprWeekday_repr(v_x_583__boxed_219_, v_prec_218_);
 lean_dec(v_prec_218_);
 return v_res_220_;
 }

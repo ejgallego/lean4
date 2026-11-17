@@ -2261,35 +2261,35 @@ lean_inc(v_a_774_);
 lean_dec_ref_known(v___x_773_, 1);
 if (lean_obj_tag(v_a_774_) == 0)
 {
-uint8_t v___x_775_; lean_object* v___x_776_; lean_object* v_a_777_; lean_object* v___x_779_; uint8_t v_isShared_780_; uint8_t v_isSharedCheck_785_; 
-v___x_775_ = 1;
-v___x_776_ = l_Lean_instantiateMVars___at___00__private_Lean_Meta_Sym_Grind_0__Lean_Meta_Grind_Goal_dischargeSymSimp_spec__0___redArg(v_a_762_, v_a_727_);
-v_a_777_ = lean_ctor_get(v___x_776_, 0);
-v_isSharedCheck_785_ = !lean_is_exclusive(v___x_776_);
+lean_object* v___x_775_; lean_object* v_a_776_; lean_object* v___x_778_; uint8_t v_isShared_779_; uint8_t v_isSharedCheck_785_; 
+v___x_775_ = l_Lean_instantiateMVars___at___00__private_Lean_Meta_Sym_Grind_0__Lean_Meta_Grind_Goal_dischargeSymSimp_spec__0___redArg(v_a_762_, v_a_727_);
+v_a_776_ = lean_ctor_get(v___x_775_, 0);
+v_isSharedCheck_785_ = !lean_is_exclusive(v___x_775_);
 if (v_isSharedCheck_785_ == 0)
 {
-v___x_779_ = v___x_776_;
-v_isShared_780_ = v_isSharedCheck_785_;
-goto v_resetjp_778_;
+v___x_778_ = v___x_775_;
+v_isShared_779_ = v_isSharedCheck_785_;
+goto v_resetjp_777_;
 }
 else
 {
-lean_inc(v_a_777_);
-lean_dec(v___x_776_);
-v___x_779_ = lean_box(0);
-v_isShared_780_ = v_isSharedCheck_785_;
-goto v_resetjp_778_;
+lean_inc(v_a_776_);
+lean_dec(v___x_775_);
+v___x_778_ = lean_box(0);
+v_isShared_779_ = v_isSharedCheck_785_;
+goto v_resetjp_777_;
 }
-v_resetjp_778_:
+v_resetjp_777_:
 {
-lean_object* v___x_781_; lean_object* v___x_783_; 
+uint8_t v___x_780_; lean_object* v___x_781_; lean_object* v___x_783_; 
+v___x_780_ = 1;
 v___x_781_ = lean_alloc_ctor(1, 1, 1);
-lean_ctor_set(v___x_781_, 0, v_a_777_);
-lean_ctor_set_uint8(v___x_781_, sizeof(void*)*1, v___x_775_);
-if (v_isShared_780_ == 0)
+lean_ctor_set(v___x_781_, 0, v_a_776_);
+lean_ctor_set_uint8(v___x_781_, sizeof(void*)*1, v___x_780_);
+if (v_isShared_779_ == 0)
 {
-lean_ctor_set(v___x_779_, 0, v___x_781_);
-v___x_783_ = v___x_779_;
+lean_ctor_set(v___x_778_, 0, v___x_781_);
+v___x_783_ = v___x_778_;
 goto v_reusejp_782_;
 }
 else

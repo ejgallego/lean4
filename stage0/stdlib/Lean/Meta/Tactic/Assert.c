@@ -4013,12 +4013,12 @@ return v___x_1256_;
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_forFromMAux___at___00Lean_PersistentArray_forM___at___00Lean_LocalContext_forM___at___00__private_Lean_Meta_Tactic_Assert_0__Lean_MVarId_assertAfter_x27_findMaxFVar_spec__0_spec__0_spec__1___boxed(lean_object* v_x_1258_, lean_object* v_x_1259_, lean_object* v_x_1260_, lean_object* v___y_1261_, lean_object* v___y_1262_, lean_object* v___y_1263_, lean_object* v___y_1264_, lean_object* v___y_1265_, lean_object* v___y_1266_){
 _start:
 {
-size_t v_x_8695__boxed_1267_; size_t v_x_8696__boxed_1268_; lean_object* v_res_1269_; 
-v_x_8695__boxed_1267_ = lean_unbox_usize(v_x_1259_);
+size_t v_x_8701__boxed_1267_; size_t v_x_8702__boxed_1268_; lean_object* v_res_1269_; 
+v_x_8701__boxed_1267_ = lean_unbox_usize(v_x_1259_);
 lean_dec(v_x_1259_);
-v_x_8696__boxed_1268_ = lean_unbox_usize(v_x_1260_);
+v_x_8702__boxed_1268_ = lean_unbox_usize(v_x_1260_);
 lean_dec(v_x_1260_);
-v_res_1269_ = l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_forFromMAux___at___00Lean_PersistentArray_forM___at___00Lean_LocalContext_forM___at___00__private_Lean_Meta_Tactic_Assert_0__Lean_MVarId_assertAfter_x27_findMaxFVar_spec__0_spec__0_spec__1(v_x_1258_, v_x_8695__boxed_1267_, v_x_8696__boxed_1268_, v___y_1261_, v___y_1262_, v___y_1263_, v___y_1264_, v___y_1265_);
+v_res_1269_ = l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_forFromMAux___at___00Lean_PersistentArray_forM___at___00Lean_LocalContext_forM___at___00__private_Lean_Meta_Tactic_Assert_0__Lean_MVarId_assertAfter_x27_findMaxFVar_spec__0_spec__0_spec__1(v_x_1258_, v_x_8701__boxed_1267_, v_x_8702__boxed_1268_, v___y_1261_, v___y_1262_, v___y_1263_, v___y_1264_, v___y_1265_);
 lean_dec(v___y_1265_);
 lean_dec_ref(v___y_1264_);
 lean_dec(v___y_1263_);
@@ -6330,9 +6330,9 @@ return v___x_2001_;
 LEAN_EXPORT lean_object* l_Lean_MVarId_assertHypotheses___lam__1___boxed(lean_object* v_mvarId_2064_, lean_object* v___x_2065_, lean_object* v___x_2066_, lean_object* v_hs_2067_, lean_object* v___x_2068_, lean_object* v___x_2069_, lean_object* v___y_2070_, lean_object* v___y_2071_, lean_object* v___y_2072_, lean_object* v___y_2073_, lean_object* v___y_2074_){
 _start:
 {
-uint8_t v___x_2875__boxed_2075_; lean_object* v_res_2076_; 
-v___x_2875__boxed_2075_ = lean_unbox(v___x_2066_);
-v_res_2076_ = l_Lean_MVarId_assertHypotheses___lam__1(v_mvarId_2064_, v___x_2065_, v___x_2875__boxed_2075_, v_hs_2067_, v___x_2068_, v___x_2069_, v___y_2070_, v___y_2071_, v___y_2072_, v___y_2073_);
+uint8_t v___x_3025__boxed_2075_; lean_object* v_res_2076_; 
+v___x_3025__boxed_2075_ = lean_unbox(v___x_2066_);
+v_res_2076_ = l_Lean_MVarId_assertHypotheses___lam__1(v_mvarId_2064_, v___x_2065_, v___x_3025__boxed_2075_, v_hs_2067_, v___x_2068_, v___x_2069_, v___y_2070_, v___y_2071_, v___y_2072_, v___y_2073_);
 lean_dec(v___y_2073_);
 lean_dec_ref(v___y_2072_);
 lean_dec(v___y_2071_);

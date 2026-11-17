@@ -592,9 +592,9 @@ return v___x_133_;
 LEAN_EXPORT lean_object* l_Lean_Cadical_Internal_instReprStatus_repr___boxed(lean_object* v_x_146_, lean_object* v_prec_147_){
 _start:
 {
-uint8_t v_x_171__boxed_148_; lean_object* v_res_149_; 
-v_x_171__boxed_148_ = lean_unbox(v_x_146_);
-v_res_149_ = l_Lean_Cadical_Internal_instReprStatus_repr(v_x_171__boxed_148_, v_prec_147_);
+uint8_t v_x_255__boxed_148_; lean_object* v_res_149_; 
+v_x_255__boxed_148_ = lean_unbox(v_x_146_);
+v_res_149_ = l_Lean_Cadical_Internal_instReprStatus_repr(v_x_255__boxed_148_, v_prec_147_);
 lean_dec(v_prec_147_);
 return v_res_149_;
 }

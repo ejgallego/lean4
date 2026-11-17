@@ -402,18 +402,18 @@ v___x_62_ = lean_unsigned_to_nat(0u);
 v___x_63_ = lean_nat_dec_eq(v___x_61_, v___x_62_);
 if (v___x_63_ == 0)
 {
-uint8_t v___x_64_; lean_object* v___x_65_; double v___x_66_; lean_object* v___x_67_; lean_object* v___x_68_; lean_object* v___x_69_; lean_object* v___x_70_; lean_object* v___x_71_; 
-v___x_64_ = 1;
-v___x_65_ = lean_box(0);
-v___x_66_ = lean_float_once(&l___private_Lean_Meta_Tactic_Grind_AC_PP_0__Lean_Meta_Grind_AC_toOption___closed__0, &l___private_Lean_Meta_Tactic_Grind_AC_PP_0__Lean_Meta_Grind_AC_toOption___closed__0_once, _init_l___private_Lean_Meta_Tactic_Grind_AC_PP_0__Lean_Meta_Grind_AC_toOption___closed__0);
+lean_object* v___x_64_; double v___x_65_; uint8_t v___x_66_; lean_object* v___x_67_; lean_object* v___x_68_; lean_object* v___x_69_; lean_object* v___x_70_; lean_object* v___x_71_; 
+v___x_64_ = lean_box(0);
+v___x_65_ = lean_float_once(&l___private_Lean_Meta_Tactic_Grind_AC_PP_0__Lean_Meta_Grind_AC_toOption___closed__0, &l___private_Lean_Meta_Tactic_Grind_AC_PP_0__Lean_Meta_Grind_AC_toOption___closed__0_once, _init_l___private_Lean_Meta_Tactic_Grind_AC_PP_0__Lean_Meta_Grind_AC_toOption___closed__0);
+v___x_66_ = 1;
 v___x_67_ = ((lean_object*)(l___private_Lean_Meta_Tactic_Grind_AC_PP_0__Lean_Meta_Grind_AC_toOption___closed__1));
 v___x_68_ = lean_alloc_ctor(0, 3, 17);
 lean_ctor_set(v___x_68_, 0, v_cls_58_);
-lean_ctor_set(v___x_68_, 1, v___x_65_);
+lean_ctor_set(v___x_68_, 1, v___x_64_);
 lean_ctor_set(v___x_68_, 2, v___x_67_);
-lean_ctor_set_float(v___x_68_, sizeof(void*)*3, v___x_66_);
-lean_ctor_set_float(v___x_68_, sizeof(void*)*3 + 8, v___x_66_);
-lean_ctor_set_uint8(v___x_68_, sizeof(void*)*3 + 16, v___x_64_);
+lean_ctor_set_float(v___x_68_, sizeof(void*)*3, v___x_65_);
+lean_ctor_set_float(v___x_68_, sizeof(void*)*3 + 8, v___x_65_);
+lean_ctor_set_uint8(v___x_68_, sizeof(void*)*3 + 16, v___x_66_);
 v___x_69_ = lean_thunk_get_own(v_header_59_);
 v___x_70_ = lean_alloc_ctor(9, 3, 0);
 lean_ctor_set(v___x_70_, 0, v___x_68_);

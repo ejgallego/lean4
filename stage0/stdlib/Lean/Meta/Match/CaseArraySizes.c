@@ -692,9 +692,9 @@ return v___x_198_;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_introArrayLit_loop___lam__0___boxed(lean_object* v_mvarId_201_, lean_object* v_xs_202_, lean_object* v___x_203_, lean_object* v_args_204_, lean_object* v_a_205_, lean_object* v_heq_206_, lean_object* v___y_207_, lean_object* v___y_208_, lean_object* v___y_209_, lean_object* v___y_210_, lean_object* v___y_211_){
 _start:
 {
-uint8_t v___x_1166__boxed_212_; lean_object* v_res_213_; 
-v___x_1166__boxed_212_ = lean_unbox(v___x_203_);
-v_res_213_ = l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_introArrayLit_loop___lam__0(v_mvarId_201_, v_xs_202_, v___x_1166__boxed_212_, v_args_204_, v_a_205_, v_heq_206_, v___y_207_, v___y_208_, v___y_209_, v___y_210_);
+uint8_t v___x_1235__boxed_212_; lean_object* v_res_213_; 
+v___x_1235__boxed_212_ = lean_unbox(v___x_203_);
+v_res_213_ = l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_introArrayLit_loop___lam__0(v_mvarId_201_, v_xs_202_, v___x_1235__boxed_212_, v_args_204_, v_a_205_, v_heq_206_, v___y_207_, v___y_208_, v___y_209_, v___y_210_);
 lean_dec(v___y_210_);
 lean_dec_ref(v___y_209_);
 lean_dec(v___y_208_);

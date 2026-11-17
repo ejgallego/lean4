@@ -220,7 +220,6 @@ theorem size_erase [LawfulBEq α] {a : α} {xs : Array α} :
     (xs.erase a).size = if a ∈ xs then xs.size - 1 else xs.size := by
   rw [erase_eq_eraseP, size_eraseP]
   congr
-  simp [mem_iff_getElem, eq_comm (a := a)]
 
 theorem size_erase_le {a : α} {xs : Array α} : (xs.erase a).size ≤ xs.size := by
   rcases xs with ⟨xs⟩

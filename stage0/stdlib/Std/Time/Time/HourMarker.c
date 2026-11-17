@@ -336,9 +336,9 @@ return v___x_73_;
 LEAN_EXPORT lean_object* l_Std_Time_instReprHourMarker_repr___boxed(lean_object* v_x_82_, lean_object* v_prec_83_){
 _start:
 {
-uint8_t v_x_117__boxed_84_; lean_object* v_res_85_; 
-v_x_117__boxed_84_ = lean_unbox(v_x_82_);
-v_res_85_ = l_Std_Time_instReprHourMarker_repr(v_x_117__boxed_84_, v_prec_83_);
+uint8_t v_x_173__boxed_84_; lean_object* v_res_85_; 
+v_x_173__boxed_84_ = lean_unbox(v_x_82_);
+v_res_85_ = l_Std_Time_instReprHourMarker_repr(v_x_173__boxed_84_, v_prec_83_);
 lean_dec(v_prec_83_);
 return v_res_85_;
 }
