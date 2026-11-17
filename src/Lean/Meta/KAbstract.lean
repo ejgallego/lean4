@@ -24,7 +24,7 @@ All matches of `p` in `e` are considered for occurrences,
 but for each match that is included by the `occs` parameter,
 metavariables appearing in `p` (or `e`) may become instantiated,
 affecting the possibility of subsequent matches.
-For matches that are not included in the `occs` parameter, the metavariable context is rolled back
+For matches that are not included in the `occs` parameter, backtrackable state is rolled back
 to prevent blocking subsequent matches which require different instantiations.
 -/
 def kabstract (e : Expr) (p : Expr) (occs : Occurrences := .all) : MetaM Expr := do
@@ -58,18 +58,18 @@ def kabstract (e : Expr) (p : Expr) (occs : Occurrences := .all) : MetaM Expr :=
       else if e.toHeadIndex != pHeadIdx || e.headNumArgs != pNumArgs then
         visitChildren ()
       else
-        -- We save the metavariable context here,
+        -- We save backtrackable state here,
         -- so that it can be rolled back unless `occs.contains i`.
-        let mctx ← getMCtx
+        let state ← Meta.saveState
         if (← isDefEq e p) then
           if occs.contains i then
             set (i+1, ({} : Std.HashSet Expr))
             return mkBVar offset
           else
             modify fun (_, s) => (i+1, s)
-            -- Revert the metavariable context,
+            -- Revert backtrackable state,
             -- so that other matches are still possible.
-            setMCtx mctx
+            state.restore
             visitChildren ()
         else
           visitChildren ()
