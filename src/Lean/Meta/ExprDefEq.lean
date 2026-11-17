@@ -2540,6 +2540,29 @@ private def cacheResult (keyInfo : DefEqCacheKeyInfo) (result : Bool) : MetaM Un
     let key ← mkDefEqCacheKey (← instantiateMVars key.lhs) (← instantiateMVars key.rhs)
     modifyDefEqTransientCache fun c => c.insert key result
 
+/--
+Solves `S.f params a =?= b.i`, in either orientation, where `S.f` is the projection function for
+field `i` of `S`, and `a.i =?= b.i` when `a` or `b` is a metavariable, by comparing the
+structures `a` and `b`. This must run before `whnfCoreAtDefEq`: reducing `b.i` unfolds `b` and
+discards the structure needed to assign a metavariable in `a`. A failed attempt has no effect.
+-/
+private def isDefEqProjFnProj (t s : Expr) : MetaM Bool := do
+  match t, s with
+  | .proj n i b, .proj m j c =>
+    -- Only a metavariable structure is stuck; otherwise reducing both projections is cheaper.
+    unless n == m && i == j && (b.getAppFn.isMVar || c.getAppFn.isMVar) do return false
+    checkpointDefEq <| if isClass (← getEnv) n then withImplicitConfig (Meta.isExprDefEqAux b c) else Meta.isExprDefEqAux b c
+  | .proj n i b, v => go n i v (fun a => Meta.isExprDefEqAux b a)
+  | v, .proj n i b => go n i v (fun a => Meta.isExprDefEqAux a b)
+  | _, _ => return false
+where
+  go (n : Name) (i : Nat) (v : Expr) (k : Expr → MetaM Bool) : MetaM Bool := do
+    let .const f _ := v.getAppFn | return false
+    let some info := (← getEnv).getProjectionFnInfo? f | return false
+    unless info.i == i && info.ctorName.getPrefix == n && v.getAppNumArgs == info.numParams + 1 do
+      return false
+    checkpointDefEq <| if info.fromClass then withImplicitConfig (k v.appArg!) else k v.appArg!
+
 private def whnfCoreAtDefEq (e : Expr) : MetaM Expr := do
   if (← getOptionFlags).lazyWhnfCore then
     withConfig (fun ctx => { ctx with proj := .yesWithDeltaI }) <| whnfCore e
@@ -2558,6 +2581,7 @@ partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecD
   checkSystem "isDefEq"
   whenUndefDo (isDefEqQuick t s) do
   whenUndefDo (isDefEqProofIrrel t s) do
+  if (← isDefEqProjFnProj t s) then return true
   /-
     We also reduce projections here to prevent expensive defeq checks when unifying TC operations.
     When unifying e.g. `(@Field.toNeg α inst1).1 =?= (@Field.toNeg α inst2).1`,
