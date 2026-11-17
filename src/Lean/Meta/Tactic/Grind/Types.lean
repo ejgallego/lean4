@@ -846,6 +846,7 @@ private def congrHash (enodes : ENodeMap) (e : Expr) : UInt64 :=
   | Eq _ lhs rhs => goEq lhs rhs
   | _ =>
     match e with
+    | .proj ``Decidable 0 d => mixHash 19 (hashRoot enodes d)
     | .app f a =>
       if useFunCC' enodes e then
         mixHash (hashRoot enodes f) (hashRoot enodes a)
@@ -905,6 +906,12 @@ private partial def isCongruent (enodes : ENodeMap) (e₁ e₂ : Expr) : Bool :=
     let_expr Eq _ lhs₂ rhs₂ := e₂ | false
     goEq lhs₁ rhs₁ lhs₂ rhs₂
   | _ => Id.run do
+    if let .proj ``Decidable 0 d₁ := e₁ then
+      let .proj ``Decidable 0 d₂ := e₂ | return false
+      if isSameExpr d₁ d₂ then return true
+      let_expr Grind.nestedDecidable p₁ _ := d₁ | return false
+      let_expr Grind.nestedDecidable p₂ _ := d₂ | return false
+      return hasSameRoot enodes d₁ d₂ && hasSameRoot enodes p₁ p₂
     let .app f a := e₁ | return false
     let .app g b := e₂ | return false
     if useFunCC' enodes e₁ then
@@ -1236,6 +1243,8 @@ structure GoalState where
   enodeMap     : ENodeMap := default
   exprs        : PArray Expr := {}
   parents      : ParentMap := {}
+  /-- Propagation-only dependencies of conditionals on their represented propositions. -/
+  condParents  : ParentMap := {}
   congrTable   : CongrTable enodeMap := {}
   /--
   A mapping from each function application index (`HeadIndex`) to a list of applications with that index.
@@ -1908,6 +1917,22 @@ def registerParent (parent : Expr) (child : Expr) : GoalM Unit := do
   let childRoot := (← getRoot? child).getD child
   let parents := if let some parents := (← get).parents.find? { expr := childRoot } then parents else {}
   modify fun s => { s with parents := s.parents.insert { expr := childRoot } (parents.insert parent) }
+
+/-- Watch the truth value of a conditional's proposition without adding a congruence edge. -/
+def registerCondParent (parent condition : Expr) : GoalM Unit := do
+  let root ← getRoot condition
+  let ps := ((← get).condParents.find? { expr := root }).getD {}
+  modify fun s => { s with condParents := s.condParents.insert { expr := root } (ps.insert parent) }
+
+/-- Transfer conditional watchers when roots merge; only transferred watchers need waking. -/
+def mergeCondParents (source target : Expr) : GoalM ParentSet := do
+  let ps := ((← get).condParents.find? { expr := source }).getD {}
+  unless ps.isEmpty do
+    let previous := ((← get).condParents.find? { expr := target }).getD {}
+    let merged := ps.elems.foldl (fun acc e => acc.insert e) previous
+    modify fun s => { s with condParents :=
+      (s.condParents.erase { expr := source }).insert { expr := target } merged }
+  return ps
 
 /--
 Returns the set of expressions `e` is a child of, or an expression in

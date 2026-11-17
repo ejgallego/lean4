@@ -29,6 +29,9 @@ theorem imp_subst {α : Sort u} {x t : α} (motive : α → Prop) (k : x = t →
     x = t → motive x :=
   fun h => Eq.substr (p := motive) h (k h)
 
+theorem ite_eq_cond {α : Sort u} (p : Prop) (inst : Decidable p) (a b : α) :
+    @ite α p inst a b = cond (@decide p inst) a b := rfl
+
 theorem ite_cond_congr {α : Sort u} (c : Prop) {inst : Decidable c} (a b : α)
     (c' : Prop) {inst' : Decidable c'} (h : c = c') : @ite α c inst a b = @ite α c' inst' a b := by
   simp [*]

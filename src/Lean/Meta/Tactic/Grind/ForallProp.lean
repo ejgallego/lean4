@@ -208,7 +208,7 @@ builtin_simproc_decl simpForall ((a : _) → _) := fun e => do
       if let .some inst ← trySynthInstance (mkApp (mkConst ``Nonempty [← getLevel d]) d) then
         let iff := mkApp3 (mkConst ``forall_const [← getLevel d]) b d inst
         let proof := mkApp3 (mkConst ``propext) e b iff
-        return .done { expr := b, proof? := proof }
+        return .visit { expr := b, proof? := proof }
   else
     -- `b` has loose bound variables
     match_expr d with

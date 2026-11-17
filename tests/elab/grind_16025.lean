@@ -71,11 +71,11 @@ end Step
 -- Within the limit, the configuration is unchanged.
 /--
 info: Try these:
-  [apply] grind only [= Nat.min_def, #35e2, #10ba]
+  [apply] grind only [= Nat.min_def, #aacc, #588b]
   [apply] grind only [= Nat.min_def]
   [apply] grind =>
     instantiate only [= Nat.min_def]
-    cases #35e2 <;> cases #10ba
+    cases #aacc <;> cases #588b
 -/
 #guard_msgs in
 example (a b c : Nat) (h : a ≤ b) : min a c ≤ min b c := by grind?

@@ -99,7 +99,7 @@ private def isGadget (declName : Name) : Bool :=
   declName == ``Grind.nestedDecidable || declName == ``Grind.leftInv
 
 private def isBuiltin (declName : Name) : Bool :=
-  declName == ``ite || declName == ``dite || declName == ``cast
+  declName == ``ite || declName == ``dite || declName == ``cond || declName == ``cast
 
 /-- Result for helper function `isArithOfCastLike` -/
 private inductive Result where

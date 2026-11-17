@@ -89,7 +89,7 @@ but the mapping must be a bijection.
 
 Simplified compared to `Meta.simp`'s `isPerm`:
 - Uses de Bruijn indices instead of metavariables
-- No `.proj` (folded into applications) or `.letE` (zeta-expanded) cases
+- Only decision projections remain; `.letE` terms are zeta-expanded.
 -/
 private abbrev IsPermM := ReaderT Nat $ StateT (Array (Option Nat)) $ Except Unit
 
@@ -112,6 +112,7 @@ private partial def isPermAux (a b : Expr) : IsPermM Unit := do
       | some pj' => unless pj == pj' do throw ()
     else throw ()
   | .app f₁ a₁, .app f₂ a₂ => isPermAux f₁ f₂; isPermAux a₁ a₂
+  | .proj ``Decidable 0 d, .proj ``Decidable 0 d' => isPermAux d d'
   | .mdata _ s, t => isPermAux s t
   | s, .mdata _ t => isPermAux s t
   | .forallE _ d₁ b₁ _, .forallE _ d₂ b₂ _ => isPermAux d₁ d₂; withReader (· + 1) (isPermAux b₁ b₂)

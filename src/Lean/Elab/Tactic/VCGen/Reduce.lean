@@ -46,8 +46,10 @@ no further progress is made:
 Returns `none` when no reduction was possible. Maintains maximal sharing via the `SymM`
 sharing builders and `shareCommonInc`, and the SymM no-exposed-reducibles invariant.
 -/
-public partial def reduceHead? (e : Expr) : SymM (Option Expr) :=
-  withReducible <| go none e.getAppFn e.getAppRevArgs
+public partial def reduceHead? (e : Expr) : SymM (Option Expr) := do
+  -- Projection delta reduction exposes kernel projections until the head reduction finishes.
+  let result ← withoutFoldProjsCheck <| withReducible <| go none e.getAppFn e.getAppRevArgs
+  result.mapM fun e => do shareCommon (← foldProjs e)
   where
     go lastReduction f rargs := do
       match f with

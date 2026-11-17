@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.Tactic.Grind.Types
 import Init.Grind.Util
 import Lean.Meta.Tactic.Grind.Util
+import Lean.Meta.Decidable
 import Lean.Meta.Sym.Canon
 namespace Lean.Meta.Grind
 /-!
@@ -23,7 +24,8 @@ def checkEqc (root : ENode) : GoalM Unit := do
     assert! isSameExpr (← getRoot curr) root.self
     -- Check congruence root. Literals are not in the congruence table: given `x = 1`, the term `-1`
     -- is congruent to `-x`, but the satellite solvers are responsible for `-x = -1`.
-    if curr.isApp && (← getLitKind curr) matches .notLit then
+    if (curr matches .proj ``Decidable 0 _) ||
+        (curr.isApp && (← getLitKind curr) matches .notLit) then
       if let some { e } := (← get).congrTable.find? { e := curr } then
         if (← hasSameType e.getAppFn curr.getAppFn) then
           assert! isSameExpr e (← getCongrRoot curr)
@@ -99,6 +101,11 @@ def checkParents (e : Expr) : GoalM Unit := do
         unless (← checkMatchCondParent e parent) do
           throwError "e: {e}, parent: {parent}"
         assert! (← checkMatchCondParent e parent)
+      else if let .proj ``Decidable 0 d := parent then
+        let some (p, _) ← getBoolDecision? parent | unreachable!
+        let p ← shareCommon p
+        unless (← checkChild e d <||> checkChild e p) do
+          throwError "e: {e}, parent: {parent}"
       else
         let mut found := false
         -- There is an argument `arg` s.t. root of `arg` is `e`.
@@ -158,10 +165,19 @@ def checkCongrTable : GoalM Unit := do
       | throwError "`grind` internal error, stale congruence table entry{indentExpr e}"
     assert! isSameExpr e e'
 
+def checkCondParents : GoalM Unit := do
+  for (key, parents) in (← get).condParents.toList do
+    assert! isSameExpr (← getRoot key.expr) key.expr
+    for parent in parents.elems do
+      assert! isCond parent
+      let condition ← shareCommon (← condCondition parent)
+      assert! isSameExpr (← getRoot condition) key.expr
+
 /-- Checks invariants if `grind.debug` is enabled. -/
 public def checkInvariants (expensive := false) : GoalM Unit := do
   if (← isDebugEnabled) then
     checkCongrTable
+    checkCondParents
     for e in (← getExprs) do
       let node ← getENode e
       checkParents node.self

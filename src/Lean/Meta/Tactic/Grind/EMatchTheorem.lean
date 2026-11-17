@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Extension
 import Lean.Meta.Tactic.Grind.Util
+import Lean.Meta.Decidable
 import Lean.Meta.Tactic.TryThis
 import Lean.Meta.Sym.Util
 import Lean.Meta.Sym.Eta
@@ -278,6 +279,15 @@ private def normConfig : Grind.Config := {}
 private theorem normConfig_zeta : normConfig.zeta = true := rfl
 private theorem normConfig_zetaDelta : normConfig.zetaDelta = true := rfl
 
+/-- Retain the predicate of a decision projection as an indexed subsingleton argument. -/
+private def markDecisionPatterns (e : Expr) : MetaM Expr :=
+  Meta.transform e (pre := fun e => do
+    unless e matches .proj ``Decidable 0 _ do return .continue
+    let some (p, d) ← getBoolDecision? e | return .continue
+    if d.isAppOfArity ``Grind.nestedDecidable 2 then return .continue
+    let p := Meta.canonicalizeDecisionProjections p
+    return .continue (mkProj ``Decidable 0 (mkApp2 (mkConst ``Grind.nestedDecidable) p d)))
+
 def preprocessPattern (pat : Expr) (normalizePattern := true) : MetaM Expr := do
   let pat ← instantiateMVars pat
   let pat ← Sym.unfoldReducible pat
@@ -287,7 +297,7 @@ def preprocessPattern (pat : Expr) (normalizePattern := true) : MetaM Expr := do
     pure pat
   let pat ← detectOffsets pat
   let pat ← foldProjs pat
-  return pat
+  markDecisionPatterns (Meta.canonicalizeDecisionProjections pat)
 
 def EMatchTheoremKind.isEqLhs : EMatchTheoremKind → Bool
   | .eqLhs _ => true
@@ -438,7 +448,7 @@ mark them as found either (see `activateTheoremsForConstsIn`).
 def isOpaqueForIndexing (declName : Name) : Bool :=
   declName == ``OfNat.ofNat || declName == ``Grind.nestedProof
     || declName == ``Grind.eqBwdPattern
-    || declName == ``Grind.nestedDecidable || declName == ``ite
+    || declName == ``Grind.nestedDecidable || declName == ``ite || declName == ``cond
 
 namespace NormalizePattern
 
@@ -597,7 +607,10 @@ def getPatternArgKinds (f : Expr) (numArgs : Nat) : MetaM (Array PatternArgKind)
           return .relevant
 
 private def getPatternFn? (pattern : Expr) (inSupport : Bool) (root : Bool) (argKind : PatternArgKind) : M (Option Expr) := do
-  if !pattern.isApp && !pattern.isConst then
+  if pattern matches .proj ``Decidable 0 _ then
+    if inSupport || !(← isCandidateSymbol ``Decidable.decide root) then return none
+    return some pattern
+  else if !pattern.isApp && !pattern.isConst then
     return none
   else match pattern.getAppFn with
     | f@(.const declName _) =>
@@ -656,6 +669,10 @@ private partial def go (pattern : Expr) (inSupport : Bool) (root : Bool) : M Exp
       return mkOffsetPattern e k
   let some f ← getPatternFn? pattern inSupport root .relevant
     | throwError "invalid pattern, (non-forbidden) application expected{indentD (ppPattern pattern)}"
+  if let .proj ``Decidable 0 d := f then
+    -- Activation tables use declaration names; matching uses the primitive projection.
+    saveSymbol (.const ``Decidable.decide)
+    return mkProj ``Decidable 0 (← goArg d inSupport .relevant .regular)
   assert! f.isConst || f.isFVar
   let parentKind := toParentKind f
   if parentKind matches .regular then
@@ -854,6 +871,10 @@ Pattern variables are represented using de Bruijn indices.
 -/
 def mkEMatchTheoremCore (origin : Origin) (levelParams : Array Name) (numParams : Nat) (proof : Expr)
     (patterns : List Expr) (kind : EMatchTheoremKind) (cnstrs : List EMatchTheoremConstraint := []) (showInfo := false) (minIndexable : Bool := false) : MetaM EMatchTheorem := do
+  let patterns ← forallBoundedTelescope (← inferType proof) numParams fun xs _ =>
+    patterns.mapM fun pattern => do
+      let pattern ← markDecisionPatterns (Meta.canonicalizeDecisionProjections (pattern.instantiateRev xs))
+      return pattern.abstract xs
   -- the patterns have already been selected, there is no point in using priorities here
   let (patterns, symbols, bvarFound) ← NormalizePattern.main patterns (← getGlobalSymbolPriorities) (minPrio := 1)
   if symbols.isEmpty then
@@ -981,7 +1002,18 @@ private def isPatternFnCandidate (f : Expr) : CollectorM Bool := do
   match f with
   | .const declName _ => NormalizePattern.isCandidateSymbol declName (root := true)
   | .fvar .. => return !(← read).xs.contains f
+  | .proj ``Decidable 0 _ => NormalizePattern.isCandidateSymbol ``Decidable.decide (root := true)
   | _ => return false
+
+private def getPatternArgs (e : Expr) : Array Expr :=
+  match e with
+  | .proj ``Decidable 0 d => #[d]
+  | _ => e.getAppArgs
+
+private def getPatternArgKinds (e : Expr) : MetaM (Array NormalizePattern.PatternArgKind) :=
+  match e with
+  | .proj ``Decidable 0 _ => pure #[.relevant]
+  | _ => NormalizePattern.getPatternArgKinds e.getAppFn e.getAppNumArgs
 
 private def addNewPattern (p : Expr) : CollectorM Unit := do
   trace[grind.debug.ematch.pattern] "found pattern: {ppPattern p}"
@@ -997,6 +1029,7 @@ private def collectPatternBVars (p : Expr) : List Nat :=
 where
   go (e : Expr) : StateM (List Nat) Unit := do
     match e with
+    | .proj _ _ b => go b
     | .app f a    => go f; go a
     | .mdata _ b  => go b
     | .bvar idx   => modify fun s => if s.contains idx then s else idx :: s
@@ -1016,7 +1049,7 @@ Returns `true` if pattern `p` contains a child `c` such that
 private def hasChildWithSameNewBVars (p : Expr)
     (argKinds : Array NormalizePattern.PatternArgKind) (alreadyFound : Std.HashSet Nat) : CoreM Bool := do
   let s := diff (collectPatternBVars p) alreadyFound
-  for arg in p.getAppArgs, argKind in argKinds do
+  for arg in getPatternArgs p, argKind in argKinds do
     unless argKind.isSupport do
     unless arg.isBVar do
     unless isOffsetPattern? arg |>.isSome do
@@ -1028,10 +1061,10 @@ private def hasChildWithSameNewBVars (p : Expr)
 private partial def collect (e : Expr) : CollectorM Unit := do
   if (← get).done then return ()
   match e with
-  | .app .. =>
+  | .app .. | .proj ``Decidable 0 _ =>
     trace[grind.debug.ematch.pattern] "collect: {e}"
     let f := e.getAppFn
-    let argKinds ← NormalizePattern.getPatternArgKinds f e.getAppNumArgs
+    let argKinds ← getPatternArgKinds e
     if (← isPatternFnCandidate f) then
       let saved ← getThe NormalizePattern.State
       try
@@ -1052,7 +1085,7 @@ private partial def collect (e : Expr) : CollectorM Unit := do
         trace[grind.debug.ematch.pattern] "skip, exception during normalization{indentD ex.toMessageData}"
         -- restore state and continue search
         set saved
-    let args := e.getAppArgs
+    let args := getPatternArgs e
     for arg in args, argKind in argKinds do
       trace[grind.debug.ematch.pattern] "arg: {arg}, support: {argKind.isSupport}"
       unless argKind.isSupport do
@@ -1109,7 +1142,7 @@ private def normalizePattern? (e : Expr) (argKinds : Array NormalizePattern.Patt
       4- `c` is not a bound variable.
       5- `c` is also a candidate.
       -/
-      for arg in e.getAppArgs, argKind in argKinds do
+      for arg in getPatternArgs e, argKind in argKinds do
         unless argKind.isSupport do
         unless arg.isFVar do
         unless isOffsetPattern? arg |>.isSome do
@@ -1133,16 +1166,16 @@ where
   go (e : Expr) : CollectorM Unit := do
     if (← get).done then return ()
     match e with
-    | .app .. =>
+    | .app .. | .proj ``Decidable 0 _ =>
       trace[grind.debug.ematch.pattern] "collect: {e}"
       let f := e.getAppFn
-      let argKinds ← NormalizePattern.getPatternArgKinds f e.getAppNumArgs
+      let argKinds ← getPatternArgKinds e
       if (← isPatternFnCandidate f) then
         trace[grind.debug.ematch.pattern] "candidate: {e}"
         if let some p ← normalizePattern? e argKinds minIndexable then
           addNewPattern p
           return ()
-      let args := e.getAppArgs
+      let args := getPatternArgs e
       for arg in args, argKind in argKinds do
         unless isOffsetPattern? arg |>.isSome do
         trace[grind.debug.ematch.pattern] "arg: {arg}, support: {argKind.isSupport}"
@@ -1220,14 +1253,14 @@ private partial def collectGroundPattern? (proof : Expr) (xs : Array Expr) (sear
 where
   visit? (e : Expr) : CollectorM (Option Expr) := do
     match e with
-    | .app .. =>
+    | .app .. | .proj ``Decidable 0 _ =>
       let f := e.getAppFn
       if (← isPatternFnCandidate f) then
         let e ← NormalizePattern.normalizePattern e
         return some e
       else
-        let args := e.getAppArgs
-        for arg in args, argKind in (← NormalizePattern.getPatternArgKinds f args.size) do
+        let args := getPatternArgs e
+        for arg in args, argKind in (← getPatternArgKinds e) do
           unless argKind.isSupport do
             if let some r ← visit? arg then
               return r
@@ -1264,10 +1297,10 @@ private def collectUsedPriorities (prios : SymbolPriorities) (searchPlaces : Arr
 /-- Helper function for collecting all singleton patterns. -/
 private partial def collectSingletons (e : Expr) : StateT (Array (Expr × List HeadIndex)) CollectorM Unit := do
   match e with
-  | .app .. =>
+  | .app .. | .proj ``Decidable 0 _ =>
     trace[grind.debug.ematch.pattern] "collect: {e}"
     let f := e.getAppFn
-    let argKinds ← NormalizePattern.getPatternArgKinds f e.getAppNumArgs
+    let argKinds ← getPatternArgKinds e
     if (← isPatternFnCandidate f) then
       -- Reset collector and normalizer states. Recall that we are collecting singleton patterns only.
       set { : NormalizePattern.State }
@@ -1288,7 +1321,7 @@ private partial def collectSingletons (e : Expr) : StateT (Array (Expr × List H
             modify fun s => s.push (p, idxs.toList)
       catch ex =>
         trace[grind.debug.ematch.pattern] "skip, exception during normalization{indentD ex.toMessageData}"
-    let args := e.getAppArgs
+    let args := getPatternArgs e
     for arg in args, argKind in argKinds do
       trace[grind.debug.ematch.pattern] "arg: {arg}, support: {argKind.isSupport}"
       unless argKind.isSupport do
@@ -1482,6 +1515,8 @@ def EMatchTheoremKind.toSyntax (kind : EMatchTheoremKind) : CoreM (TSyntax ``Par
   | .user           => throwError "`grind` theorem kind is not a modifier"
 
 private def save (ref : Syntax) (thm : EMatchTheorem) (isParam : Bool) (minIndexable : Bool) : SelectM Unit := do
+  -- Conditional heads do not activate theorems; explicit roots are activated by the caller.
+  if thm.patterns.any (·.isAppOf ``cond) then return ()
   -- We only save `thm` if the pattern is different from the ones that were already found.
   if (← get).thms.all fun thm' => thm.patterns != thm'.patterns then
     let pats ← thm.patterns.mapM fun p => do

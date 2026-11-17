@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
+import Lean.Meta.Decidable
 import Init.Grind.Lemmas
 import Init.Grind.Util
 public section
@@ -247,7 +248,15 @@ mutual
 
   /-- Constructs a congruence proof for `lhs` and `rhs`. -/
   private partial def mkCongrProof (lhs rhs : Expr) (heq : Bool) : GoalM Expr := do
-    if let .forallE _ p₁ q₁ _ := lhs then
+    if lhs matches .proj ``Decidable 0 _ then
+      let some (p, d) ← getBoolDecision? lhs | unreachable!
+      let some (q, d') ← getBoolDecision? rhs | unreachable!
+      let p ← shareCommon p
+      let q ← shareCommon q
+      let h ← mkEqProofCore p q false
+      let proof := mkApp5 (← mkDecisionProjectionProof ``Decidable.decide_congr) p q h d d'
+      if heq then mkHEqOfEq proof else return proof
+    else if let .forallE _ p₁ q₁ _ := lhs then
       let .forallE _ p₂ q₂ _ := rhs | unreachable!
       let u ← withDefault <| getLevel p₁
       let v ← withDefault <| getLevel q₁

@@ -14,17 +14,14 @@ def c : Int32 := 5
 set_option pp.explicit true in
 /--
 trace: x : Nat
-⊢ @Eq Bool
-    (@decide (@LE.le Nat instLENat x (@OfNat.ofNat Nat (nat_lit 5) (instOfNatNat (nat_lit 5))))
-      (x.decLe (@OfNat.ofNat Nat (nat_lit 5) (instOfNatNat (nat_lit 5)))))
-    false
+⊢ @LE.le Nat instLENat (@OfNat.ofNat Nat (nat_lit 6) (instOfNatNat (nat_lit 6))) x
 -/
 #guard_msgs in
 example (x : Nat) : decide (x ≤ 2 + 3) = false := by grind_norm sym; trace_state; sorry
 
 -- The example from `rc_model.lean`, reduced: the proposition is reordered under `decide`.
 example (x : Int32) : decide (x ≤ Int32.minValue + c) = false := by
-  grind_norm sym; guard_target =ₛ decide (x ≤ -2147483648 + c) = false; sorry
+  grind_norm sym; guard_target =ₛ ¬x ≤ -2147483648 + c; sorry
 
 section sym
 set_option backward.grind.normalizer false
@@ -32,3 +29,17 @@ set_option linter.unusedVariables false in
 example (rc : Int32) (h : decide (rc ≤ Int32.minValue + c) = false) : rc = rc := by grind
 example (rc : Int32) (h : decide (rc ≤ Int32.minValue + c) = false) : ¬ rc ≤ c + 2147483648 := by grind
 end sym
+
+opaque observesDecision : Bool → Prop
+
+-- Preserve the Boolean decision under an observer to inspect the rebuilt instance.
+set_option pp.explicit true in
+/--
+trace: x : Nat
+⊢ observesDecision (x.decLe (@OfNat.ofNat Nat (nat_lit 5) (instOfNatNat (nat_lit 5)))).1
+-/
+#guard_msgs in
+example (x : Nat) : observesDecision (decide (x ≤ 2 + 3)) := by
+  grind_norm sym
+  trace_state
+  sorry

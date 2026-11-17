@@ -96,8 +96,8 @@ structure Context where
   checkReducible : Bool := false
   /--
   When `true`, `shareCommonAlpha` and `shareCommonAlphaInc` throw when hash-consing
-  a new kernel projection (`Expr.proj`), which the `foldProjs` preprocessing step
-  should have folded.
+  a new kernel projection (`Expr.proj`) other than a decision projection, which
+  the `foldProjs` preprocessing step should have folded.
   -/
   checkProj : Bool := false
 
@@ -115,7 +115,9 @@ abbrev Cache := Std.HashMap ExprPtr Expr
 end AlphaShareCommon
 
 /--
-Monad for hash-consing expressions up to alpha-equivalence.
+Monad for hash-consing expressions up to alpha-equivalence and canonical decision projections.
+Fully applied named `Decidable.decide p d` applications become `.proj Decidable 0 d`, even when
+checks are disabled. This definitional normalization does not evaluate the decision instance.
 
 When checks are enabled in the context, hash-consing throws if a **new** term
 violates the `SymM` representation invariants (reducible constants unfolded,
@@ -195,17 +197,21 @@ private def go (e : Expr) : M Expr := do
       if isReducible (← read) declName then throw ()
       modify fun { set, map } => { set := set.insert { expr := e }, map }
       return e
-  | .app f a => visit e (return e.updateApp! (← go f) (← go a))
+  | .app f a => visit e do
+      if e.isAppOfArity ``Decidable.decide 2 then
+        return mkProj ``Decidable 0 (← go a)
+      return e.updateApp! (← go f) (← go a)
   | .letE _ t v b _ => visit e (return e.updateLetE! (← go t) (← go v) (← go b))
   | .forallE _ d b _ => visit e (return e.updateForallE! (← go d) (← go b))
   | .lam _ d b _ => visit e (return e.updateLambdaE! (← go d) (← go b))
   | .mdata _ b => visit e (return e.updateMData! (← go b))
-  | .proj _ _ b => visit e do
-      if (← read).checkProj then throw ()
+  | .proj n i b => visit e do
+      if (← read).checkProj && !(n == ``Decidable && i == 0) then throw ()
       return e.updateProj! (← go b)
 
 /--
-Similar to `shareCommon`, but handles alpha-equivalence.
+Similar to `shareCommon`, but handles alpha-equivalence and replaces fully applied named
+decision projections by their primitive form.
 
 `cache` may contain the results of a previous run that failed with a check violation
 (see `AlphaShareCommonM`); seeding the retry with it avoids revisiting the subterms
@@ -241,6 +247,7 @@ private def saveInc (e : Expr) : AlphaShareCommonM Expr := do
 
 /--
 Incremental variant of `shareCommonAlpha` for expressions constructed from already-shared subterms.
+It applies the same named-to-primitive decision projection normalization.
 
 Use this when an expression `e` was produced by a Lean API (e.g., `inferType`, `mkApp4`) that
 does not preserve maximal sharing, but the inputs to that API were already maximally shared.
@@ -276,13 +283,16 @@ where
       return e
     else
       return prev.expr
-  | .app f a => visitInc e (return e.updateApp! (← go f) (← go a))
+  | .app f a => visitInc e do
+      if e.isAppOfArity ``Decidable.decide 2 then
+        return mkProj ``Decidable 0 (← go a)
+      return e.updateApp! (← go f) (← go a)
   | .letE _ t v b _ => visitInc e (return e.updateLetE! (← go t) (← go v) (← go b))
   | .forallE _ d b _ => visitInc e (return e.updateForallE! (← go d) (← go b))
   | .lam _ d b _ => visitInc e (return e.updateLambdaE! (← go d) (← go b))
   | .mdata _ b => visitInc e (return e.updateMData! (← go b))
-  | .proj _ _ b => visitInc e do
-      if (← read).checkProj then throw {}
+  | .proj n i b => visitInc e do
+      if (← read).checkProj && !(n == ``Decidable && i == 0) then throw {}
       return e.updateProj! (← go b)
 
 end Lean.Meta.Sym

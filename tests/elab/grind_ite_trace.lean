@@ -2,6 +2,8 @@ module
 public import Std.Data.HashMap
 public import Std.Data.TreeMap
 
+/-! Test `grind` suggestions for normalization of conditional expressions. -/
+
 inductive IfExpr
   | lit : Bool → IfExpr
   | var : Nat → IfExpr

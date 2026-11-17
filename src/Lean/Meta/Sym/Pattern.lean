@@ -8,6 +8,8 @@ prelude
 public import Lean.Meta.Sym.SymM
 public import Lean.Data.AssocList
 import Lean.Meta.SynthInstance
+import Lean.Meta.WHNF
+import Lean.Meta.Decidable
 import Lean.Meta.Sym.InstantiateS
 import Lean.Meta.Sym.AbstractS
 import Lean.Meta.Sym.InstantiateMVarsS
@@ -45,7 +47,7 @@ framework (`Sym`). The design prioritizes performance by using a two-phase appro
 
 # Key design decisions:
 - Preprocessing unfolds reducible definitions and performs beta/zeta reduction
-- Kernel projections are expected to be folded as projection applications before matching
+- Decision projections retain their instances; other kernel projections are folded before matching
 - Assignment conflicts are deferred to pending rather than invoking `isDefEq` inline
 - `instantiateRevS` ensures maximal sharing of result expressions
 -/
@@ -170,7 +172,7 @@ where
     | .letE .. => unreachable! -- We zeta-reduce at `preprocessType`
     | .const .. | .fvar _ | .sort _ | .mvar _ | .lit _ => id
     | .mdata _ b => go b offset isArg
-    | .proj .. => id -- Should not occur in patterns
+    | .proj _ _ b => go b offset false
     | .forallE _ d b _
     | .lam _ d b _ => go d offset false ∘ go b (offset+1) false
     | .bvar idx => fun mask =>
@@ -615,6 +617,17 @@ partial def process (p : Expr) (e : Expr) : UnifyM Bool := do
   | .forallE .. | .lam .. =>
     pushPending p e
     return true
+  | .proj ``Decidable 0 d =>
+    let d'? := match e.consumeMData with
+      | .proj ``Decidable 0 d' => some d'
+      | e => if e.isAppOfArity ``Decidable.decide 2 then some e.appArg! else none
+    let some d' := d'? | checkLet p e <||> checkLetVar p e <||> checkMVar p e
+    if let .bvar bidx := d then
+      assignExprIfUnassigned bidx d'
+      -- The predicate may occur only in the instance type.
+      pushCheckTypePending ((← get).eAssignment.size - bidx - 1)
+    pushInstPending d d'
+    return true
   | .proj .. =>
     throwError "unexpected kernel projection term during unification/matching{indentExpr e}\npre-process and fold them as projection applications"
   | .fvar _ =>
@@ -675,6 +688,15 @@ where
     processAppWithInfo p e (numArgs - 1) info
 
   processApp (p : Expr) (e : Expr) : UnifyM Bool := withIncRecDepth do
+    if p.isAppOfArity ``Decidable.decide 2 then
+      if let .proj ``Decidable 0 d := e.consumeMData then
+        let some (predicate, _) ← getBoolDecision? e | return false
+        let predicate ← shareCommon predicate
+        unless ← process p.getAppArgs[0]! predicate do return false
+        if let .bvar bidx := p.appArg! then
+          assignExprIfUnassigned bidx d
+        pushInstPending p.appArg! d
+        return true
     let f := p.getAppFn
     let .const declName _ := f | processAppDefault p e
     if (← processConstApp declName p e) then
@@ -1122,6 +1144,11 @@ def isDefEqMainImpl (t : Expr) (s : Expr) : DefEqM Bool := do
     else
       return false
   | .bvar _, _ | _, .bvar _ => unreachable!
+  | .proj ``Decidable 0 d, .proj ``Decidable 0 d' => isDefEqI d d'
+  | .proj ``Decidable 0 d, s =>
+    if s.isAppOfArity ``Decidable.decide 2 then isDefEqI d s.appArg! else return false
+  | t, .proj ``Decidable 0 d =>
+    if t.isAppOfArity ``Decidable.decide 2 then isDefEqI t.appArg! d else return false
   | .proj .., _ | _, .proj .. =>
     throwError "unexpected kernel projection term during structural definitional equality{indentExpr t}\nand{indentExpr s}\npre-process and fold them as projection applications"
     return false

@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.SimpUtil
 public import Lean.Meta.Tactic.Grind.NormSym
+import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Sym.Simp.Main
 import Lean.Meta.Sym.Util
 import Lean.Meta.Tactic.Simp.Main
@@ -27,11 +28,9 @@ def normalizeImp (e : Expr) (config : Grind.Config) : MetaM Expr := do
     let (r, _) ← Meta.simp e (← Grind.getSimpContext config) (← Grind.getSimprocs)
     return r.expr
   else Sym.SymM.run do
-    let e ← Sym.preprocessExpr e
-    let methods := mkNormSymMethods config (← getNormSymTheorems)
-    let (r, _) ← Sym.Simp.SimpM.run (Sym.Simp.simp e) methods
-    match r with
-    | .rfl .. => return e
-    | .step e' .. => return e'
+    let thms ← getNormSymTheorems
+    let (r, _, _) ← symNorm e (mkNormSymMethods config thms)
+      (mkNormSymDSimpMethods config thms) {} {}
+    return r.expr
 
 end Lean.Meta.Grind

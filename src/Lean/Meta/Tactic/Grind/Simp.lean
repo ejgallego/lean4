@@ -13,6 +13,7 @@ import Lean.Meta.Tactic.Grind.MatchDiscrOnly
 import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
 import Lean.Meta.Sym.Util
 import Lean.Meta.Sym.Simp.Main
+import Lean.Meta.Sym.Simp.Simproc
 import Lean.Meta.Sym.DSimp.Main
 public section
 namespace Lean.Meta.Grind
@@ -21,18 +22,49 @@ namespace Lean.Meta.Grind
 def isLegacyNormalizer : CoreM Bool :=
   return backward.grind.normalizer.get (← getOptions)
 
+private def dsimpDecisionPredicate (dmethods : Sym.DSimp.Methods) : Sym.Simp.Simproc := fun e => do
+  let .proj ``Decidable 0 inst := e | return .rfl
+  let some (p, _) ← Meta.getBoolDecision? e | return .rfl (done := true)
+  let p ← Sym.shareCommon p
+  -- Recovered predicates can themselves contain decision projections.
+  let nested ← Sym.Simp.simp p
+  let (p', proof?, cd) := match nested with
+    | .rfl _ cd => (p, none, cd)
+    | .step p' h _ cd => (p', some h, cd)
+  let (r, _) ← Sym.DSimp.DSimpM.run (Sym.DSimp.dsimp p') dmethods
+  let p' := match r with
+    | .rfl .. => p'
+    | .step p' .. => p'
+  if Sym.isSameExpr p p' then return .rfl (done := true) (contextDependent := cd)
+  let .some inst' ← trySynthInstance (mkApp (mkConst ``Decidable) p')
+    | return .rfl (done := true) (contextDependent := cd)
+  let inst' ← Sym.shareCommon inst'
+  let c' ← Sym.shareCommon (mkProj ``Decidable 0 inst')
+  if Sym.isSameExpr e c' then return .rfl (done := true) (contextDependent := cd)
+  let h ← match proof? with
+    | none => mkEqRefl p'
+    | some h => pure h
+  let proof := mkApp5 (← mkDecisionProjectionProof ``Decidable.decide_congr) p p' h inst inst'
+  return .step c' proof (done := true) (contextDependent := cd)
+
 /--
 The `Sym.simp`-based normalization step: `Sym.simp` with `methods`, then `Sym.dsimp` of the result
-with `dmethods`. The two passes are independent, and their states are threaded through.
+with `dmethods`. Their states are threaded through independently.
 
 `Sym.simp` does not visit the fixed arguments of an application, e.g. the implicit objects of a
 morphism composition, while the legacy normalizer `dsimp`s them (`Simp.Config.dsimp`). A beta-redex
 or a projection of a structure instance left in such an argument makes the term miss the E-matching
 patterns of its theorems, so the `dsimp` pass reduces them. Its result is definitionally equal to
-the `simp` result, so the proof is the one of the `simp` pass.
+the `simp` result, so this step retains the proof of the `simp` pass.
 
-`Sym` requires kernel projections to be folded into projection applications. The legacy normalizer
-accepts them, so `preprocessImpl` folds them only afterwards; they are folded here first.
+The predicate retained in a primitive decision's instance type is not a structural child. A final
+pass visits these predicates from the inside out, applies `dmethods`, and re-synthesizes changed
+decisions with congruence proofs. This pass does not restart logical or arithmetic normalization.
+Its cache is separate from the main simplifier's cache because its methods differ.
+
+`Sym` retains primitive `Decidable` projections and requires other kernel projections to be folded
+into projection applications. The legacy normalizer accepts them, so `preprocessImpl` folds them
+only afterwards; they are folded here first.
 -/
 def symNorm (e : Expr) (methods : Sym.Simp.Methods) (dmethods : Sym.DSimp.Methods)
     (s : Sym.Simp.State) (ds : Sym.DSimp.State) : Sym.SymM (Simp.Result × Sym.Simp.State × Sym.DSimp.State) := do
@@ -45,7 +77,15 @@ def symNorm (e : Expr) (methods : Sym.Simp.Methods) (dmethods : Sym.DSimp.Method
   let e := match r with
     | .rfl .. => e
     | .step e .. => e
-  return ({ expr := e, proof? }, s, ds)
+  let result : Simp.Result := { expr := e, proof? }
+  if (e.find? (fun e => e matches .proj ``Decidable 0 _)).isNone then
+    return (result, s, ds)
+  -- Re-entering arithmetic after predicate `dsimp` can restore its previous operator spelling.
+  let (r, _) ← Sym.Simp.SimpM.run (Sym.Simp.simp e) { pre := dsimpDecisionPredicate dmethods }
+  let result' : Simp.Result := match r with
+    | .rfl .. => { expr := e }
+    | .step e h .. => { expr := e, proof? := h }
+  return (← result.mkEqTrans result', s, ds)
 
 /--
 Simplifies `e` with the `Sym.simp`-based normalizer: `Sym.simp` followed by `Sym.dsimp` (see
@@ -71,7 +111,7 @@ private def symDSimpCore (e : Expr) : GrindM Expr := do profileitM Exception "gr
 /-- Simplifies the given expression using the legacy `simp`-based normalizer. -/
 private def legacySimpCore (e : Expr) : GrindM Simp.Result := do profileitM Exception "grind simp" (← getOptions) do
   let simp ← modifyGet fun s => (s.simp, { s with simp := {} })
-  let ctx := (← readThe Context).simp
+  let ctx := (← readThe Context).simp.setBooleanGuardMode true
   /-
   Remark: we used to use `skipIfInShareCommon` as an additional filter to avoid re-visiting expressions
   that have already been fully processed by `grind`. The idea was to use the `inShareCommon` test since
@@ -83,6 +123,7 @@ private def legacySimpCore (e : Expr) : GrindM Simp.Result := do profileitM Exce
   -- let skipIfInShareCommon : Simp.Simproc := fun e => if m.contains { expr := e } then return .done { expr := e } else return .continue
   let methods := (← readThe Context).simpMethods
   -- let methods := { methods with pre := skipIfInShareCommon >> methods.pre }
+  -- The normal form shared with `Sym.simp` keeps decision guards in Boolean form.
   let (r, simp) ← Simp.mainCore e ctx simp (methods := methods)
   modify fun s => { s with simp }
   return r
@@ -97,11 +138,13 @@ private def legacyDSimpCore (e : Expr) : GrindM Expr := do profileitM Exception 
 
 /-- Simplifies the given expression using the `grind` simprocs and normalization theorems. -/
 def simpCore (e : Expr) : GrindM Simp.Result := do
-  if (← isLegacyNormalizer) then legacySimpCore e else symSimpCore e
+  let r ← if (← isLegacyNormalizer) then legacySimpCore e else symSimpCore e
+  return { r with expr := Meta.canonicalizeDecisionProjections r.expr }
 
 /-- Similar to `simpCore`, but uses `dsimp`. -/
 def dsimpCore (e : Expr) : GrindM Expr := do
-  if (← isLegacyNormalizer) then legacyDSimpCore e else symDSimpCore e
+  let e ← if (← isLegacyNormalizer) then legacyDSimpCore e else symDSimpCore e
+  return Meta.canonicalizeDecisionProjections e
 
 set_option compiler.ignoreBorrowAnnotation true in
 /--
@@ -110,7 +153,7 @@ and then applies several other preprocessing steps.
 -/
 @[export lean_grind_preprocess]
 def preprocessImpl (e : Expr) : GoalM Simp.Result := do
-  let e ← instantiateMVars e
+  let e := Meta.canonicalizeDecisionProjections (← instantiateMVars e)
   let r ← simpCore e
   /-
   **Note**: Some transformation performed by `simp` may introduce metavariables.
@@ -159,7 +202,7 @@ A lighter version of `preprocess` which produces a definitionally equal term,
 but ensures assumptions made by `grind` are satisfied.
 -/
 def preprocessLight (e : Expr) : GoalM Expr := do
-  let e ← instantiateMVars e
+  let e := Meta.canonicalizeDecisionProjections (← instantiateMVars e)
   shareCommon (← canon (← Sym.normalizeLevels (← foldProjs (← eraseIrrelevantMData (← markNestedSubsingletons (← Sym.unfoldReducible e))))))
 
 end Lean.Meta.Grind

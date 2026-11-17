@@ -14,6 +14,7 @@ import Lean.Meta.Tactic.Simp.Diagnostics
 import Lean.Meta.Tactic.Simp.Rewrite
 import Lean.Meta.Tactic.Grind.MarkAccessible
 import Lean.Meta.Tactic.Grind.Proj
+import Lean.Meta.Tactic.Grind.Propagate
 import Lean.Meta.Tactic.Grind.ForallProp
 import Lean.Meta.Tactic.Grind.CtorIdx
 import Lean.Meta.Tactic.Grind.Intro
@@ -94,6 +95,9 @@ def mkMethods (evalTactic? : Option EvalTactic := none) : CoreM Methods := do
     propagateUp := fun e => do
       propagateForallPropUp e
       propagateReflCmp e
+      if e matches .proj ``Decidable 0 _ then
+        propagateDecisionUp e
+        return ()
       let .const declName _ := e.getAppFn | return ()
       propagateProjEq e
       propagateCtorIdxUp e
@@ -102,6 +106,9 @@ def mkMethods (evalTactic? : Option EvalTactic := none) : CoreM Methods := do
     propagateDown := fun e => do
       propagateForallPropDown e
       propagateLawfulEqCmp e
+      if e matches .proj ``Decidable 0 _ then
+        propagateDecisionDown e
+        return ()
       let .const declName _ := e.getAppFn | return ()
       if let some props := builtinPropagators.down[declName]? then
        props.forM fun prop => prop e

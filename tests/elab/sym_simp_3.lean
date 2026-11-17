@@ -163,7 +163,7 @@ example (f g : Nat → Nat → Nat) : (bif a + 0 != a then f else g) a (b + 0) =
 trace: a b : Nat
 f g : Nat → Nat → Nat
 h : a = b
-⊢ (bif a != b then id f else id (id g)) a (b + 0) = g a b
+⊢ (if (a != b) = true then id f else id (id g)) a (b + 0) = g a b
 -/
 #guard_msgs in
 example (f g : Nat → Nat → Nat) (h : a = b) : (bif a + 0 != b then id f else id (id g)) a (b + 0) = g a b := by

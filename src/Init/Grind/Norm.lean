@@ -40,6 +40,22 @@ theorem not_false : (¬False) = True := by simp
 theorem not_not (p : Prop) : (¬¬p) = p := by by_cases p <;> simp [*]
 theorem not_and (p q : Prop) : (¬(p ∧ q)) = (¬p ∨ ¬q) := by by_cases p <;> by_cases q <;> simp [*]
 theorem not_or (p q : Prop) : (¬(p ∨ q)) = (¬p ∧ ¬q) := by by_cases p <;> by_cases q <;> simp [*]
+theorem not_cond (c : Bool) (p q : Prop) :
+    (¬cond c p q) = cond c (¬p) (¬q) := by cases c <;> rfl
+
+theorem cond_true_false (c : Bool) : cond c True False = (c = true) := by
+  cases c <;> simp
+
+theorem cond_false_true (c : Bool) : cond c False True = (¬c = true) := by
+  cases c <;> simp
+
+theorem ite_eq_cond {α : Sort u} (p : Prop) (d : Decidable p) (a b : α) :
+    @ite α p d a b = cond d.decide a b := rfl
+
+theorem not_ite_eq_cond {p : Prop} (d : Decidable p) (a b : Prop) :
+    (¬@ite Prop p d a b) = cond d.decide (¬a) (¬b) :=
+  not_cond d.decide a b
+
 theorem not_ite {_ : Decidable p} (q r : Prop) : (¬ite p q r) = ite p (¬q) (¬r) := by by_cases p <;> simp [*]
 theorem not_forall (p : α → Prop) : (¬∀ x, p x) = ∃ x, ¬p x := by simp
 theorem not_exists (p : α → Prop) : (¬∃ x, p x) = ∀ x, ¬p x := by simp
@@ -55,7 +71,7 @@ theorem ite_true_false {_ : Decidable p} : (ite p True False) = p := by
 theorem ite_false_true {_ : Decidable p} : (ite p False True) = ¬p := by
   by_cases p <;> simp
 
-theorem cond_eq_ite (c : Bool) (a b : α) : cond c a b = ite c a b := by
+theorem cond_eq_ite (c : Bool) (a b : α) : cond c a b = @ite _ (c = true) _ a b := by
   cases c <;> simp [*]
 
 theorem Nat.lt_eq (a b : Nat) : (a < b) = (a + 1 ≤ b) := by
@@ -171,10 +187,8 @@ init_grind_norm
   -- Subtype: `grind` splits subtype binders eagerly (`[grind cases eager]`), so quantifiers over
   -- a subtype are stated over the underlying type and the property.
   Subtype.forall Subtype.exists
-  -- ite
-  ite_true_false ite_false_true
   -- Bool cond
-  cond_eq_ite
+  cond_true_false cond_false_true
   -- Bool or
   Bool.or_false Bool.or_true Bool.false_or Bool.true_or Bool.or_eq_true
   -- Bool and

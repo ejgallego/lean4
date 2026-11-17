@@ -151,7 +151,7 @@ structure Config where
   enforceUnfoldReducible : Bool := true
   /--
   When `true`, `shareCommon` maintains the `SymM` invariant that kernel projections
-  have been folded into projection function applications: if a new term contains one,
+  other than decision projections have been folded into projection function applications: if a new term contains one,
   `shareCommon` folds it before adding the term to the table of maximally shared terms.
   `cbv` disables this check because it processes kernel projections natively.
   -/
@@ -261,13 +261,14 @@ def unfoldReducible (e : Expr) : MetaM Expr := do
 
 /--
 Converts nested `Expr.proj`s into projection applications if possible.
-The structural simplifier and pattern matcher do not handle kernel projection
-terms; this preprocessing step folds them into projection function applications.
+Decision projections retain their source proposition in the instance type. Other
+kernel projections are folded into projection function applications.
 -/
 def foldProjs (e : Expr) : MetaM Expr := do
   if Option.isNone <| e.find? fun e => e.isProj then return e
   let post (e : Expr) := do
     let .proj structName idx s := e | return .done e
+    if structName == ``Decidable && idx == 0 then return .done e
     let some info := getStructureInfo? (← getEnv) structName |
       trace[sym.issues] "found `Expr.proj` but `{structName}` is not marked as structure{indentExpr e}"
       return .done e
@@ -392,6 +393,8 @@ Applies hash-consing to `e`. Recall that all expressions in a `grind` goal have
 been hash-consed. We perform this step before we internalize expressions.
 
 This function does not try to `unfoldReducible` and `foldProjs` like `shareCommon`.
+Fully applied named decision projections still become primitive projections without evaluating
+their instances.
 `cache` may contain the results accumulated by a run of `shareCommon` that was
 interrupted by a check violation; see `repairAndShare`.
 -/
@@ -432,6 +435,7 @@ been hash-consed. We perform this step before we internalize expressions.
 
 Depending on the current configuration, this function also maintains the `SymM`
 invariants that reducible constants have been unfolded and kernel projections folded.
+Fully applied named decision projections are always normalized to primitive projections.
 The checks are node-local and are only performed on terms that have not been
 hash-consed before, so already-shared subterms cost nothing. When a violation is
 found, the term is repaired using `unfoldReducible`/`foldProjs` and re-processed.
@@ -443,6 +447,7 @@ def shareCommon (e : Expr) : SymM Expr := do
 
 /--
 Incremental variant of `shareCommon` for expressions constructed from already-shared subterms.
+It applies the same named-to-primitive decision projection normalization.
 
 Use this when an expression `e` was produced by a Lean API (e.g., `inferType`, `mkApp4`) that
 does not preserve maximal sharing, but the inputs to that API were already maximally shared.

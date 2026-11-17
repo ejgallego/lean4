@@ -273,6 +273,34 @@ example (n : Nat) :
     ⦃fun r _ => r = 1 ∨ r = 2⦄ := by
   vcgen
 
+-- A loop contract exposes a guard to symbolic simplification.
+def countDown (n : Nat) : Id Nat
+    ensures r => r = 0 := do
+  let mut i := n
+  while i > 0
+      invariant exit => if exit then i = 0 else True
+      decreasing i
+    do
+    i := i - 1
+  return i
+
+open Lean Meta Sym in
+run_meta SymM.run do
+  withLocalDeclD `p (mkSort .zero) fun p => do
+    withLocalDeclD `d (mkApp (mkConst ``Decidable) p) fun d => do
+      let nat := mkConst ``Nat
+      let raw := mkProj ``Decidable 0 d
+      let body := mkApp4 (mkConst ``cond [Level.one]) nat raw (mkNatLit 1) (mkNatLit 2)
+      let e := mkApp (mkLambda `x .default nat body) (mkNatLit 0)
+      let e ← withoutFoldProjsCheck <| shareCommon e
+      let some result ← Lean.Elab.Tactic.VCGen.reduceHead? e |
+        throwError "beta reduction made no progress"
+      unless result.isAppOfArity ``cond 4 && result.getArg! 1 == raw do
+        throwError "head reduction lost its decision guard"
+      unless ← isDefEq result body do
+        throwError "head reduction changed the result"
+      result.checkMaxShared
+
 example (p : Prop) [Decidable p] (b : Bool) :
     ⦃fun _ => True⦄
       (do

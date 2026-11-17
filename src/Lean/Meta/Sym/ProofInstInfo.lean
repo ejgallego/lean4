@@ -11,6 +11,7 @@ import Lean.Meta.Sym.Util
 import Lean.Meta.Sym.Eta
 import Lean.Meta.LetToHave
 import Lean.Meta.AppBuilder
+import Lean.Meta.Decidable
 namespace Lean.Meta.Sym
 
 /--
@@ -55,7 +56,7 @@ public def preprocessType (type : Expr) (zetaReduceLHSOnly := false) (zetaDelta 
   if zetaReduceLHSOnly then
     pure type
   else
-    Sym.foldProjs type
+    Sym.foldProjs (Meta.canonicalizeDecisionProjections type)
 
 /--
 Analyzes whether the given free variables (aka arguments) are proofs or instances.

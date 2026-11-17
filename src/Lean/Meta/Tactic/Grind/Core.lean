@@ -43,7 +43,8 @@ congruence table (see `internalizeMatchCond`): reinserting one would add it, has
 root of its argument, of which it is not a registered parent, and the entry would go stale.
 -/
 private def isCongrRelevant (parent : Expr) : Bool :=
-  (parent.isApp && !isMatchCond parent) || parent.isArrow
+  (parent.isApp && !isMatchCond parent) || parent.isArrow ||
+    (parent matches .proj ``Decidable 0 _)
 
 /--
 Removes `root` parents from the congruence table.
@@ -242,12 +243,15 @@ where
     propagateBeta lams₁ fns₁
     propagateBeta lams₂ fns₂
     let toPropagateSolvers ← Solvers.mergeTerms rhsRoot lhsRoot heqProofs
+    let condParents ← mergeCondParents lhsRoot.self rhsNode.root
     resetParentsOf lhsRoot.self
     copyParentsTo parents rhsNode.root
     unless (← isInconsistent) do
       updateMT rhsRoot.self
     unless (← isInconsistent) do
       for parent in parents.elems do
+        propagateUp parent
+      for parent in condParents.elems do
         propagateUp parent
       for e in toPropagateDown do
         propagateDown e

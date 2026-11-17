@@ -28,7 +28,8 @@ public def withLetDeclS [Monad n] [MonadControlT MetaM n] [MonadLiftT SymM n]
 
 /--
 Instantiates metavariables and applies `shareCommon`, which maintains the `SymM`
-invariants enabled in the current configuration (see `Sym.Config`).
+invariants enabled in the current configuration (see `Sym.Config`) and normalizes named
+decision projections to primitive projections without evaluating their instances.
 -/
 public def preprocessExpr (e : Expr) : SymM Expr := do
   -- This function relies on `shareCommon` to unfold reducible constants, so the
