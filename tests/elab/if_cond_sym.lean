@@ -69,7 +69,7 @@ run_meta do
           unless input.isAppOf ``ite && e == inputs[2]! do
             throwError "unresolved guard changed its native conditional"
           Meta.check proof
-          unless ← isDefEq (← inferType proof) (← mkEq input e) do
+          unless ← isDefEq (← Meta.inferType proof) (← mkEq input e) do
             throwError "conditional conversion proof has incorrect endpoints"
         | .rfl true true =>
           if input.isAppOf ``ite then
@@ -115,10 +115,10 @@ run_meta do
       unless output == a do throwError "wrong conditional branch: {output}, expected {a}"
       unless (proof.find? (fun e => e.isConstOf ``ite)).isNone do
         throwError "native conditional proof contains ite"
-      let some (_, lhs, _) := (← inferType proof).eq? | throwError "expected equality proof"
+      let some (_, lhs, _) := (← Meta.inferType proof).eq? | throwError "expected equality proof"
       unless lhs.isAppOfArity ``cond 4 do throwError "native conditional proof has an ite source"
       check proof
-      unless ← isDefEq (← inferType proof) (← mkEq input output) do
+      unless ← isDefEq (← Meta.inferType proof) (← mkEq input output) do
         throwError "conditional proof does not prove its result"
 
 example : (if (2 : Nat) < 3 then 7 else 9) = 7 := by cbv
@@ -363,7 +363,7 @@ run_meta do
         | throwError "did not simplify the hidden source predicate"
       unless output.isConstOf ``Bool.true do throwError "wrong decision result"
       check proof
-      unless ← isDefEq (← inferType proof) (← mkEq input output) do
+      unless ← isDefEq (← Meta.inferType proof) (← mkEq input output) do
         throwError "decision proof does not prove its result"
 
 abbrev PatternSharingDecision (p : Prop) := Decidable p
@@ -398,23 +398,35 @@ namespace IfCondCbvRegistry
 
 open Lean Meta Sym Tactic.Cbv in
 run_meta do
+  let native ← builtinCbvSimprocDeclsRef.get
+  let entries := native.keys.toArray.filter fun (name, _) =>
+    privateToUserName name == `Lean.Meta.Sym.Simp.simpDecideCbv
+  unless entries.size == 1 do
+    throwError "expected one builtin decision simproc, found {entries.size}"
+  let (declName, nativeKeys) := entries[0]!
+  let some environmentKeys ← getCbvSimprocDeclKeys? declName
+    | throwError "decision simproc environment keys missing"
+  let expectedKeys := #[DiscrTree.Key.proj ``Decidable 0 0]
+  unless nativeKeys == expectedKeys && environmentKeys == expectedKeys do
+    throwError "decision key producer did not use the primitive projection"
+  let registry ← getCbvSimprocs
+  let nativeRegistry ← builtinCbvSimprocsRef.get
   let p := mkConst ``True
   let d := mkConst ``instDecidableTrue
-  for input in #[mkApp2 (mkConst ``Decidable.decide) p d, mkProj ``Decidable 0 d] do
-    let input := canonicalizeDecisionProjections input
-    let proc : Sym.Simp.Simproc := fun e => do
-      unless e == input do throwError "CBV dispatch replaced the decision expression"
-      let value ← Sym.shareCommon (mkConst ``Bool.true)
-      return .step value (← Sym.mkEqRefl value)
-    let legacyKeys := #[DiscrTree.Key.const ``Decidable.decide 2, .star, .star]
-    let registry := CbvSimprocs.addCore {} legacyKeys `legacyDecision .pre proc
-    Sym.SymM.run do
-      let input ← Sym.shareCommon input
-      let .step value proof .. ← Sym.Simp.SimpM.run'
-          (cbvSimprocDispatch registry.pre registry.erased input) {}
-        | throwError "generic legacy decision simproc was not retrieved"
-      unless value.isConstOf ``Bool.true do throwError "wrong decision result"
-      check proof
+  for registry in #[registry, nativeRegistry] do
+    for input in #[mkApp2 (mkConst ``Decidable.decide) p d, mkProj ``Decidable 0 d] do
+      Sym.SymM.run do
+        let input ← Sym.shareCommon (canonicalizeDecisionProjections input)
+        let candidates := Sym.getMatchWithExtra (← getMCtx) registry.pre input
+        unless candidates.any (fun candidate => candidate.1.declName == declName) do
+          throwError "registered builtin decision simproc was not retrieved"
+        let .step value proof .. ← Sym.Simp.SimpM.run'
+            (cbvSimprocDispatch registry.pre registry.erased input) {}
+          | throwError "registered builtin decision simproc did not reduce the projection"
+        unless value.isConstOf ``Bool.true do throwError "wrong decision result"
+        check proof
+        unless ← isDefEq (← Meta.inferType proof) (← mkEq input value) do
+          throwError "decision simproc proof has incorrect endpoints"
 
 def RegistryEven (n : Nat) : Prop := ∃ k, n = 2 * k
 instance : DecidablePred RegistryEven := fun n =>
@@ -436,14 +448,5 @@ open Classical in
 example : (registry_raw_decision% RegistryEven 2) = true := by cbv
 open Classical in
 example : (registry_raw_decision% RegistryEven 3) = false := by cbv
-
-open Lean Meta Sym Tactic.Cbv in
-run_meta do
-  let specializedKeys := #[DiscrTree.Key.const ``Decidable.decide 2, .star, .const ``True 0]
-  let registry := CbvSimprocs.addCore {} specializedKeys `specializedDecision .pre
-    (fun _ => throwError "specialized decision was widened")
-  let input := mkProj ``Decidable 0 (mkConst ``instDecidableTrue)
-  unless (Sym.getMatch (← getMCtx) registry.pre input).isEmpty do
-    throwError "specialized decision keys acquired a generic alias"
 
 end IfCondCbvRegistry
