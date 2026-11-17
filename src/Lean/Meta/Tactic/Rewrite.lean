@@ -111,6 +111,11 @@ where
 /--
 Rewrite `e` using `heq` in the context of `mvarId`.
 Returns the result of the rewrite, the metavariable `mvarId` is not assigned.
+
+Occurrence abstraction uses `kabstract`, including its targeted preparation of computational
+decision projections. The resulting motive is checked before constructing the equality proof.
+Dependencies that survive preparation still require generalization or transport; an ill-typed
+motive is reported as a rewrite failure.
 -/
 def _root_.Lean.MVarId.rewrite (mvarId : MVarId) (e : Expr) (heq : Expr)
     (symm : Bool := false) (config := { : Rewrite.Config }) : MetaM RewriteResult :=
@@ -138,7 +143,7 @@ def _root_.Lean.MVarId.rewrite (mvarId : MVarId) (e : Expr) (heq : Expr)
             throwTacticEx `rewrite mvarId m!"Did not find an occurrence of the pattern{indentExpr pat}\nin the target expression{indentExpr tgt}"
           -- construct rewrite proof
           let eNew := eAbst.instantiate1 rhs
-          let eNew ← instantiateMVars eNew
+          let eNew := normalizeBoolTests (← instantiateMVars eNew)
           let eNew ← if rhs.hasBinderNameHint then eNew.resolveBinderNameHint else pure eNew
           let eType ← inferType e
           let motive := Lean.mkLambda `_a BinderInfo.default α eAbst
