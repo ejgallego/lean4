@@ -610,8 +610,19 @@ private def propagateExpectedType (arg : Arg) : M Unit := do
               trace[Elab.app.propagateExpectedType] "propagation pending, unification of expected type and resulting type failed"
               return false
 
+/--
+Elaborate a saturated `ite c t e` application as `cond d.1 t e`, where `d` is the `Decidable c`
+argument, so that `ite` applications and `if c then t else e` have one representation.
+`@ite` applications are kept: they state facts about the proposition and instance arguments.
+-/
+private def canonIte (e : Expr) : MetaM Expr := do
+  return (canonicalizeIte? (← instantiateMVars e)).getD e
+
 /-- This method executes after all application arguments have been processed. -/
 private def finalize : M Expr := do
+  let e ← finalizeCore
+  if (← get).etaArgs.isEmpty && !(← read).explicit then canonIte e else return e
+where finalizeCore : M Expr := do
   withTraceNode `Elab.app.finalize (fun
       | .ok e => return m!"{e} : {← inferType e}"
       | .error ex => return m!"error finalizing{indentD (← get).f}\n{ex.toMessageData}") do

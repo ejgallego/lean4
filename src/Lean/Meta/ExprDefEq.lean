@@ -2552,10 +2552,16 @@ private def isDefEqProjFnProj (t s : Expr) : MetaM Bool := do
     -- Only a metavariable structure is stuck; otherwise reducing both projections is cheaper.
     unless n == m && i == j && (b.getAppFn.isMVar || c.getAppFn.isMVar) do return false
     checkpointDefEq <| if isClass (← getEnv) n then withImplicitConfig (Meta.isExprDefEqAux b c) else Meta.isExprDefEqAux b c
-  | .proj n i b, v => go n i v (fun a => Meta.isExprDefEqAux b a)
-  | v, .proj n i b => go n i v (fun a => Meta.isExprDefEqAux a b)
+  | .proj n i b, v => go n i v (fun a => Meta.isExprDefEqAux b a) <||> boolTest n i b v (fun a => Meta.isExprDefEqAux b a)
+  | v, .proj n i b => go n i v (fun a => Meta.isExprDefEqAux a b) <||> boolTest n i b v (fun a => Meta.isExprDefEqAux a b)
   | _, _ => return false
 where
+  /-- A Boolean `v` is the decision of `v = true`: solve `?d.1 =?= v` with the canonical instance. -/
+  boolTest (n : Name) (i : Nat) (d v : Expr) (k : Expr → MetaM Bool) : MetaM Bool := do
+    unless n == ``Decidable && i == 0 && !v.getAppFn.isMVar do return false
+    unless d.getAppFn.isMVar || d.isAppOfArity ``instDecidableEqBool 2 do return false
+    unless (← getEnv).contains ``instDecidableEqBool do return false
+    checkpointDefEq <| withImplicitConfig <| k (mkApp2 (mkConst ``instDecidableEqBool) v (mkConst ``Bool.true))
   go (n : Name) (i : Nat) (v : Expr) (k : Expr → MetaM Bool) : MetaM Bool := do
     let .const f _ := v.getAppFn | return false
     let some info := (← getEnv).getProjectionFnInfo? f | return false
@@ -2569,6 +2575,23 @@ private def whnfCoreAtDefEq (e : Expr) : MetaM Expr := do
   else
     whnfCore e
 
+/--
+Below default transparency, two decisions whose records are not exposed constructors are compared
+through their propositions: decisions of propositions that are not definitionally equal are distinct
+even if both instances evaluate to the same Boolean.
+-/
+private def decisionsOfDistinctProps (t s : Expr) : MetaM Bool := do
+  let .proj ``Decidable 0 a := t | return false
+  let .proj ``Decidable 0 b := s | return false
+  if a.getAppFn.isMVar || b.getAppFn.isMVar then return false
+  unless (← getTransparency) matches .reducible | .instances do return false
+  -- A record exposed as a constructor computes without evaluating an instance.
+  if (← whnfCore a).isAppOf ``Decidable.intro || (← whnfCore b).isAppOf ``Decidable.intro then return false
+  let ta ← whnfR (← inferType a)
+  let tb ← whnfR (← inferType b)
+  unless ta.isAppOfArity ``Decidable 1 && tb.isAppOfArity ``Decidable 1 do return false
+  return !(← checkpointDefEq <| Meta.isExprDefEqAux ta.appArg! tb.appArg!)
+
 set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_is_expr_def_eq]
 partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecDepth do
@@ -2581,6 +2604,7 @@ partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecD
   checkSystem "isDefEq"
   whenUndefDo (isDefEqQuick t s) do
   whenUndefDo (isDefEqProofIrrel t s) do
+  if (← decisionsOfDistinctProps t s) then return false
   if (← isDefEqProjFnProj t s) then return true
   /-
     We also reduce projections here to prevent expensive defeq checks when unifying TC operations.

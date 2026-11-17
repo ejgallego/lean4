@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Meta.CongrTheorems
+public import Lean.Meta.AppBuilder
 public import Lean.Meta.Tactic.Assert
 public import Lean.Meta.Tactic.Refl
 public import Lean.Meta.Tactic.Assumption
@@ -27,6 +28,22 @@ def MVarId.congrPre (mvarId : MVarId) : MetaM (Option MVarId) := do
   try mvarId.hrefl; return none catch _ => pure ()
   if (← mvarId.assumptionCore) then return none
   return some mvarId
+
+/--
+Replaces a goal `d₁.1 = d₂.1` between decision projections with `p = q`, the propositions they decide.
+-/
+def MVarId.decisionCongr (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
+  let target ← instantiateMVars (← mvarId.getType)
+  let_expr Eq _ lhs rhs := target.cleanupAnnotations | return mvarId
+  let (.proj ``Decidable 0 d₁, .proj ``Decidable 0 d₂) := (lhs.cleanupAnnotations, rhs.cleanupAnnotations)
+    | return mvarId
+  unless (← getEnv).contains `Decidable.decide_congr do return mvarId
+  let (t₁, t₂) := (← whnfR (← inferType d₁), ← whnfR (← inferType d₂))
+  unless t₁.isAppOfArity ``Decidable 1 && t₂.isAppOfArity ``Decidable 1 do return mvarId
+  let (p, q) := (t₁.appArg!, t₂.appArg!)
+  let h ← mkFreshExprSyntheticOpaqueMVar (← mkEq p q) (← mvarId.getTag)
+  mvarId.assign (mkApp5 (mkConst `Decidable.decide_congr) p q h d₁ d₂)
+  return h.mvarId!
 
 /--
 Asserts the given congruence theorem as fresh hypothesis, and then applies it.
@@ -113,6 +130,7 @@ where
       modify (·.push mvarId)
 
   go (n : Nat) (mvarId : MVarId) : StateRefT (Array MVarId) MetaM Unit := do
+    let mvarId ← mvarId.decisionCongr
     if let some mvarId ← if closePre then withReducible mvarId.congrPre else pure mvarId then
       match n with
       | 0 => post mvarId

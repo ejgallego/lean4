@@ -76,3 +76,20 @@ example (n : Nat) (h : n + 1 = 3) : prj% 1 (mk n) = 3 := by
 example (n : Nat) : prj% 0 (mk n) = prj% 0 (Pt.mk n 0) := rfl
 
 example (n : Nat) : ∃ s : Pt, prj% 0 s = prj% 0 (mk n) := ⟨_, rfl⟩
+
+/-! A Boolean is the decision of its own truth, so proposition-guard lemmas apply to Boolean guards. -/
+
+example (b : Bool) (n : Nat) : (if b then n else n) = n := ite_self n
+example (b : Bool) (h : b = true) (x y : Nat) : (if b then x else y) = x := if_pos h
+
+/-! Projections of exposed constructors compute at reducible transparency, whatever their propositions. -/
+
+open Lean Meta in
+run_meta do
+  let p := mkConst ``True
+  let q := mkApp3 (mkConst ``Eq [1]) (mkConst ``Nat) (mkNatLit 0) (mkNatLit 0)
+  let a := mkApp3 (mkConst ``Decidable.intro) p (mkConst ``Bool.true) (mkConst ``True.intro)
+  let b := mkApp3 (mkConst ``Decidable.intro) q (mkConst ``Bool.true)
+    (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Nat) (mkNatLit 0))
+  unless ← withReducible <| isDefEq (mkProj ``Decidable 0 a) (mkProj ``Decidable 0 b) do
+    throwError "constructor projections did not compute"

@@ -1002,8 +1002,11 @@ theorem PULift.down_up {α : Sort u} (a : α) : Eq (down (up.{v} a)) a := rfl
 /--
 The conditional function.
 
-`cond c x y` is the same as `if c then x else y`, but optimized for a Boolean condition rather than
-a decidable proposition. It can also be written using the notation `bif c then x else y`.
+`cond c x y` takes a Boolean condition and can be written as `if c then x else y`
+or `bif c then x else y`. Ordinary `if` elaboration coerces its condition to `Bool`.
+For a proposition, it exposes the primitive Boolean projection of the synthesized `Decidable`
+instance. Elaboration leaves the instance unreduced so that tactics can recover the original
+proposition from its type; the Boolean computation can be reduced later.
 
 Just like `ite`, `cond` is declared `@[macro_inline]`, which causes applications of `cond` to be
 unfolded. As a result, `x` and `y` are not evaluated at runtime until one of them is selected, and
@@ -1330,8 +1333,11 @@ def dite {α : Sort u} (c : Prop) [h : Decidable c] (t : c → α) (e : Not c �
 /-! # if-then-else -/
 
 /--
-`if c then t else e` is notation for `ite c t e`, "if-then-else", which decides to
-return `t` or `e` depending on whether `c` is true or false. The explicit argument
+`ite c t e`, "if-then-else", returns `t` or `e` depending on whether `c` is true or false.
+Ordinary `if c then t else e` elaboration emits `cond` directly. For a proposition condition,
+it retains the synthesized `Decidable` instance under its primitive Boolean projection.
+Explicit `ite c t e` unfolds definitionally to the corresponding Boolean conditional; it does
+not expose a branch hypothesis. The explicit argument
 `c : Prop` does not have any actual computational content, but there is an additional
 `[Decidable c]` argument synthesized by typeclass inference which actually
 determines how to evaluate `c` to true or false. Write `if h : c then t else e`

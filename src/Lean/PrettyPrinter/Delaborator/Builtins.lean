@@ -1221,6 +1221,14 @@ def delabProj : Delab := do
   let idx := Syntax.mkLit fieldIdxKind (toString (idx + 1));
   `($(e).$idx:fieldIdx)
 
+/-- A decision projection is shown as the `decide p` it computes. -/
+@[builtin_delab proj]
+def delabDecisionProj : Delab := whenNotPPOption getPPExplicit <| whenPPOption getPPNotation do
+  let .proj ``Decidable 0 d ← getExpr | failure
+  guard <| (← inferType d).isAppOfArity ``Decidable 1
+  let p ← withProj <| withType <| withAppArg delab
+  `($(mkIdent `decide) $p)
+
 /--
 This delaborator tries to elide functions which are known coercions.
 For example, `Int.ofNat` is a coercion, so instead of printing `ofNat n` we just print `↑n`,
@@ -1279,10 +1287,24 @@ where
 @[builtin_delab app.cond]
 def delabCond : Delab := whenNotPPOption getPPExplicit <| whenPPOption getPPNotation <| withOverApp 4 do
   guard $ (← getExpr).getAppNumArgs == 4
-  let c ← withAppFn $ withAppFn $ withAppArg delab
+  let p? ← withAppFn $ withAppFn $ withAppArg do
+    let c := (← getExpr).consumeMData
+    withTheReader Lean.SubExpr (fun s => { s with expr := c }) do
+      match c with
+      | .proj ``Decidable 0 d =>
+        let type ← inferType d
+        if type.isAppOfArity ``Decidable 1 then
+          some <$> (withProj <| withType <| withAppArg delab)
+        else pure none
+      | _ =>
+        if c.isAppOfArity ``Decidable.decide 2 then
+          some <$> withNaryArg 0 delab
+        else pure none
   let t ← withAppFn $ withAppArg delab
   let e ← withAppArg delab
-  `(bif $c then $t else $e)
+  if let some p := p? then `(if $p then $t else $e) else
+    let c ← withAppFn $ withAppFn $ withAppArg delab
+    `(if $c = $(mkIdent `true) then $t else $e)
 
 @[builtin_delab app.namedPattern]
 def delabNamedPattern : Delab := do

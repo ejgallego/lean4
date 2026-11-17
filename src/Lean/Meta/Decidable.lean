@@ -49,7 +49,7 @@ def getGuardDecision (c : Expr) : MetaM (Expr × Expr) := do
   return (mkApp3 (mkConst ``Eq [1]) (mkConst ``Bool) c b, mkApp2 (mkConst ``instDecidableEqBool) c b)
 
 /--
-Construct a Boolean conditional guard from the decision `d : Decidable p`.
+Return the guard that `if p then _ else _` elaborates to, given the decision `d : Decidable p`.
 The test `b = true` of a Boolean `b` under its canonical instance is `b` itself; this holds by `rfl`.
 -/
 def mkDecisionGuard (p d : Expr) : Expr :=
@@ -71,7 +71,7 @@ partial def normalizeBoolTests (e : Expr) : Expr :=
       else none
     | _ => none
 
-/-- Rewrite a raw `ite` application into its definitionally equal `cond` application. -/
+/-- Rewrite a raw `ite` application into the `cond` application that `if` elaborates to. -/
 def canonicalizeIte? (e : Expr) : Option Expr := do
   let n := e.getAppNumArgs
   guard <| n >= 5 && e.getAppFn.isConstOf ``ite
@@ -79,7 +79,7 @@ def canonicalizeIte? (e : Expr) : Option Expr := do
   let c := mkApp4 (mkConst ``cond e.getAppFn.constLevels!) args[0]! (mkDecisionGuard args[1]! args[2]!) args[3]! args[4]!
   return mkAppN c (args.extract 5 n)
 
-/-- Rewrite every raw `ite` application in `e` into its definitionally equal `cond` application. -/
+/-- Rewrite every raw `ite` application in `e` into the `cond` application that `if` elaborates to. -/
 partial def canonicalizeItes (e : Expr) : Expr :=
   e.replace fun e => canonicalizeIte? e |>.map canonicalizeItes
 
